@@ -1,0 +1,19 @@
+{
+  "name": "ytsync-plugin",
+  "version": "1.0.0",
+  "main": "dist/app.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.3.36",
+    "@types/youtube": "^0.0.38",
+    "common-tags": "^1.8.0",
+    "ts-loader": "^5.3.3",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3"
+  }
+}
