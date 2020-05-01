@@ -1,5 +1,5 @@
 import Player from "./player";
-import { injectYtRenderedButton, createPlusIcon } from "./util/yt-html";
+import { injectYtRenderedButton, createPlusIcon, createLeaveIcon } from "./util/yt-html";
 import { generateSessionId } from "./util/websocket";
 import { SessionId } from "./util/consts";
 
@@ -30,5 +30,14 @@ window.onload = () => {
     }
     else {
         player.create(videoId, sessionId);
+        const injectLeaveButtonInterval = setInterval(() => {
+            if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
+                injectYtRenderedButton("div#info ytd-menu-renderer div#top-level-buttons", "create-sync-button", "Leave Sync", createLeaveIcon(), () => {
+                    urlParams.delete(SessionId);
+                    window.location.search = urlParams.toString();
+                });
+                clearInterval(injectLeaveButtonInterval);
+            }
+        }, 500);
     }
 };
