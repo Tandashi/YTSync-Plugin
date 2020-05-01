@@ -25,7 +25,7 @@ export const startSeekCheck = (player: YT.Player, interval: number, cb: () => vo
 
 
 export const startUrlChangeCheck = (interval: number, cb: (o: Location, n: Location) => void): () => void => {
-    let old: Location = null;
+    let old: Location = JSON.parse(JSON.stringify(window.location));
     const checkURL = () => {
         const current = window.location;
 

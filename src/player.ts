@@ -15,9 +15,10 @@ interface PlayerOptions {
 }
 
 enum Message {
-    PLAY = "play",
-    PAUSE = "pause",
-    SEEK = "seek"
+    PLAY = 'play',
+    PAUSE = 'pause',
+    SEEK = 'seek',
+    PLAY_VIDEO = 'play-video'
 }
 
 export default class Player {
@@ -39,7 +40,7 @@ export default class Player {
                 autoplay: YT.AutoPlay.AutoPlay
             },
             events: {
-                onReady: (e) => this.onReady(e, sessionId),
+                onReady: (e) => this.onReady(e, sessionId, videoId),
                 onStateChange: (e) => this.onStateChange(e)
             }
         });
@@ -48,33 +49,39 @@ export default class Player {
         window.cucu.player = this.ytPlayer;
     }
 
-    private onReady(_: YT.PlayerEvent, sessionId: string): void {
-        this.connectWs(sessionId);
-
+    private onReady(_: YT.PlayerEvent, sessionId: string, videoId: string): void {
         startSeekCheck(this.ytPlayer, 1000, () => this.onPlayerSeek());
         startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
+
+        this.connectWs(sessionId);
+        this.sendWsMessage(Message.PLAY_VIDEO, videoId);
     }
 
     private onStateChange(event: YT.OnStateChangeEvent): void {
         switch(event.data) {
             case window.YT.PlayerState.PLAYING:
-                this.sendWsMessage(Message.PLAY);
+                this.sendWsTimeMessage(Message.PLAY);
                 break;
             case window.YT.PlayerState.PAUSED:
-                this.sendWsMessage(Message.PAUSE);
+                this.sendWsTimeMessage(Message.PAUSE);
                 break;
         }
     }
 
     private onPlayerSeek(): void {
-        this.sendWsMessage(Message.SEEK);
+        this.sendWsTimeMessage(Message.SEEK);
     }
 
-    private sendWsMessage(message: string) {
-        this.ws.send(`${message} ${this.ytPlayer.getCurrentTime()}`);
+    private sendWsTimeMessage(message: Message) {
+        this.sendWsMessage(message, this.ytPlayer.getCurrentTime().toString());
+    }
+
+    private sendWsMessage(message: Message, data: string) {
+        this.ws.send(`${message} ${data}`);
     }
 
     private onUrlChange(o: Location, n: Location): void {
+        console.log(`URL CHANGE: ${o.href} -> ${n.href}`);
         const oldParams = new URLSearchParams(o.search);
         const newParams = new URLSearchParams(n.search);
 
@@ -83,6 +90,13 @@ export default class Player {
         if(oldSessionId !== null && newSessionId === null) {
             newParams.set(SessionId, oldSessionId);
             changeQueryString(newParams.toString(), undefined);
+        }
+
+        const videoId = newParams.get('v');
+        if(videoId !== null) {
+            this.sendWsMessage(Message.PLAY_VIDEO, videoId);
+            console.log(`Loading new VIDEO: ${videoId}`);
+            this.ytPlayer.loadVideoById(videoId);
         }
     }
 
@@ -110,26 +124,35 @@ export default class Player {
     private onWsMessage(message: string, player: Player): void {
         const [command, data] = message.split(" ");
 
+        console.log(`Message: ${message}`);
+
         try {
-            const videoTime = parseFloat(data);
+            const playerState = player.ytPlayer.getPlayerState();
 
             switch(command) {
                 case Message.PLAY.toString():
-                    player.syncPlayerTime(videoTime);
+                    console.log(`Player State: ${playerState}`);
 
-                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING)
+                    player.syncPlayerTime(parseFloat(data));
+
+                    if(playerState === YT.PlayerState.PAUSED)
                         player.ytPlayer.playVideo();
 
                     break;
                 case Message.PAUSE.toString():
-                    player.syncPlayerTime(videoTime);
+                    player.syncPlayerTime(parseFloat(data));
 
-                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED)
+                    if(playerState === YT.PlayerState.PLAYING)
                         player.ytPlayer.pauseVideo();
 
                     break;
                 case Message.SEEK.toString():
-                    player.ytPlayer.seekTo(videoTime, true);
+                    player.ytPlayer.seekTo(parseFloat(data), true);
+                    break;
+                case Message.PLAY_VIDEO.toString():
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('v', data);
+                    changeQueryString(params.toString(), undefined);
                     break;
             }
         }
