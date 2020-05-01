@@ -51,29 +51,27 @@ export default class Player {
     }
 
     private onReady(_: YT.PlayerEvent): void {
-        this.ytPlayer.pauseVideo();
-
-        startSeekCheck(this.ytPlayer, 500, () => this.onPlayerSeek());
+        startSeekCheck(this.ytPlayer, 1000, () => this.onPlayerSeek());
         startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
     }
 
     private onStateChange(event: YT.OnStateChangeEvent): void {
-        console.log(`New State ${event.data}`);
         switch(event.data) {
             case window.YT.PlayerState.PLAYING:
-                console.log(Messages.PLAY);
-                this.ws.send(Messages.PLAY);
+                this.sendWsMessage(Messages.PLAY);
                 break;
             case window.YT.PlayerState.PAUSED:
-                console.log(Messages.PAUSE);
-                this.ws.send(Messages.PAUSE);
+                this.sendWsMessage(Messages.PAUSE);
                 break;
         }
     }
 
     private onPlayerSeek(): void {
-        console.log(`${Messages.SEEK} ${this.ytPlayer.getCurrentTime()}`);
-        this.ws.send(`${Messages.SEEK} ${this.ytPlayer.getCurrentTime()}`);
+        this.sendWsMessage(Messages.SEEK);
+    }
+
+    private sendWsMessage(message: string) {
+        this.ws.send(`${message} ${this.ytPlayer.getCurrentTime()}`);
     }
 
     private onUrlChange(o: Location, n: Location): void {
@@ -107,16 +105,17 @@ export default class Player {
         const [command, data] = message.split(" ");
         switch(command) {
             case Messages.PLAY.toString():
+                player.ytPlayer.seekTo(parseFloat(data), true);
                 player.ytPlayer.playVideo();
                 break;
             case Messages.PAUSE.toString():
+                player.ytPlayer.seekTo(parseFloat(data), true);
                 player.ytPlayer.pauseVideo();
                 break;
             case Messages.SEEK.toString():
                 player.ytPlayer.seekTo(parseFloat(data), true);
                 break;
         }
-
     }
 
 }
