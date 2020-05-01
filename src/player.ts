@@ -101,6 +101,12 @@ export default class Player {
         console.log("Connected");
     }
 
+    private syncPlayerTime(videoTime: number, margin: number = 1.0): void {
+        if (Math.abs(videoTime - this.ytPlayer.getCurrentTime()) > margin) {
+            this.ytPlayer.seekTo(videoTime, true);
+        }
+    }
+
     private onWsMessage(message: string, player: Player): void {
         const [command, data] = message.split(" ");
 
@@ -109,22 +115,18 @@ export default class Player {
 
             switch(command) {
                 case Message.PLAY.toString():
-                    if (Math.abs(videoTime - player.ytPlayer.getCurrentTime() - 1) > 1.0) {
-                        player.ytPlayer.seekTo(videoTime, true);
-                    }
+                    player.syncPlayerTime(videoTime);
 
-                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING)
                         player.ytPlayer.playVideo();
-                    }
+
                     break;
                 case Message.PAUSE.toString():
-                    if (Math.abs(videoTime - player.ytPlayer.getCurrentTime() - 1) > 1.0) {
-                        player.ytPlayer.seekTo(videoTime, true);
-                    }
+                    player.syncPlayerTime(videoTime);
 
-                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) {
+                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED)
                         player.ytPlayer.pauseVideo();
-                    }
+
                     break;
                 case Message.SEEK.toString():
                     player.ytPlayer.seekTo(videoTime, true);
