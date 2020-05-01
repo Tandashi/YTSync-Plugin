@@ -14,7 +14,7 @@ interface PlayerOptions {
     };
 }
 
-enum Messages {
+enum Message {
     PLAY = "play",
     PAUSE = "pause",
     SEEK = "seek"
@@ -30,8 +30,6 @@ export default class Player {
     }
 
     public create(videoId: string, sessionId: string) {
-        this.connectWs(sessionId);
-
         this.ytPlayer = new window.YT.Player('ytd-player', {
             width: "100%",
             height: "100%",
@@ -41,7 +39,7 @@ export default class Player {
                 autoplay: YT.AutoPlay.AutoPlay
             },
             events: {
-                onReady: (e) => this.onReady(e),
+                onReady: (e) => this.onReady(e, sessionId),
                 onStateChange: (e) => this.onStateChange(e)
             }
         });
@@ -50,7 +48,9 @@ export default class Player {
         window.cucu.player = this.ytPlayer;
     }
 
-    private onReady(_: YT.PlayerEvent): void {
+    private onReady(_: YT.PlayerEvent, sessionId: string): void {
+        this.connectWs(sessionId);
+
         startSeekCheck(this.ytPlayer, 1000, () => this.onPlayerSeek());
         startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
     }
@@ -58,16 +58,16 @@ export default class Player {
     private onStateChange(event: YT.OnStateChangeEvent): void {
         switch(event.data) {
             case window.YT.PlayerState.PLAYING:
-                this.sendWsMessage(Messages.PLAY);
+                this.sendWsMessage(Message.PLAY);
                 break;
             case window.YT.PlayerState.PAUSED:
-                this.sendWsMessage(Messages.PAUSE);
+                this.sendWsMessage(Message.PAUSE);
                 break;
         }
     }
 
     private onPlayerSeek(): void {
-        this.sendWsMessage(Messages.SEEK);
+        this.sendWsMessage(Message.SEEK);
     }
 
     private sendWsMessage(message: string) {
@@ -103,19 +103,35 @@ export default class Player {
 
     private onWsMessage(message: string, player: Player): void {
         const [command, data] = message.split(" ");
-        switch(command) {
-            case Messages.PLAY.toString():
-                player.ytPlayer.seekTo(parseFloat(data), true);
-                player.ytPlayer.playVideo();
-                break;
-            case Messages.PAUSE.toString():
-                player.ytPlayer.seekTo(parseFloat(data), true);
-                player.ytPlayer.pauseVideo();
-                break;
-            case Messages.SEEK.toString():
-                player.ytPlayer.seekTo(parseFloat(data), true);
-                break;
+
+        try {
+            const videoTime = parseFloat(data);
+
+            switch(command) {
+                case Message.PLAY.toString():
+                    if (Math.abs(videoTime - player.ytPlayer.getCurrentTime() - 1) > 1.0) {
+                        player.ytPlayer.seekTo(videoTime, true);
+                    }
+
+                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                        player.ytPlayer.playVideo();
+                    }
+                    break;
+                case Message.PAUSE.toString():
+                    if (Math.abs(videoTime - player.ytPlayer.getCurrentTime() - 1) > 1.0) {
+                        player.ytPlayer.seekTo(videoTime, true);
+                    }
+
+                    if(player.ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) {
+                        player.ytPlayer.pauseVideo();
+                    }
+                    break;
+                case Message.SEEK.toString():
+                    player.ytPlayer.seekTo(videoTime, true);
+                    break;
+            }
         }
+        catch(e) { console.error(e); }
     }
 
 }
