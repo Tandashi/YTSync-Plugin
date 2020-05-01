@@ -27,9 +27,9 @@ function createYtFormattedString(cb: () => void): JQuery<HTMLElement> {
         .click(cb);
 }
 
-function createYtRenderedButtonContainer(): JQuery<HTMLElement> {
+function createYtRenderedButtonContainer(id: string): JQuery<HTMLElement> {
     return $(`
-        <ytd-button-renderer class="style-scope ytd-menu-renderer force-icon-button style-default size-default" button-renderer="" use-keyboard-focused="" is-icon-button="" />
+        <ytd-button-renderer id="${id}" class="style-scope ytd-menu-renderer force-icon-button style-default size-default" button-renderer="" use-keyboard-focused="" is-icon-button="" />
     `);
 }
 
@@ -41,12 +41,12 @@ function createYtRenderedButtonContainer(): JQuery<HTMLElement> {
  * @param icon The icon of the button (needs to be a svg Element)
  * @param cb The function that should be called on button click
  */
-export function injectYtRenderedButton(objId: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): void {
+export function injectYtRenderedButton(objId: string, containerId: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): void {
     // The complete button needs to be injected exactly like this
     // because when we inject the completely build button
     // YT removes all its content so we need to partially inject
     // everything in order to get it to work
-    const container = createYtRenderedButtonContainer();
+    const container = createYtRenderedButtonContainer(containerId);
     $(objId)
         .append(container);
 

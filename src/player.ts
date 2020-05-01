@@ -1,9 +1,15 @@
+import { generateRoomId } from "./util/websocket";
+
 declare global {
     interface Window { cucu: any; }
 }
 
 interface PlayerOptions {
-    serverURL: string;
+    connection: {
+        protocol: string;
+        host: string;
+        port: string;
+    };
 }
 
 enum Messages {
@@ -14,20 +20,20 @@ enum Messages {
 
 export default class Player {
     private ytPlayer: YT.Player;
-    public ws: WebSocket;
+    public ws: SocketIOClient.Socket;
     private options: PlayerOptions;
 
     constructor(options: PlayerOptions) {
         this.options = options;
     }
 
-    public create() {
-        const urlParams = new URLSearchParams(window.location.search);
+    public create(videoId: string, roomId: string) {
+        this.connectWs(roomId);
 
         this.ytPlayer = new window.YT.Player('ytd-player', {
             width: "100%",
             height: "100%",
-            videoId: urlParams.get("v"),
+            videoId,
             playerVars: {
                 color: "red",
                 autoplay: YT.AutoPlay.AutoPlay
@@ -44,9 +50,6 @@ export default class Player {
 
     private onReady(_: YT.PlayerEvent): void {
         this.ytPlayer.pauseVideo();
-        this.ws = new WebSocket(`ws:${this.options.serverURL}`);
-        this.ws.onopen = () => console.log("connected");
-        this.ws.onmessage = (m) => this.onMessage(m, this);
 
         // https://stackoverflow.com/questions/29293877/how-to-listen-to-seek-event-in-youtube-embed-api
         let lastTime = -1;
@@ -90,9 +93,24 @@ export default class Player {
         this.ws.send(`${Messages.SEEK} ${this.ytPlayer.getCurrentTime()}`);
     }
 
-    private onMessage(message: MessageEvent, player: Player): void {
-        console.log(`Message: ${message.data}`);
-        const [command, data] = message.data.split(" ");
+    private connectWs(roomId: string) {
+        const { protocol, host, port } = this.options.connection;
+
+        this.ws = io(`${protocol}://${host}:${port}/${roomId}`, {
+            autoConnect: true,
+            path: '/socket.io'
+        });
+        this.ws.on('connect', () => this.onWsConnected());
+        this.ws.on('message', (d: string) => this.onWsMessage(d, this));
+    }
+
+    private onWsConnected() {
+        console.log("Connected");
+    }
+
+    private onWsMessage(message: string, player: Player): void {
+        console.log(`Message: ${message}`);
+        const [command, data] = message.split(" ");
         console.log(command);
         console.log(data);
         switch(command) {
