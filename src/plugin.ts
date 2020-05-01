@@ -1,6 +1,7 @@
 import Player from "./player";
 import { injectYtRenderedButton, createPlusIcon } from "./util/yt-html";
-import { generateRoomId } from "./util/websocket";
+import { generateSessionId } from "./util/websocket";
+import { SessionId } from "./util/consts";
 
 window.onload = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -14,22 +15,20 @@ window.onload = () => {
     });
 
     const videoId = urlParams.get('v');
-    const roomId = urlParams.get('syncId');
+    const sessionId = urlParams.get(SessionId);
 
-    if (roomId === null) {
+    if (sessionId === null) {
         const injectSyncButtonInterval = setInterval(() => {
             if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
                 injectYtRenderedButton("div#info ytd-menu-renderer div#top-level-buttons", "create-sync-button", "Create Sync", createPlusIcon(), () => {
-                    const rId = generateRoomId();
-                    urlParams.set('syncId', rId);
+                    urlParams.set(SessionId, generateSessionId());
                     window.location.search = urlParams.toString();
-                    console.log(`Updates Query Params: ${rId}`);
                 });
                 clearInterval(injectSyncButtonInterval);
             }
         }, 500);
     }
     else {
-        player.create(videoId, roomId);
+        player.create(videoId, sessionId);
     }
 };

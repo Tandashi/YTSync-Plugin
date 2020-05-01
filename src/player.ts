@@ -1,4 +1,6 @@
-import { generateRoomId } from "./util/websocket";
+import { startSeekCheck, startUrlChangeCheck } from "./util/schedule";
+import { SessionId } from "./util/consts";
+import { changeQueryString } from "./util/url";
 
 declare global {
     interface Window { cucu: any; }
@@ -27,8 +29,8 @@ export default class Player {
         this.options = options;
     }
 
-    public create(videoId: string, roomId: string) {
-        this.connectWs(roomId);
+    public create(videoId: string, sessionId: string) {
+        this.connectWs(sessionId);
 
         this.ytPlayer = new window.YT.Player('ytd-player', {
             width: "100%",
@@ -51,27 +53,8 @@ export default class Player {
     private onReady(_: YT.PlayerEvent): void {
         this.ytPlayer.pauseVideo();
 
-        // https://stackoverflow.com/questions/29293877/how-to-listen-to-seek-event-in-youtube-embed-api
-        let lastTime = -1;
-        const interval = 1000;
-
-        const checkPlayerTime = () => {
-            if (lastTime !== -1) {
-                if(this.ytPlayer.getPlayerState() === window.YT.PlayerState.PLAYING ) {
-                    const time = this.ytPlayer.getCurrentTime();
-
-                    // expecting 1 second interval , with 500 ms margin
-                    if (Math.abs(time - lastTime - 1) > 0.5) {
-                        // there was a seek occuring
-                        this.onPlayerSeek();
-                    }
-                }
-            }
-            lastTime = this.ytPlayer.getCurrentTime();
-            setTimeout(checkPlayerTime, interval); // repeat function call in 1 second
-        };
-
-        setTimeout(checkPlayerTime, interval); // initial call delayed
+        startSeekCheck(this.ytPlayer, 500, () => this.onPlayerSeek());
+        startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
     }
 
     private onStateChange(event: YT.OnStateChangeEvent): void {
@@ -93,10 +76,22 @@ export default class Player {
         this.ws.send(`${Messages.SEEK} ${this.ytPlayer.getCurrentTime()}`);
     }
 
-    private connectWs(roomId: string) {
+    private onUrlChange(o: Location, n: Location): void {
+        const oldParams = new URLSearchParams(o.search);
+        const newParams = new URLSearchParams(n.search);
+
+        const oldSessionId = oldParams.get(SessionId);
+        const newSessionId = newParams.get(SessionId);
+        if(oldSessionId !== null && newSessionId === null) {
+            newParams.set(SessionId, oldSessionId);
+            changeQueryString(newParams.toString(), undefined);
+        }
+    }
+
+    private connectWs(sessionId: string): void {
         const { protocol, host, port } = this.options.connection;
 
-        this.ws = io(`${protocol}://${host}:${port}/${roomId}`, {
+        this.ws = io(`${protocol}://${host}:${port}/${sessionId}`, {
             autoConnect: true,
             path: '/socket.io'
         });
@@ -104,29 +99,20 @@ export default class Player {
         this.ws.on('message', (d: string) => this.onWsMessage(d, this));
     }
 
-    private onWsConnected() {
+    private onWsConnected(): void {
         console.log("Connected");
     }
 
     private onWsMessage(message: string, player: Player): void {
-        console.log(`Message: ${message}`);
         const [command, data] = message.split(" ");
-        console.log(command);
-        console.log(data);
         switch(command) {
             case Messages.PLAY.toString():
-                console.log("PLAY COMMAND RECEIVED");
-                console.log(player);
                 player.ytPlayer.playVideo();
                 break;
             case Messages.PAUSE.toString():
-                console.log("PAUSE COMMAND RECEIVED");
-                console.log(player);
                 player.ytPlayer.pauseVideo();
                 break;
             case Messages.SEEK.toString():
-                console.log("SEEK COMMAND RECEIVED");
-                console.log(player);
                 player.ytPlayer.seekTo(parseFloat(data), true);
                 break;
         }
