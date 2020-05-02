@@ -13,7 +13,7 @@ export default class ScheduleUtil {
      *
      * @returns A function which stopps the "scheduler"
      */
-    public static startSeekSchedule(player: YT.Player, cb: () => void, interval: number = 1000, margin: number = 0.5): () => void {
+    public static startSeekSchedule(player: YT.Player, cb: () => void, interval: number = 1000, margin: number = 1.5): () => void {
         let lastTime = -1;
 
         const checkPlayerTime = () => {

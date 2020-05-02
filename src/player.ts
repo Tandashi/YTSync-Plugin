@@ -162,7 +162,7 @@ export default class Player {
                     this.syncPlayerTime(parseFloat(data));
 
                     if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
-                    this.ytPlayer.playVideo();
+                        this.ytPlayer.playVideo();
 
                     break;
                 case Message.PAUSE.toString():
@@ -231,6 +231,17 @@ export default class Player {
         });
     }
 
+    private selectQueueElement(videoId: string) {
+        // Deselect all selected
+        this.queueItemsElement
+            .children()
+            .removeAttr('selected');
+        // Select Video
+        this.queueItemsElement
+            .find(`[videoId="${videoId}"]`)
+            .attr('selected', '');
+    }
+
     /**
      * Request to add the given Video to the Queue.
      * Will only work if the client has the needed Permissions.
@@ -271,6 +282,7 @@ export default class Player {
         const params = new URLSearchParams(window.location.search);
         params.set('v', videoId);
         URLUtil.changeQueryString(params);
+        this.selectQueueElement(videoId);
     }
 
     /**

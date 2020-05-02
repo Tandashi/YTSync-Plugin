@@ -62,7 +62,6 @@ function createYtIconButtonShell(): JQuery<HTMLElement> {
  * @param cb The function that should be called on click
  */
 function createYtFormattedStringShell(cb: () => void): JQuery<HTMLElement> {
-    // TODO: Check if cb still needed here
     return $(`<yt-formatted-string id="text" class="style-scope ytd-button-renderer style-default size-default" />`)
         .click(cb);
 }
@@ -111,10 +110,11 @@ function createYtMenuRendererShell(): JQuery<HTMLElement> {
  *
  * @param selected If it is selected
  */
-function createYtPlaylistPanelVideoRendererShell(selected: boolean): JQuery<HTMLElement> {
+function createYtPlaylistPanelVideoRendererShell(videoId: string, selected: boolean): JQuery<HTMLElement> {
     return $(`
         <ytd-playlist-panel-video-renderer
             id="playlist-items"
+            videoId="${videoId}"
             class="style-scope ytd-playlist-panel-renderer"
             lockup=""
             watch-color-update_=""
@@ -212,7 +212,7 @@ export function removeUpnext(): void {
  * @return The created ytd-playlist-panel-video-renderer>
  */
 export function injectVideoQueueElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
-    const playlistVideoRenderer = createYtPlaylistPanelVideoRendererShell(selected);
+    const playlistVideoRenderer = createYtPlaylistPanelVideoRendererShell(videoId, selected);
     $(obj)
         .append(playlistVideoRenderer);
 
