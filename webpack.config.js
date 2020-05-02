@@ -10,13 +10,11 @@ module.exports = {
     devtool: 'inline-source-map',
     mode: "development",
     module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
-            }
-        ]
+        rules: [{
+            test: /\.tsx?$/,
+            use: 'ts-loader',
+            exclude: /node_modules/
+        }]
     },
     resolve: {
         extensions: [".ts", ".js"]
@@ -28,7 +26,7 @@ module.exports = {
     plugins: [
         new webpack.BannerPlugin({
             raw: true,
-            banner: stripIndent`
+            banner: stripIndent `
                 // ==UserScript==
                 // @name         YT Sync
                 // @namespace    https://tandashi.de
@@ -36,7 +34,9 @@ module.exports = {
                 // @description  try to take over the world!
                 // @author       Tandashi
                 // @match        https://www.youtube.com/*
-                // @grant        none
+                //
+                // @grant       GM_setValue
+                // @grant       GM_getValue
                 //
                 // @run-at      document-end
                 //

@@ -1,10 +1,13 @@
+import { QueueId } from "./consts";
+import Store from "./store";
+
 export const startSeekCheck = (player: YT.Player, interval: number, cb: () => void): () => void => {
     // https://stackoverflow.com/questions/29293877/how-to-listen-to-seek-event-in-youtube-embed-api
     let lastTime = -1;
 
     const checkPlayerTime = () => {
         if (lastTime !== -1) {
-            if(player.getPlayerState() === window.YT.PlayerState.PLAYING ) {
+            if(player.getPlayerState() === unsafeWindow.YT.PlayerState.PLAYING ) {
                 const time = player.getCurrentTime();
 
                 // expecting 1 second interval , with 500 ms margin
@@ -41,6 +44,22 @@ export const startUrlChangeCheck = (interval: number, cb: (o: Location, n: Locat
     };
 
     const handler = setInterval(checkURL, interval);
+    return () => {
+        clearTimeout(handler);
+    };
+};
+
+export const startQueueAddChecker = (interval: number, cb: (video: Video) => void) => {
+    const checkQueue = () => {
+        const data = Store.getQueue();
+
+        for(const vobj of data) {
+            cb(vobj);
+            Store.removeElement(vobj);
+        }
+    };
+
+    const handler = setInterval(checkQueue, interval);
     return () => {
         clearTimeout(handler);
     };

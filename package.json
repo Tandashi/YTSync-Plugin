@@ -9,6 +9,7 @@
   "devDependencies": {
     "@types/jquery": "^3.3.36",
     "@types/socket.io-client": "^1.4.32",
+    "@types/tampermonkey": "^4.0.0",
     "@types/youtube": "^0.0.38",
     "common-tags": "^1.8.0",
     "ts-loader": "^5.3.3",

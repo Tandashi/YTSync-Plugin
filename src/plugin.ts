@@ -3,6 +3,8 @@ import * as ytHTML from "./util/yt-html";
 import { generateSessionId } from "./util/websocket";
 import { SessionId } from "./util/consts";
 import { startUrlChangeCheck } from "./util/schedule";
+import Store from "./util/store";
+import { getCurrentVideo } from "./util/video";
 
 window.onload = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -11,7 +13,8 @@ window.onload = () => {
         syncButton: null,
         leaveButton: null,
         removeUpnext: null,
-        queue: null
+        queueInject: null,
+        queueAddButton: null
     };
 
     const player = new Player({
@@ -35,6 +38,15 @@ window.onload = () => {
                 clearInterval(intervals.syncButton);
             }
         }, 500);
+
+        intervals.queueAddButton = setInterval(() => {
+            if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
+                ytHTML.injectYtRenderedButton($("div#info ytd-menu-renderer div#top-level-buttons"), "queue-add-button", "Add to Queue", ytHTML.createPlusIcon(), () => {
+                    Store.addElement(getCurrentVideo());
+                });
+                clearInterval(intervals.queueAddButton);
+            }
+        }, 500);
     }
     else {
         intervals.leaveButton = setInterval(() => {
@@ -54,12 +66,12 @@ window.onload = () => {
             }
         }, 500);
 
-        intervals.queue = setInterval(() => {
+        intervals.queueInject = setInterval(() => {
             if ($("div#secondary #playlist")) {
                 const renderer = ytHTML.injectEmptyQueueShell("Queue", false, true);
                 const items = renderer.find('#items');
                 player.create(videoId, sessionId, items);
-                clearInterval(intervals.queue);
+                clearInterval(intervals.queueInject);
             }
         }, 500);
     }

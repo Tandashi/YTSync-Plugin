@@ -40,6 +40,11 @@
   resolved "https://registry.yarnpkg.com/@types/socket.io-client/-/socket.io-client-1.4.32.tgz#988a65a0386c274b1c22a55377fab6a30789ac14"
   integrity sha512-Vs55Kq8F+OWvy1RLA31rT+cAyemzgm0EWNeax6BWF8H7QiiOYMJIdcwSDdm5LVgfEkoepsWkS+40+WNb7BUMbg==
 
+"@types/tampermonkey@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/tampermonkey/-/tampermonkey-4.0.0.tgz#fd654ea1191f6ae7acd7e9ddc19c67ed062a1495"
+  integrity sha512-StJoz2Cw5bM5Eqp/68O/X1rjI5aw7hGfbji6eXiY+ERN4o8lyfLvJKD91zXmdhUqK157QBjcCtzJUtU+qmAOFA==
+
 "@types/youtube@^0.0.38":
   version "0.0.38"
   resolved "https://registry.yarnpkg.com/@types/youtube/-/youtube-0.0.38.tgz#04aa5efa61f4d52e9cf682575a9dfed58f31e8c1"

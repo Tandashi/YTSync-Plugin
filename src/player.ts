@@ -1,10 +1,14 @@
-import { startSeekCheck, startUrlChangeCheck } from "./util/schedule";
+import { startSeekCheck, startUrlChangeCheck, startQueueAddChecker } from "./util/schedule";
 import { SessionId } from "./util/consts";
 import { changeQueryString } from "./util/url";
 import * as ytHTML from './util/yt-html';
+import { getCurrentVideo } from "./util/video";
 
 declare global {
-    interface Window { cucu: any; }
+    interface Window {
+        cucu: any;
+        YT: any;
+    }
 }
 
 interface PlayerOptions {
@@ -38,7 +42,7 @@ export default class Player {
     public create(videoId: string, sessionId: string, queueElement: JQuery<Element>) {
         this.queueElement = queueElement;
 
-        this.ytPlayer = new window.YT.Player('ytd-player', {
+        this.ytPlayer = new unsafeWindow.YT.Player('ytd-player', {
             width: "100%",
             height: "100%",
             videoId,
@@ -59,18 +63,19 @@ export default class Player {
     private onReady(_: YT.PlayerEvent, sessionId: string, videoId: string): void {
         startSeekCheck(this.ytPlayer, 1000, () => this.onPlayerSeek());
         startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
+        startQueueAddChecker(1000, (v) => this.addVideoToQueue(v));
 
         this.connectWs(sessionId);
-        this.addVideoToQueue();
+        this.addVideoToQueue(getCurrentVideo());
         this.sendWsMessage(Message.PLAY_VIDEO, videoId);
     }
 
     private onStateChange(event: YT.OnStateChangeEvent): void {
         switch(event.data) {
-            case window.YT.PlayerState.PLAYING:
+            case unsafeWindow.YT.PlayerState.PLAYING:
                 this.sendWsTimeMessage(Message.PLAY);
                 break;
-            case window.YT.PlayerState.PAUSED:
+            case unsafeWindow.YT.PlayerState.PAUSED:
                 this.sendWsTimeMessage(Message.PAUSE);
                 break;
         }
@@ -139,22 +144,19 @@ export default class Player {
         this.queueElement.empty();
 
         videos.forEach((v) => {
-            ytHTML.injectVideoQueueElement(this.queueElement, v.videoId, v.title, v.byline, this.queueElementClickHandler(v.videoId), this.queueElementDeleteHandler(v.videoId));
+            ytHTML.injectVideoQueueElement(
+                this.queueElement,
+                v.videoId,
+                v.title,
+                v.byline,
+                this.queueElementClickHandler(v.videoId),
+                this.queueElementDeleteHandler(v.videoId)
+            );
         });
     }
 
-    private addVideoToQueue(): void {
-        const params = new URLSearchParams(window.location.search);
-        const videoId = params.get('v');
-
-        if (videoId === null)
-            return;
-
-        this.sendWsMessage(Message.ADD_TO_QUEUE, {
-            videoId,
-            title: $('ytd-video-primary-info-renderer h1 yt-formatted-string').text(),
-            byline: $('ytd-channel-name a').text()
-        });
+    private addVideoToQueue(video: Video) {
+        this.sendWsMessage(Message.ADD_TO_QUEUE, video);
     }
 
     private queueElementClickHandler(vId: string): () => void {
@@ -189,14 +191,14 @@ export default class Player {
                 case Message.PLAY.toString():
                     player.syncPlayerTime(parseFloat(data));
 
-                    if(playerState === YT.PlayerState.PAUSED)
+                    if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
                         player.ytPlayer.playVideo();
 
                     break;
                 case Message.PAUSE.toString():
                     player.syncPlayerTime(parseFloat(data));
 
-                    if(playerState === YT.PlayerState.PLAYING)
+                    if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
                         player.ytPlayer.pauseVideo();
 
                     break;
