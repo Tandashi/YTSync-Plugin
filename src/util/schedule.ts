@@ -18,16 +18,12 @@ export default class ScheduleUtil {
 
         const checkPlayerTime = () => {
             if (lastTime !== -1) {
-                // Check if a video is currently playing
-                // TODO: Try without this check.
-                if(player.getPlayerState() === unsafeWindow.YT.PlayerState.PLAYING ) {
-                    const time = player.getCurrentTime();
+                const time = player.getCurrentTime();
 
-                    // Expecting X second interval, with Y ms margin
-                    if (Math.abs(time - lastTime - (interval / 1000)) > margin) {
-                        // There was a seek occuring
-                        cb();
-                    }
+                // Expecting X second interval, with Y ms margin
+                if (Math.abs(time - lastTime - (interval / 1000)) > margin) {
+                    // There was a seek occuring
+                    cb();
                 }
             }
             lastTime = player.getCurrentTime();
