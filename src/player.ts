@@ -61,6 +61,7 @@ export default class Player {
         startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
 
         this.connectWs(sessionId);
+        this.addVideoToQueue();
         this.sendWsMessage(Message.PLAY_VIDEO, videoId);
     }
 
@@ -83,8 +84,12 @@ export default class Player {
         this.sendWsMessage(message, this.ytPlayer.getCurrentTime().toString());
     }
 
-    private sendWsMessage(message: Message, data: string) {
-        this.ws.send(`${message} ${data}`);
+    private sendWsMessage(type: Message, data: any) {
+        const message = {
+            action: type,
+            data
+        };
+        this.ws.send(JSON.stringify(message));
     }
 
     private onUrlChange(o: Location, n: Location): void {
@@ -130,11 +135,25 @@ export default class Player {
         }
     }
 
-    private populateQueue(videoIds: string[]): void {
+    private populateQueue(videos: { videoId: string, title: string, byline: string }[]): void {
         this.queueElement.empty();
 
-        videoIds.forEach((vId) => {
-            ytHTML.injectVideoQueueElement(this.queueElement, vId, '', '', this.queueElementClickHandler(vId), this.queueElementDeleteHandler(vId));
+        videos.forEach((v) => {
+            ytHTML.injectVideoQueueElement(this.queueElement, v.videoId, v.title, v.byline, this.queueElementClickHandler(v.videoId), this.queueElementDeleteHandler(v.videoId));
+        });
+    }
+
+    private addVideoToQueue(): void {
+        const params = new URLSearchParams(window.location.search);
+        const videoId = params.get('v');
+
+        if (videoId === null)
+            return;
+
+        this.sendWsMessage(Message.ADD_TO_QUEUE, {
+            videoId,
+            title: $('ytd-video-primary-info-renderer h1 yt-formatted-string').text(),
+            byline: $('ytd-channel-name a').text()
         });
     }
 
@@ -188,7 +207,7 @@ export default class Player {
                     this.changeQueryStringVideoId(data);
                     break;
                 case Message.QUEUE.toString():
-                    this.populateQueue(data.split(","));
+                    this.populateQueue(data);
                     break;
             }
         }
