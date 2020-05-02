@@ -78,38 +78,6 @@ export default class Player {
     }
 
     /**
-     * Handler for a Player seek.
-     * Will send a SEEK Message.
-     */
-    private onPlayerSeek(): void {
-        this.sendWsTimeMessage(Message.SEEK);
-    }
-
-    /**
-     * Send a message to the session containing the current video time as data
-     *
-     * @param type The type of the message
-     */
-    private sendWsTimeMessage(type: Message.PLAY | Message.PAUSE | Message.SEEK): void {
-        this.sendWsMessage(type, this.ytPlayer.getCurrentTime().toString());
-    }
-
-    /**
-     * Send a message to the session
-     *
-     * @param type The message type
-     * @param data The message data
-     */
-    private sendWsMessage(type: Message, data: any): void {
-        console.log(`Sending Message: ${type} | ${data}`);
-        const message = {
-            action: type,
-            data
-        };
-        this.ws.send(JSON.stringify(message));
-    }
-
-    /**
      * Handler function for the URLSchedule
      *
      * @param o The old window Location
@@ -140,6 +108,14 @@ export default class Player {
     }
 
     /**
+     * Handler for a Player seek.
+     * Will send a SEEK Message.
+     */
+    private onPlayerSeek(): void {
+        this.sendWsTimeMessage(Message.SEEK);
+    }
+
+    /**
      * Connect to the Server with the given sessionId.
      *
      * @param sessionId
@@ -166,15 +142,73 @@ export default class Player {
     }
 
     /**
-     * Will seek the YT.Player to the given videoTime if the current time differers more than the given margin to the videoTime.
+     * Handler function for a Websocket message.
      *
-     * @param videoTime The time the video should be set to
-     * @param margin The difference the current video time and the to set video time need in order to seek
+     * @param message
+     * @param player
      */
-    private syncPlayerTime(videoTime: number, margin: number = 1.0): void {
-        if (Math.abs(videoTime - this.ytPlayer.getCurrentTime()) > margin) {
-            this.ytPlayer.seekTo(videoTime, true);
+    private onWsMessage(message: string, player: Player): void {
+        // TODO: Check if we cant use this here instead of passing the Player Instance
+        try {
+            const json = JSON.parse(message);
+            const command = json.action;
+            const data = json.data;
+
+            console.log(`Message: ${message}`);
+
+            const playerState = player.ytPlayer.getPlayerState();
+
+            switch(command) {
+                case Message.PLAY.toString():
+                    player.syncPlayerTime(parseFloat(data));
+
+                    if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
+                        player.ytPlayer.playVideo();
+
+                    break;
+                case Message.PAUSE.toString():
+                    player.syncPlayerTime(parseFloat(data));
+
+                    if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
+                        player.ytPlayer.pauseVideo();
+
+                    break;
+                case Message.SEEK.toString():
+                    player.ytPlayer.seekTo(parseFloat(data), true);
+                    break;
+                case Message.PLAY_VIDEO.toString():
+                    this.changeQueryStringVideoId(data);
+                    break;
+                case Message.QUEUE.toString():
+                    this.populateQueue(data);
+                    break;
+            }
         }
+        catch(e) { console.error(e); }
+    }
+
+    /**
+     * Send a message to the session containing the current video time as data
+     *
+     * @param type The type of the message
+     */
+    private sendWsTimeMessage(type: Message.PLAY | Message.PAUSE | Message.SEEK): void {
+        this.sendWsMessage(type, this.ytPlayer.getCurrentTime().toString());
+    }
+
+    /**
+     * Send a message to the session
+     *
+     * @param type The message type
+     * @param data The message data
+     */
+    private sendWsMessage(type: Message, data: any): void {
+        console.log(`Sending Message: ${type} | ${data}`);
+        const message = {
+            action: type,
+            data
+        };
+        this.ws.send(JSON.stringify(message));
     }
 
     /**
@@ -241,49 +275,14 @@ export default class Player {
     }
 
     /**
-     * Handler function for a Websocket message.
+     * Will seek the YT.Player to the given videoTime if the current time differers more than the given margin to the videoTime.
      *
-     * @param message
-     * @param player
+     * @param videoTime The time the video should be set to
+     * @param margin The difference the current video time and the to set video time need in order to seek
      */
-    private onWsMessage(message: string, player: Player): void {
-        // TODO: Check if we cant use this here instead of passing the Player Instance
-        try {
-            const json = JSON.parse(message);
-            const command = json.action;
-            const data = json.data;
-
-            console.log(`Message: ${message}`);
-
-            const playerState = player.ytPlayer.getPlayerState();
-
-            switch(command) {
-                case Message.PLAY.toString():
-                    player.syncPlayerTime(parseFloat(data));
-
-                    if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
-                        player.ytPlayer.playVideo();
-
-                    break;
-                case Message.PAUSE.toString():
-                    player.syncPlayerTime(parseFloat(data));
-
-                    if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
-                        player.ytPlayer.pauseVideo();
-
-                    break;
-                case Message.SEEK.toString():
-                    player.ytPlayer.seekTo(parseFloat(data), true);
-                    break;
-                case Message.PLAY_VIDEO.toString():
-                    this.changeQueryStringVideoId(data);
-                    break;
-                case Message.QUEUE.toString():
-                    this.populateQueue(data);
-                    break;
-            }
+    private syncPlayerTime(videoTime: number, margin: number = 1.0): void {
+        if (Math.abs(videoTime - this.ytPlayer.getCurrentTime()) > margin) {
+            this.ytPlayer.seekTo(videoTime, true);
         }
-        catch(e) { console.error(e); }
     }
-
 }
