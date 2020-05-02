@@ -1,6 +1,7 @@
 import { startSeekCheck, startUrlChangeCheck } from "./util/schedule";
 import { SessionId } from "./util/consts";
 import { changeQueryString } from "./util/url";
+import * as ytHTML from './util/yt-html';
 
 declare global {
     interface Window { cucu: any; }
@@ -18,19 +19,25 @@ enum Message {
     PLAY = 'play',
     PAUSE = 'pause',
     SEEK = 'seek',
-    PLAY_VIDEO = 'play-video'
+    PLAY_VIDEO = 'play-video',
+    ADD_TO_QUEUE = "add-to-queue",
+    DELETE_FROM_QUEUE = "delete-from-queue",
+    QUEUE = 'queue'
 }
 
 export default class Player {
     private ytPlayer: YT.Player;
-    public ws: SocketIOClient.Socket;
+    private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
+    private queueElement: JQuery<Element>;
 
     constructor(options: PlayerOptions) {
         this.options = options;
     }
 
-    public create(videoId: string, sessionId: string) {
+    public create(videoId: string, sessionId: string, queueElement: JQuery<Element>) {
+        this.queueElement = queueElement;
+
         this.ytPlayer = new window.YT.Player('ytd-player', {
             width: "100%",
             height: "100%",
@@ -88,8 +95,10 @@ export default class Player {
         const oldSessionId = oldParams.get(SessionId);
         const newSessionId = newParams.get(SessionId);
         if(oldSessionId !== null && newSessionId === null) {
-            newParams.set(SessionId, oldSessionId);
-            changeQueryString(newParams.toString(), undefined);
+            // newParams.set(SessionId, oldSessionId);
+            // changeQueryString(newParams.toString(), undefined);
+            window.location.search = newParams.toString();
+            return;
         }
 
         const videoId = newParams.get('v');
@@ -121,6 +130,32 @@ export default class Player {
         }
     }
 
+    private populateQueue(videoIds: string[]): void {
+        this.queueElement.empty();
+
+        videoIds.forEach((vId) => {
+            ytHTML.injectVideoQueueElement(this.queueElement, vId, '', '', this.queueElementClickHandler(vId), this.queueElementDeleteHandler(vId));
+        });
+    }
+
+    private queueElementClickHandler(vId: string): () => void {
+        return () => {
+            this.changeQueryStringVideoId(vId);
+        };
+    }
+
+    private queueElementDeleteHandler(vId: string): () => void {
+        return () => {
+            this.sendWsMessage(Message.DELETE_FROM_QUEUE, vId);
+        };
+    }
+
+    private changeQueryStringVideoId(vid: string): void {
+        const params = new URLSearchParams(window.location.search);
+        params.set('v', vid);
+        changeQueryString(params.toString(), undefined);
+    }
+
     private onWsMessage(message: string, player: Player): void {
         const [command, data] = message.split(" ");
 
@@ -150,9 +185,10 @@ export default class Player {
                     player.ytPlayer.seekTo(parseFloat(data), true);
                     break;
                 case Message.PLAY_VIDEO.toString():
-                    const params = new URLSearchParams(window.location.search);
-                    params.set('v', data);
-                    changeQueryString(params.toString(), undefined);
+                    this.changeQueryStringVideoId(data);
+                    break;
+                case Message.QUEUE.toString():
+                    this.populateQueue(data.split(","));
                     break;
             }
         }

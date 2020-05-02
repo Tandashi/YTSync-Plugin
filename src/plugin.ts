@@ -2,6 +2,7 @@ import Player from "./player";
 import * as ytHTML from "./util/yt-html";
 import { generateSessionId } from "./util/websocket";
 import { SessionId } from "./util/consts";
+import { startUrlChangeCheck } from "./util/schedule";
 
 window.onload = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -36,33 +37,30 @@ window.onload = () => {
         }, 500);
     }
     else {
-        player.create(videoId, sessionId);
         intervals.leaveButton = setInterval(() => {
             if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
-                ytHTML.injectYtRenderedButton($("div#info ytd-menu-renderer div#top-level-buttons"), "create-sync-button", "Leave Sync", ytHTML.createLeaveIcon(), () => {
+                ytHTML.injectYtRenderedButton($("div#info ytd-menu-renderer div#top-level-buttons"), "leave-sync-button", "Leave Sync", ytHTML.createLeaveIcon(), () => {
                     urlParams.delete(SessionId);
                     window.location.search = urlParams.toString();
                 });
                 clearInterval(intervals.leaveButton);
             }
         }, 500);
+
+        intervals.removeUpnext = setInterval(() => {
+            if ($("ytd-compact-autoplay-renderer.ytd-watch-next-secondary-results-renderer")) {
+                ytHTML.removeUpnext();
+                clearInterval(intervals.removeUpnext);
+            }
+        }, 500);
+
+        intervals.queue = setInterval(() => {
+            if ($("div#secondary #playlist")) {
+                const renderer = ytHTML.injectEmptyQueueShell("Queue", false, true);
+                const items = renderer.find('#items');
+                player.create(videoId, sessionId, items);
+                clearInterval(intervals.queue);
+            }
+        }, 500);
     }
-
-    intervals.removeUpnext = setInterval(() => {
-        if ($("ytd-compact-autoplay-renderer.ytd-watch-next-secondary-results-renderer")) {
-            ytHTML.removeUpnext();
-            clearInterval(intervals.removeUpnext);
-        }
-    }, 500);
-
-    intervals.queue = setInterval(() => {
-        if ($("div#secondary #playlist")) {
-            const renderer = ytHTML.injectEmptyQueueShell("Queue", false, true);
-            const items = renderer.find('#items');
-            ytHTML.injectVideoQueueElement(items, '8ZOghmnklC0', 'Video Title', 'ByLine', () => console.log("CLICK"), () => console.log("DELETE"));
-            ytHTML.injectVideoQueueElement(items, '8ZOghmnklC0', 'Video Title 2', 'ByLine2', () => console.log("CLICK"), () => console.log("DELETE"));
-            clearInterval(intervals.queue);
-        }
-    }, 500);
-
 };
