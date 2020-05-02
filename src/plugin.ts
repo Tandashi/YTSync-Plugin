@@ -1,10 +1,9 @@
-import Player from "./player";
 import * as ytHTML from "./util/yt-html";
-import { generateSessionId } from "./util/websocket";
 import { SessionId } from "./util/consts";
-import { startUrlChangeCheck } from "./util/schedule";
+import Player from "./player";
+import WebsocketUtil from "./util/websocket";
 import Store from "./util/store";
-import { getCurrentVideo } from "./util/video";
+import VideoUtil from "./util/video";
 
 window.onload = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -32,7 +31,7 @@ window.onload = () => {
         intervals.syncButton = setInterval(() => {
             if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
                 ytHTML.injectYtRenderedButton($("div#info ytd-menu-renderer div#top-level-buttons"), "create-sync-button", "Create Sync", ytHTML.createPlusIcon(), () => {
-                    urlParams.set(SessionId, generateSessionId());
+                    urlParams.set(SessionId, WebsocketUtil.generateSessionId());
                     window.location.search = urlParams.toString();
                 });
                 clearInterval(intervals.syncButton);
@@ -42,7 +41,7 @@ window.onload = () => {
         intervals.queueAddButton = setInterval(() => {
             if ($("div#info ytd-menu-renderer div#top-level-buttons")) {
                 ytHTML.injectYtRenderedButton($("div#info ytd-menu-renderer div#top-level-buttons"), "queue-add-button", "Add to Queue", ytHTML.createPlusIcon(), () => {
-                    Store.addElement(getCurrentVideo());
+                    Store.addElement(VideoUtil.getCurrentVideo());
                 });
                 clearInterval(intervals.queueAddButton);
             }

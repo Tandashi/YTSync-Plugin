@@ -1,46 +1,35 @@
-import { startSeekCheck, startUrlChangeCheck, startQueueAddChecker } from "./util/schedule";
+import ScheduleUtil from "./util/schedule";
 import { SessionId } from "./util/consts";
-import { changeQueryString } from "./util/url";
+import URLUtil from "./util/url";
 import * as ytHTML from './util/yt-html';
-import { getCurrentVideo } from "./util/video";
+import VideoUtil from "./util/video";
+import { Message } from "./enum/message";
 
 declare global {
     interface Window {
-        cucu: any;
-        YT: any;
+        YT: typeof YT;
     }
-}
-
-interface PlayerOptions {
-    connection: {
-        protocol: string;
-        host: string;
-        port: string;
-    };
-}
-
-enum Message {
-    PLAY = 'play',
-    PAUSE = 'pause',
-    SEEK = 'seek',
-    PLAY_VIDEO = 'play-video',
-    ADD_TO_QUEUE = "add-to-queue",
-    DELETE_FROM_QUEUE = "delete-from-queue",
-    QUEUE = 'queue'
 }
 
 export default class Player {
     private ytPlayer: YT.Player;
     private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
-    private queueElement: JQuery<Element>;
+    private queueItemsElement: JQuery<Element>;
 
     constructor(options: PlayerOptions) {
         this.options = options;
     }
 
+    /**
+     * Create a Player.
+     *
+     * @param videoId The video that should be initially be played
+     * @param sessionId
+     * @param queueElement The element of the playlist items (Mostly 'ytd-playlist-panel-renderer #items')
+     */
     public create(videoId: string, sessionId: string, queueElement: JQuery<Element>) {
-        this.queueElement = queueElement;
+        this.queueItemsElement = queueElement;
 
         this.ytPlayer = new unsafeWindow.YT.Player('ytd-player', {
             width: "100%",
@@ -55,21 +44,28 @@ export default class Player {
                 onStateChange: (e) => this.onStateChange(e)
             }
         });
-
-        window.cucu = {};
-        window.cucu.player = this.ytPlayer;
     }
 
+    /**
+     * Handler function for the YT.Player -> onReady
+     *
+     * @param _
+     * @param sessionId
+     * @param videoId The videoId of the initial video
+     */
     private onReady(_: YT.PlayerEvent, sessionId: string, videoId: string): void {
-        startSeekCheck(this.ytPlayer, 1000, () => this.onPlayerSeek());
-        startUrlChangeCheck(1000, (o, n) => this.onUrlChange(o, n));
-        startQueueAddChecker(1000, (v) => this.addVideoToQueue(v));
+        ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
+        ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
+        ScheduleUtil.startQueueStoreSchedule((v) => this.addVideoToQueue(v));
 
         this.connectWs(sessionId);
-        this.addVideoToQueue(getCurrentVideo());
-        this.sendWsMessage(Message.PLAY_VIDEO, videoId);
     }
 
+    /**
+     * Handler function for a YT.Player -> OnStateChange
+     *
+     * @param event
+     */
     private onStateChange(event: YT.OnStateChangeEvent): void {
         switch(event.data) {
             case unsafeWindow.YT.PlayerState.PLAYING:
@@ -81,15 +77,31 @@ export default class Player {
         }
     }
 
+    /**
+     * Handler for a Player seek.
+     * Will send a SEEK Message.
+     */
     private onPlayerSeek(): void {
         this.sendWsTimeMessage(Message.SEEK);
     }
 
-    private sendWsTimeMessage(message: Message) {
-        this.sendWsMessage(message, this.ytPlayer.getCurrentTime().toString());
+    /**
+     * Send a message to the session containing the current video time as data
+     *
+     * @param type The type of the message
+     */
+    private sendWsTimeMessage(type: Message.PLAY | Message.PAUSE | Message.SEEK): void {
+        this.sendWsMessage(type, this.ytPlayer.getCurrentTime().toString());
     }
 
-    private sendWsMessage(type: Message, data: any) {
+    /**
+     * Send a message to the session
+     *
+     * @param type The message type
+     * @param data The message data
+     */
+    private sendWsMessage(type: Message, data: any): void {
+        console.log(`Sending Message: ${type} | ${data}`);
         const message = {
             action: type,
             data
@@ -97,6 +109,14 @@ export default class Player {
         this.ws.send(JSON.stringify(message));
     }
 
+    /**
+     * Handler function for the URLSchedule
+     *
+     * @param o The old window Location
+     * @param n The new window Location
+     *
+     * @see startUrlChangeSchedule
+     */
     private onUrlChange(o: Location, n: Location): void {
         console.log(`URL CHANGE: ${o.href} -> ${n.href}`);
         const oldParams = new URLSearchParams(o.search);
@@ -119,6 +139,11 @@ export default class Player {
         }
     }
 
+    /**
+     * Connect to the Server with the given sessionId.
+     *
+     * @param sessionId
+     */
     private connectWs(sessionId: string): void {
         const { protocol, host, port } = this.options.connection;
 
@@ -130,22 +155,39 @@ export default class Player {
         this.ws.on('message', (d: string) => this.onWsMessage(d, this));
     }
 
+    /**
+     * Handler function for the Websocket 'connect' event
+     */
     private onWsConnected(): void {
         console.log("Connected");
+        const video = VideoUtil.getCurrentVideo();
+        this.addVideoToQueue(video);
+        this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
     }
 
+    /**
+     * Will seek the YT.Player to the given videoTime if the current time differers more than the given margin to the videoTime.
+     *
+     * @param videoTime The time the video should be set to
+     * @param margin The difference the current video time and the to set video time need in order to seek
+     */
     private syncPlayerTime(videoTime: number, margin: number = 1.0): void {
         if (Math.abs(videoTime - this.ytPlayer.getCurrentTime()) > margin) {
             this.ytPlayer.seekTo(videoTime, true);
         }
     }
 
-    private populateQueue(data: { videos: Video[], video: Video }): void {
-        this.queueElement.empty();
+    /**
+     * Populate the Queue
+     *
+     * @param data The data to populate the Queue with
+     */
+    private populateQueue(data: QueueMessageData): void {
+        this.queueItemsElement.empty();
 
         data.videos.forEach((v) => {
             ytHTML.injectVideoQueueElement(
-                this.queueElement,
+                this.queueItemsElement,
                 data.video !== null && v.videoId === data.video.videoId,
                 v.videoId,
                 v.title,
@@ -156,29 +198,56 @@ export default class Player {
         });
     }
 
+    /**
+     * Request to add the given Video to the Queue.
+     * Will only work if the client has the needed Permissions.
+     *
+     * @param video The video that should be added to the Queue
+     */
     private addVideoToQueue(video: Video) {
         this.sendWsMessage(Message.ADD_TO_QUEUE, video);
     }
 
-    private queueElementClickHandler(vId: string): () => void {
+    /**
+     * Returns a Handler function for a Queue Element click.
+     *
+     * @param videoId
+     */
+    private queueElementClickHandler(videoId: string): () => void {
         return () => {
-            this.changeQueryStringVideoId(vId);
+            this.changeQueryStringVideoId(videoId);
         };
     }
 
-    private queueElementDeleteHandler(vId: string): () => void {
+    /**
+     * Returns a Handler function for a Queue Element delete.
+     * @param videoId
+     */
+    private queueElementDeleteHandler(videoId: string): () => void {
         return () => {
-            this.sendWsMessage(Message.DELETE_FROM_QUEUE, vId);
+            this.sendWsMessage(Message.DELETE_FROM_QUEUE, videoId);
         };
     }
 
-    private changeQueryStringVideoId(vid: string): void {
+    /**
+     * Change the videoId in the current URL without reloading the page.
+     *
+     * @param videoId
+     */
+    private changeQueryStringVideoId(videoId: string): void {
         const params = new URLSearchParams(window.location.search);
-        params.set('v', vid);
-        changeQueryString(params.toString(), undefined);
+        params.set('v', videoId);
+        URLUtil.changeQueryString(params);
     }
 
+    /**
+     * Handler function for a Websocket message.
+     *
+     * @param message
+     * @param player
+     */
     private onWsMessage(message: string, player: Player): void {
+        // TODO: Check if we cant use this here instead of passing the Player Instance
         try {
             const json = JSON.parse(message);
             const command = json.action;

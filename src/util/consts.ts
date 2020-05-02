@@ -1,2 +1,2 @@
 export const SessionId = 'syncId';
-export const QueueId = "Queue";
+export const StorageId = "syncStore";
