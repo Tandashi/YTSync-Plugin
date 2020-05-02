@@ -64,7 +64,7 @@ function createYtMenuRenderer(): JQuery<HTMLElement> {
     `);
 }
 
-function createYtPlaylistPanelVideoRenderer(): JQuery<HTMLElement> {
+function createYtPlaylistPanelVideoRenderer(selected: boolean): JQuery<HTMLElement> {
     return $(`
         <ytd-playlist-panel-video-renderer
             id="playlist-items"
@@ -73,6 +73,7 @@ function createYtPlaylistPanelVideoRenderer(): JQuery<HTMLElement> {
             watch-color-update_=""
             can-reorder=""
             touch-persistent-drag-handle=""
+            ${selected ? 'selected' : ''}
         />
     `);
 }
@@ -140,8 +141,8 @@ export function removeUpnext(): void {
     $('ytd-compact-autoplay-renderer.ytd-watch-next-secondary-results-renderer').remove();
 }
 
-export function injectVideoQueueElement(obj: JQuery<Element>, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
-    const playlistVideoRenderer = createYtPlaylistPanelVideoRenderer();
+export function injectVideoQueueElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
+    const playlistVideoRenderer = createYtPlaylistPanelVideoRenderer(selected);
     $(obj)
         .append(playlistVideoRenderer);
 

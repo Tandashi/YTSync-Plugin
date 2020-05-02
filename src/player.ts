@@ -140,12 +140,13 @@ export default class Player {
         }
     }
 
-    private populateQueue(videos: { videoId: string, title: string, byline: string }[]): void {
+    private populateQueue(data: { videos: Video[], video: Video }): void {
         this.queueElement.empty();
 
-        videos.forEach((v) => {
+        data.videos.forEach((v) => {
             ytHTML.injectVideoQueueElement(
                 this.queueElement,
+                data.video !== null && v.videoId === data.video.videoId,
                 v.videoId,
                 v.title,
                 v.byline,
