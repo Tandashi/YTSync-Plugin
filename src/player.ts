@@ -157,17 +157,17 @@ export default class Player {
     }
 
     private onWsMessage(message: string, player: Player): void {
-        const [command, data] = message.split(" ");
-
-        console.log(`Message: ${message}`);
-
         try {
+            const json = JSON.parse(message);
+            const command = json.action;
+            const data = json.data;
+
+            console.log(`Message: ${message}`);
+
             const playerState = player.ytPlayer.getPlayerState();
 
             switch(command) {
                 case Message.PLAY.toString():
-                    console.log(`Player State: ${playerState}`);
-
                     player.syncPlayerTime(parseFloat(data));
 
                     if(playerState === YT.PlayerState.PAUSED)
