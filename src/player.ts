@@ -128,7 +128,7 @@ export default class Player {
             path: '/socket.io'
         });
         this.ws.on('connect', () => this.onWsConnected());
-        this.ws.on('message', (d: string) => this.onWsMessage(d, this));
+        this.ws.on('message', (d: string) => this.onWsMessage(d));
     }
 
     /**
@@ -147,8 +147,7 @@ export default class Player {
      * @param message
      * @param player
      */
-    private onWsMessage(message: string, player: Player): void {
-        // TODO: Check if we cant use this here instead of passing the Player Instance
+    private onWsMessage(message: string): void {
         try {
             const json = JSON.parse(message);
             const command = json.action;
@@ -156,25 +155,25 @@ export default class Player {
 
             console.log(`Message: ${message}`);
 
-            const playerState = player.ytPlayer.getPlayerState();
+            const playerState = this.ytPlayer.getPlayerState();
 
             switch(command) {
                 case Message.PLAY.toString():
-                    player.syncPlayerTime(parseFloat(data));
+                    this.syncPlayerTime(parseFloat(data));
 
                     if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
-                        player.ytPlayer.playVideo();
+                    this.ytPlayer.playVideo();
 
                     break;
                 case Message.PAUSE.toString():
-                    player.syncPlayerTime(parseFloat(data));
+                    this.syncPlayerTime(parseFloat(data));
 
                     if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
-                        player.ytPlayer.pauseVideo();
+                        this.ytPlayer.pauseVideo();
 
                     break;
                 case Message.SEEK.toString():
-                    player.ytPlayer.seekTo(parseFloat(data), true);
+                    this.ytPlayer.seekTo(parseFloat(data), true);
                     break;
                 case Message.PLAY_VIDEO.toString():
                     this.changeQueryStringVideoId(data);
