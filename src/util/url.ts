@@ -6,7 +6,7 @@ export default class URLUtil {
      * @param searchString The query parameters
      */
     public static changeQueryString(searchString: URLSearchParams): void {
-        const urlSplit = (window.location.href).split("?");
+        const urlSplit = (window.location.href).split('?');
         const obj = {
             Title: document.title,
             Url: urlSplit[0] + '?' + searchString.toString()

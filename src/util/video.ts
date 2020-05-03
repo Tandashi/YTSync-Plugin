@@ -4,7 +4,6 @@ export default class VideoUtil {
      * Get current Youtube Page as Video Element
      */
     public static getCurrentVideo(): Video {
-        console.log(`Creating VIDEO`);
         const params = new URLSearchParams(window.location.search);
         const videoId = params.get('v');
 

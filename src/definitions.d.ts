@@ -12,6 +12,14 @@ interface Video {
     byline: string;
 }
 
+interface PluginInjectIntervals {
+    syncButton: NodeJS.Timeout | null;
+    leaveButton: NodeJS.Timeout| null
+    removeUpnext: NodeJS.Timeout | null
+    queueInject: NodeJS.Timeout | null
+    queueAddButton: NodeJS.Timeout | null
+}
+
 /**
  * @param videos The videos in the Queue
  * @param video The currently playing video

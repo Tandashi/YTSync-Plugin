@@ -3,8 +3,9 @@
     "extends": ["tslint:recommended"],
     "jsRules": {},
     "rules": {
-      "no-console": false,
-      "semicolon": [true, "always"]
+        "no-console": false,
+        "semicolon": [true, "always"],
+        "quotemark": [true, "single", "always"]
     },
     "rulesDirectory": []
-  }
+}

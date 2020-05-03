@@ -1,9 +1,9 @@
-import ScheduleUtil from "./util/schedule";
-import { SessionId } from "./util/consts";
-import URLUtil from "./util/url";
+import ScheduleUtil from './util/schedule';
+import { SessionId } from './util/consts';
+import URLUtil from './util/url';
 import * as ytHTML from './util/yt-html';
-import VideoUtil from "./util/video";
-import { Message } from "./enum/message";
+import VideoUtil from './util/video';
+import { Message } from './enum/message';
 
 declare global {
     interface Window {
@@ -32,11 +32,11 @@ export default class Player {
         this.queueItemsElement = queueElement;
 
         this.ytPlayer = new unsafeWindow.YT.Player('ytd-player', {
-            width: "100%",
-            height: "100%",
+            width: '100%',
+            height: '100%',
             videoId,
             playerVars: {
-                color: "red",
+                color: 'red',
                 autoplay: YT.AutoPlay.AutoPlay
             },
             events: {
@@ -135,7 +135,7 @@ export default class Player {
      * Handler function for the Websocket 'connect' event
      */
     private onWsConnected(): void {
-        console.log("Connected");
+        console.log('Connected');
         const video = VideoUtil.getCurrentVideo();
         this.addVideoToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);

@@ -1,11 +1,11 @@
-import { StorageId } from "./consts";
+import { StorageId } from './consts';
 
 export default class Store {
     /**
      * Get the currently stored videos
      */
     public static getQueue(): Video[] {
-        const json = GM_getValue(StorageId, "[]");
+        const json = GM_getValue(StorageId, '[]');
         return JSON.parse(json);
     }
 
