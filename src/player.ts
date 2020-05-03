@@ -58,7 +58,7 @@ export default class Player {
     private onReady(_: YT.PlayerEvent, sessionId: string): void {
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
-        ScheduleUtil.startQueueStoreSchedule((v) => this.addVideoToQueue(v));
+        ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
 
         this.connectWs(sessionId);
     }
@@ -139,7 +139,7 @@ export default class Player {
     private onWsConnected(): void {
         console.log('Connected');
         const video = VideoUtil.getCurrentVideo();
-        this.addVideoToQueue(video);
+        this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
     }
 
@@ -150,6 +150,7 @@ export default class Player {
      * @param player
      */
     private onWsMessage(message: string): void {
+        // TODO: Check if .toString() is needed in switch
         try {
             const json = JSON.parse(message);
             const command = json.action;
@@ -183,6 +184,12 @@ export default class Player {
                 case Message.QUEUE.toString():
                     this.populateQueue(data);
                     break;
+                case Message.ADD_TO_QUEUE.toString():
+                    this.addToQueue(data, false);
+                    break;
+                case Message.REMOVE_FROM_QUEUE.toString():
+                    this.removeFromQueue(data);
+                    break;
             }
         }
         catch(e) { console.error(e); }
@@ -213,27 +220,75 @@ export default class Player {
     }
 
     /**
-     * Populate the Queue
+     * Request to add the given Video to the Queue.
+     * Will only work if the client has the needed Permissions.
+     *
+     * @param video The video that should be added to the Queue
+     */
+    private sendWsRequestToAddToQueue(video: Video) {
+        this.sendWsMessage(Message.ADD_TO_QUEUE, video);
+    }
+
+    /**
+     * Populate the Queue.
+     *
+     * **Caution**: Will clear existing Queue.
      *
      * @param data The data to populate the Queue with
      */
     private populateQueue(data: QueueMessageData): void {
         this.queueItemsElement.empty();
 
-        data.videos.forEach((v) => {
-            ytHTML.injectVideoQueueElement(
-                this.queueItemsElement,
-                data.video !== null && v.videoId === data.video.videoId,
-                v.videoId,
-                v.title,
-                v.byline,
-                this.queueElementClickHandler(v.videoId),
-                this.queueElementDeleteHandler(v.videoId)
+        data.videos.forEach((video) => {
+            this.addToQueue(
+                video,
+                data.video !== null && video.videoId === data.video.videoId
             );
         });
     }
 
-    private selectQueueElement(videoId: string) {
+    /**
+     * Add the given Video to the Queue.
+     *
+     * **Caution**: This will only add the Video visually.
+     * There will not be send a request to add the Video to the Queue.
+     * For this please use: {@link sendWsRequestToAddToQueue}
+     *
+     * @param video
+     * @param selected
+     */
+    private addToQueue(video: Video, selected: boolean = false): void {
+        ytHTML.injectVideoQueueElement(
+            this.queueItemsElement,
+            selected,
+            video.videoId,
+            video.title,
+            video.byline,
+            this.queueElementClickHandler(video.videoId),
+            this.queueElementDeleteHandler(video.videoId)
+        );
+    }
+
+    /**
+     * Remove the Video from the Queue.
+     *
+     * **Caution**: This will only remove the Video visually.
+     * There will not be send a request to remove the Video from the Queue.
+     *
+     * @param video
+     */
+    private removeFromQueue(video: Video): void {
+        this.queueItemsElement
+            .find(`[videoId="${video.videoId}"]`)
+            .remove();
+    }
+
+    /**
+     * Select the Video with given videoId in the Queue
+     *
+     * @param videoId
+     */
+    private selectQueueElement(videoId: string): void {
         // Deselect all selected
         this.queueItemsElement
             .children()
@@ -242,16 +297,6 @@ export default class Player {
         this.queueItemsElement
             .find(`[videoId="${videoId}"]`)
             .attr('selected', '');
-    }
-
-    /**
-     * Request to add the given Video to the Queue.
-     * Will only work if the client has the needed Permissions.
-     *
-     * @param video The video that should be added to the Queue
-     */
-    private addVideoToQueue(video: Video) {
-        this.sendWsMessage(Message.ADD_TO_QUEUE, video);
     }
 
     /**
@@ -271,7 +316,7 @@ export default class Player {
      */
     private queueElementDeleteHandler(videoId: string): () => void {
         return () => {
-            this.sendWsMessage(Message.DELETE_FROM_QUEUE, videoId);
+            this.sendWsMessage(Message.REMOVE_FROM_QUEUE, videoId);
         };
     }
 
