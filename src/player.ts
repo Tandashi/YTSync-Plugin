@@ -4,6 +4,7 @@ import URLUtil from './util/url';
 import * as ytHTML from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
+import YTUtil from './util/yt';
 
 declare global {
     interface Window {
@@ -12,6 +13,7 @@ declare global {
 }
 
 export default class Player {
+    private sessionId: string;
     private ytPlayer: YT.Player = null;
     private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
@@ -123,6 +125,7 @@ export default class Player {
      * @param sessionId
      */
     private connectWs(sessionId: string): void {
+        this.sessionId = sessionId;
         const { protocol, host, port } = this.options.connection;
 
         this.ws = io(`${protocol}://${host}:${port}/${sessionId}`, {
@@ -305,6 +308,20 @@ export default class Player {
      */
     private queueElementClickHandler(videoId: string): () => void {
         return () => {
+            const app = YTUtil.getApp();
+            app.onYtNavigate_({
+                detail: {
+                    endpoint: {
+                        watchEndpoint: {
+                            videoId
+                        }
+                    },
+                    params: {
+                        [SessionId]: this.sessionId
+                    }
+                }
+            });
+
             this.changeQueryStringVideoId(videoId);
         };
     }

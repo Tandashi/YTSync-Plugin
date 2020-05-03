@@ -20,6 +20,23 @@ interface PluginInjectIntervals {
     queueAddButton: NodeJS.Timeout | null
 }
 
+interface YTApp {
+    onYtNavigate_: (e: Endpoint) => void;
+}
+
+interface Endpoint {
+    detail: {
+        endpoint: {
+            watchEndpoint: {
+                videoId: any;
+            }
+        },
+        params: {
+            syncId: string;
+        }
+    }
+}
+
 /**
  * @param videos The videos in the Queue
  * @param video The currently playing video
