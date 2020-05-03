@@ -83,7 +83,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string,
 
     intervals.queueInject = setInterval(() => {
         if ($('div#secondary #playlist')) {
-            player.create(videoId, sessionId);
+            player.create(sessionId);
             clearInterval(intervals.queueInject);
         }
     }, 500);

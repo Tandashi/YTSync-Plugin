@@ -27,7 +27,6 @@ const BANNER = stripIndent `
     //
     // @require http://code.jquery.com/jquery-3.4.1.min.js
     // @require https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js
-    // @require https://www.youtube.com/iframe_api
     //
     // ==/UserScript==
 `

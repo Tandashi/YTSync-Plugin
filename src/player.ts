@@ -30,34 +30,17 @@ export default class Player {
      * @param sessionId
      * @param queueElement The element of the playlist items (Mostly 'ytd-playlist-panel-renderer #items')
      */
-    public create(videoId: string, sessionId: string) {
+    public create(sessionId: string) {
         if(this.ytPlayer !== null)
             return;
+
+        this.ytPlayer = YTUtil.getPlayer();
+        // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
+        this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
 
         const renderer = ytHTML.injectEmptyQueueShell('Queue', false, true);
         this.queueItemsElement = renderer.find('#items');
 
-        this.ytPlayer = new unsafeWindow.YT.Player('ytd-player', {
-            width: '100%',
-            height: '100%',
-            videoId,
-            playerVars: {
-                color: 'red',
-                autoplay: YT.AutoPlay.AutoPlay
-            },
-            events: {
-                onReady: (e) => this.onReady(e, sessionId),
-                onStateChange: (e) => this.onStateChange(e)
-            }
-        });
-    }
-
-    /**
-     * Handler function for the YT.Player -> onReady
-     *
-     * @param sessionId
-     */
-    private onReady(_: YT.PlayerEvent, sessionId: string): void {
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
@@ -70,8 +53,8 @@ export default class Player {
      *
      * @param event
      */
-    private onStateChange(event: YT.OnStateChangeEvent): void {
-        switch(event.data) {
+    private onStateChange(state: YT.PlayerState): void {
+        switch(state) {
             case unsafeWindow.YT.PlayerState.PLAYING:
                 this.sendWsTimeMessage(Message.PLAY);
                 break;
