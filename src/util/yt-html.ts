@@ -225,17 +225,28 @@ export function injectVideoQueueElement(obj: JQuery<Element>, selected: boolean,
 
     injectYtRenderedButton($(menuRenderer).find('div#top-level-buttons'), '', null, createTrashIcon(), dcb);
 
-    $(playlistVideoRenderer).find('a#thumbnail > yt-img-shadow')
-        .css('background-color', 'transparent')
-        .removeClass('empty');
+    const img = $(playlistVideoRenderer).find('img#img');
+    const imgURL = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    img.attr('src', imgURL);
 
-    setTimeout(() => {
-        $(playlistVideoRenderer).find('img#img')
-            .attr('src', `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            const newImg = $(playlistVideoRenderer).find('img#img');
+            if (mutation.type === 'attributes' && newImg.attr('src') !== imgURL) {
+                img.attr('src', imgURL);
 
-        $(playlistVideoRenderer).find('a#thumbnail > yt-img-shadow')
-            .attr('loaded');
-    }, 500);
+                $(playlistVideoRenderer).find('a#thumbnail > yt-img-shadow')
+                    .off()
+                    .css('background-color', 'transparent')
+                    .attr('loaded', '')
+                    .removeClass('empty');
+            }
+        });
+    });
+
+    observer.observe(img.get(0), {
+        attributes: true
+    });
 
     $(playlistVideoRenderer).find('a#wc-endpoint')
         .click(ccb);
