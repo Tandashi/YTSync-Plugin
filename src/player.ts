@@ -12,7 +12,7 @@ declare global {
 }
 
 export default class Player {
-    private ytPlayer: YT.Player;
+    private ytPlayer: YT.Player = null;
     private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
     private queueItemsElement: JQuery<Element>;
@@ -28,8 +28,12 @@ export default class Player {
      * @param sessionId
      * @param queueElement The element of the playlist items (Mostly 'ytd-playlist-panel-renderer #items')
      */
-    public create(videoId: string, sessionId: string, queueElement: JQuery<Element>) {
-        this.queueItemsElement = queueElement;
+    public create(videoId: string, sessionId: string) {
+        if(this.ytPlayer !== null)
+            return;
+
+        const renderer = ytHTML.injectEmptyQueueShell('Queue', false, true);
+        this.queueItemsElement = renderer.find('#items');
 
         this.ytPlayer = new unsafeWindow.YT.Player('ytd-player', {
             width: '100%',
@@ -40,7 +44,7 @@ export default class Player {
                 autoplay: YT.AutoPlay.AutoPlay
             },
             events: {
-                onReady: (e) => this.onReady(e, sessionId, videoId),
+                onReady: (e) => this.onReady(e, sessionId),
                 onStateChange: (e) => this.onStateChange(e)
             }
         });
@@ -49,11 +53,9 @@ export default class Player {
     /**
      * Handler function for the YT.Player -> onReady
      *
-     * @param _
      * @param sessionId
-     * @param videoId The videoId of the initial video
      */
-    private onReady(_: YT.PlayerEvent, sessionId: string, videoId: string): void {
+    private onReady(_: YT.PlayerEvent, sessionId: string): void {
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.addVideoToQueue(v));

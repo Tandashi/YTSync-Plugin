@@ -41,15 +41,19 @@ window.onunload = () => {
     });
 };
 
-function urlChangeHandler() {
+function urlChangeHandler(): void {
     const urlParams = new URLSearchParams(window.location.search);
+
+    const videoId = urlParams.get('v');
+    if (videoId === null)
+        return;
 
     const sessionId = urlParams.get(Consts.SessionId);
     if (sessionId === null) {
         startInjectingNonSessionItems(urlParams);
     }
     else {
-        startInjectingSessionItems(urlParams, sessionId);
+        startInjectingSessionItems(urlParams, videoId, sessionId);
     }
 }
 
@@ -64,9 +68,7 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams) {
     });
 }
 
-function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string) {
-    const videoId = urlParams.get('v');
-
+function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string, sessionId: string) {
     intervals.leaveButton = injectButton(Consts.LeaveSyncButtonId, 'Leave Sync', ytHTML.createLeaveIcon(), () => {
         urlParams.delete(Consts.SessionId);
         window.location.search = urlParams.toString();
@@ -81,9 +83,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
 
     intervals.queueInject = setInterval(() => {
         if ($('div#secondary #playlist')) {
-            const renderer = ytHTML.injectEmptyQueueShell('Queue', false, true);
-            const items = renderer.find('#items');
-            player.create(videoId, sessionId, items);
+            player.create(videoId, sessionId);
             clearInterval(intervals.queueInject);
         }
     }, 500);
