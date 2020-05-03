@@ -3,7 +3,7 @@ export enum Message {
     PAUSE = 'pause',
     SEEK = 'seek',
     PLAY_VIDEO = 'play-video',
-    ADD_TO_QUEUE = "add-to-queue",
-    DELETE_FROM_QUEUE = "delete-from-queue",
+    ADD_TO_QUEUE = 'add-to-queue',
+    REMOVE_FROM_QUEUE = 'remove-from-queue',
     QUEUE = 'queue'
 }
