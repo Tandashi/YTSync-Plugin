@@ -150,7 +150,6 @@ export default class Player {
      * @param player
      */
     private onWsMessage(message: string): void {
-        // TODO: Check if .toString() is needed in switch
         try {
             const json = JSON.parse(message);
             const command = json.action;
@@ -161,33 +160,33 @@ export default class Player {
             const playerState = this.ytPlayer.getPlayerState();
 
             switch(command) {
-                case Message.PLAY.toString():
+                case Message.PLAY:
                     this.syncPlayerTime(parseFloat(data));
 
                     if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
                         this.ytPlayer.playVideo();
 
                     break;
-                case Message.PAUSE.toString():
+                case Message.PAUSE:
                     this.syncPlayerTime(parseFloat(data));
 
                     if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
                         this.ytPlayer.pauseVideo();
 
                     break;
-                case Message.SEEK.toString():
+                case Message.SEEK:
                     this.ytPlayer.seekTo(parseFloat(data), true);
                     break;
-                case Message.PLAY_VIDEO.toString():
+                case Message.PLAY_VIDEO:
                     this.changeQueryStringVideoId(data);
                     break;
-                case Message.QUEUE.toString():
+                case Message.QUEUE:
                     this.populateQueue(data);
                     break;
-                case Message.ADD_TO_QUEUE.toString():
+                case Message.ADD_TO_QUEUE:
                     this.addToQueue(data, false);
                     break;
-                case Message.REMOVE_FROM_QUEUE.toString():
+                case Message.REMOVE_FROM_QUEUE:
                     this.removeFromQueue(data);
                     break;
             }
