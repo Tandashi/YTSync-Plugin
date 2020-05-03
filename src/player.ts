@@ -141,8 +141,6 @@ export default class Player {
             const command = json.action;
             const data = json.data;
 
-            console.log(`Message: ${message}`);
-
             const playerState = this.ytPlayer.getPlayerState();
 
             switch(command) {
@@ -291,20 +289,6 @@ export default class Player {
      */
     private queueElementClickHandler(videoId: string): () => void {
         return () => {
-            const app = YTUtil.getApp();
-            app.onYtNavigate_({
-                detail: {
-                    endpoint: {
-                        watchEndpoint: {
-                            videoId
-                        }
-                    },
-                    params: {
-                        [SessionId]: this.sessionId
-                    }
-                }
-            });
-
             this.changeQueryStringVideoId(videoId);
         };
     }
@@ -329,6 +313,20 @@ export default class Player {
         params.set('v', videoId);
         URLUtil.changeQueryString(params);
         this.selectQueueElement(videoId);
+
+        const app = YTUtil.getApp();
+        app.onYtNavigate_({
+            detail: {
+                endpoint: {
+                    watchEndpoint: {
+                        videoId
+                    }
+                },
+                params: {
+                    [SessionId]: this.sessionId
+                }
+            }
+        });
     }
 
     /**
