@@ -29,9 +29,9 @@ export default class ScheduleUtil {
             lastTime = player.getCurrentTime();
         };
 
-        const handler = setInterval(checkPlayerTime, interval);
+        const handle = setInterval(checkPlayerTime, interval);
         return () => {
-            clearInterval(handler);
+            clearInterval(handle);
         };
     }
 
@@ -59,9 +59,9 @@ export default class ScheduleUtil {
             old = JSON.parse(JSON.stringify(current));
         };
 
-        const handler = setInterval(checkURL, interval);
+        const handle = setInterval(checkURL, interval);
         return () => {
-            clearInterval(handler);
+            clearInterval(handle);
         };
     }
 
@@ -83,9 +83,9 @@ export default class ScheduleUtil {
             }
         };
 
-        const handler = setInterval(checkQueue, interval);
+        const handle = setInterval(checkQueue, interval);
         return () => {
-            clearInterval(handler);
+            clearInterval(handle);
         };
     }
 }

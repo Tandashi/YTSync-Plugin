@@ -1,4 +1,4 @@
-import * as ytHTML from './util/yt-html';
+import YTHTMLUtil from './util/yt-html';
 import * as Consts from './util/consts';
 import Player from './player';
 import WebsocketUtil from './util/websocket';
@@ -58,42 +58,30 @@ function urlChangeHandler(): void {
 }
 
 function startInjectingNonSessionItems(urlParams: URLSearchParams) {
-    intervals.syncButton = injectButton(Consts.CreateSyncButtonId, 'Create Sync', ytHTML.createPlusIcon(), () => {
+    intervals.syncButton = injectButton(Consts.CreateSyncButtonId, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
         urlParams.set(Consts.SessionId, WebsocketUtil.generateSessionId());
         window.location.search = urlParams.toString();
     });
 
-    intervals.queueAddButton = injectButton(Consts.QueueAddButtonId, 'Add to Queue', ytHTML.createPlusIcon(), () => {
+    intervals.queueAddButton = injectButton(Consts.QueueAddButtonId, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
         Store.addElement(VideoUtil.getCurrentVideo());
     });
 }
 
 function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string, sessionId: string) {
-    intervals.leaveButton = injectButton(Consts.LeaveSyncButtonId, 'Leave Sync', ytHTML.createLeaveIcon(), () => {
+    intervals.leaveButton = injectButton(Consts.LeaveSyncButtonId, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
         urlParams.delete(Consts.SessionId);
         window.location.search = urlParams.toString();
     });
 
-    intervals.removeUpnext = setInterval(() => {
-        if ($('ytd-compact-autoplay-renderer.ytd-watch-next-secondary-results-renderer')) {
-            ytHTML.removeUpnext();
-            clearInterval(intervals.removeUpnext);
-        }
-    }, 500);
-
-    intervals.queueInject = setInterval(() => {
-        if ($('div#secondary #playlist')) {
-            player.create(sessionId);
-            clearInterval(intervals.queueInject);
-        }
-    }, 500);
+    player.create(sessionId);
 }
 
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
     const handler = setInterval(() => {
         const container = $('div#info ytd-menu-renderer div#top-level-buttons');
         if (container.length === 1 && container.find(`#${id}`).length === 0) {
-            ytHTML.injectYtRenderedButton(container, id, text, icon, cb);
+            YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);
             clearInterval(handler);
         }
     }, 500);

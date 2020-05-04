@@ -1,7 +1,6 @@
 import ScheduleUtil from './util/schedule';
 import { SessionId } from './util/consts';
-import URLUtil from './util/url';
-import * as ytHTML from './util/yt-html';
+import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
 import YTUtil from './util/yt';
@@ -38,7 +37,7 @@ export default class Player {
         // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
         this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
 
-        const renderer = ytHTML.injectEmptyQueueShell('Queue', false, true);
+        const renderer = YTHTMLUtil.injectEmptyQueueShell('Queue', true, false);
         this.queueItemsElement = renderer.find('#items');
 
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
@@ -73,7 +72,6 @@ export default class Player {
      * @see startUrlChangeSchedule
      */
     private onUrlChange(o: Location, n: Location): void {
-        console.log(`URL CHANGE: ${o.href} -> ${n.href}`);
         const oldParams = new URLSearchParams(o.search);
         const newParams = new URLSearchParams(n.search);
 
@@ -89,8 +87,6 @@ export default class Player {
         const videoId = newParams.get('v');
         if(videoId !== null) {
             this.sendWsMessage(Message.PLAY_VIDEO, videoId);
-            console.log(`Loading new VIDEO: ${videoId}`);
-            this.ytPlayer.loadVideoById(videoId);
         }
     }
 
@@ -123,7 +119,6 @@ export default class Player {
      * Handler function for the Websocket 'connect' event
      */
     private onWsConnected(): void {
-        console.log('Connected');
         const video = VideoUtil.getCurrentVideo();
         this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
@@ -162,7 +157,7 @@ export default class Player {
                     this.ytPlayer.seekTo(parseFloat(data), true);
                     break;
                 case Message.PLAY_VIDEO:
-                    this.changeQueryStringVideoId(data);
+                    this.navigateToVideo(data);
                     break;
                 case Message.QUEUE:
                     this.populateQueue(data);
@@ -194,7 +189,6 @@ export default class Player {
      * @param data The message data
      */
     private sendWsMessage(type: Message, data: any): void {
-        console.log(`Sending Message: ${type} | ${data}`);
         const message = {
             action: type,
             data
@@ -241,7 +235,7 @@ export default class Player {
      * @param selected
      */
     private addToQueue(video: Video, selected: boolean = false): void {
-        ytHTML.injectVideoQueueElement(
+        YTHTMLUtil.injectVideoQueueElement(
             this.queueItemsElement,
             selected,
             video.videoId,
@@ -289,7 +283,7 @@ export default class Player {
      */
     private queueElementClickHandler(videoId: string): () => void {
         return () => {
-            this.changeQueryStringVideoId(videoId);
+            this.navigateToVideo(videoId);
         };
     }
 
@@ -304,29 +298,33 @@ export default class Player {
     }
 
     /**
-     * Change the videoId in the current URL without reloading the page.
+     * Navigate to the videoId using the YT Hook.
+     * Will also select the video in the Queue.
      *
      * @param videoId
      */
-    private changeQueryStringVideoId(videoId: string): void {
-        const params = new URLSearchParams(window.location.search);
-        params.set('v', videoId);
-        URLUtil.changeQueryString(params);
+    private navigateToVideo(videoId: string): void {
         this.selectQueueElement(videoId);
 
-        const app = YTUtil.getApp();
-        app.onYtNavigate_({
-            detail: {
-                endpoint: {
-                    watchEndpoint: {
-                        videoId
+        const params = new URLSearchParams(window.location.search);
+        const currentVideoId = params.get('v');
+        if (currentVideoId !== videoId) {
+            const app = YTUtil.getApp();
+            app.onYtNavigate_({
+                detail: {
+                    endpoint: {
+                        watchEndpoint: {
+                            videoId
+                        }
+                    },
+                    params: {
+                        [SessionId]: this.sessionId
                     }
-                },
-                params: {
-                    [SessionId]: this.sessionId
                 }
-            }
-        });
+            });
+        }
+
+        YTHTMLUtil.removeUpnext();
     }
 
     /**
