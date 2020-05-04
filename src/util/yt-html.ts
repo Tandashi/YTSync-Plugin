@@ -162,31 +162,28 @@ export default class YTHTMLUtil {
         const hasText = text !== '' && text !== null;
 
         const container = YTHTMLUtil.createYtIconButtonRendererShell(containerId, hasText);
-        $(objId)
-            .append(container);
+        objId.append(container);
 
-        const a = YTHTMLUtil.createYtSimpleEndpointShell();
-        $(container)
-            .append(a);
+        const endpoint = YTHTMLUtil.createYtSimpleEndpointShell();
+        container.append(endpoint);
 
         const iconButton = YTHTMLUtil.createYtIconButtonShell();
-
         const formattedString = hasText ? YTHTMLUtil.createYtFormattedStringShell(cb) : null;
-        $(a)
+        endpoint
             .append(iconButton)
             .append(formattedString);
 
         if (hasText) {
-            $(formattedString)
+            formattedString
                 .text(text);
         }
 
         const iconShell = YTHTMLUtil.createYtIconShell();
-        $(iconButton).find('button#button')
+        iconButton.find('button#button')
             .append(iconShell)
             .click(cb);
 
-        $(iconShell)
+        iconShell
             .append(icon);
 
         return container;
@@ -201,12 +198,11 @@ export default class YTHTMLUtil {
             if (container && container.length === 1) {
                 const autoplayButton = container.find('paper-toggle-button');
 
-                console.log(autoplayButton.attr('active') === '');
                 if(autoplayButton && autoplayButton.attr('active') === '') {
                     autoplayButton.click();
                 }
 
-                // container.remove();
+                container.remove();
                 clearInterval(handle);
             }
         }, 200);
@@ -227,29 +223,28 @@ export default class YTHTMLUtil {
      */
     public static injectVideoQueueElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
         const playlistVideoRenderer = YTHTMLUtil.createYtPlaylistPanelVideoRendererShell(videoId, selected);
-        $(obj)
-            .append(playlistVideoRenderer);
+        obj.append(playlistVideoRenderer);
 
         const menuRenderer = YTHTMLUtil.createYtMenuRendererShell();
-        $(playlistVideoRenderer).find('div#menu')
+        playlistVideoRenderer.find('div#menu')
             .append(menuRenderer);
 
-        $(menuRenderer).find('yt-icon-button#button')
+        menuRenderer.find('yt-icon-button#button')
             .attr('hidden', '');
 
-            YTHTMLUtil.injectYtRenderedButton($(menuRenderer).find('div#top-level-buttons'), '', null, YTHTMLUtil.createTrashIcon(), dcb);
+        YTHTMLUtil.injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), '', null, YTHTMLUtil.createTrashIcon(), dcb);
 
-        const img = $(playlistVideoRenderer).find('img#img');
+        const img = playlistVideoRenderer.find('img#img');
         const imgURL = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
         img.attr('src', imgURL);
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                const newImg = $(playlistVideoRenderer).find('img#img');
+                const newImg = playlistVideoRenderer.find('img#img');
                 if (mutation.type === 'attributes' && newImg.attr('src') !== imgURL) {
                     img.attr('src', imgURL);
 
-                    $(playlistVideoRenderer).find('a#thumbnail > yt-img-shadow')
+                    playlistVideoRenderer.find('a#thumbnail > yt-img-shadow')
                         .off()
                         .css('background-color', 'transparent')
                         .attr('loaded', '')
@@ -262,16 +257,16 @@ export default class YTHTMLUtil {
             attributes: true
         });
 
-        $(playlistVideoRenderer).find('a#wc-endpoint')
+        playlistVideoRenderer.find('a#wc-endpoint')
             .click(ccb);
 
-        $(playlistVideoRenderer).find('a#thumbnail')
+        playlistVideoRenderer.find('a#thumbnail')
             .click(ccb);
 
-        $(playlistVideoRenderer).find('span#video-title')
+        playlistVideoRenderer.find('span#video-title')
             .text(title);
 
-        $(playlistVideoRenderer).find('span#byline')
+        playlistVideoRenderer.find('span#byline')
             .text(byline);
 
         return playlistVideoRenderer;
@@ -294,7 +289,7 @@ export default class YTHTMLUtil {
             .replaceWith(renderer);
 
         if(!collapsible) {
-            $(renderer)
+            renderer
                 .removeAttr('collapsible')
                 .removeAttr('collapsed');
         }
@@ -305,7 +300,7 @@ export default class YTHTMLUtil {
             }
         }
 
-        $(renderer)
+        renderer
             .find('h3 yt-formatted-string')
             .text(title);
 

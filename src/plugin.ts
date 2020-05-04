@@ -79,7 +79,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string,
 
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
     const handler = setInterval(() => {
-        const container = $('div#info ytd-menu-renderer div#top-level-buttons');
+        const container = $('ytd-video-primary-info-renderer div#info ytd-menu-renderer div#top-level-buttons');
         if (container.length === 1 && container.find(`#${id}`).length === 0) {
             YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);
             clearInterval(handler);
