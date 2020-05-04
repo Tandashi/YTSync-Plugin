@@ -244,7 +244,7 @@ export default class Player {
      * @param selected
      */
     private addToQueue(video: Video, selected: boolean = false): void {
-        YTHTMLUtil.injectVideoQueueElement(
+        YTHTMLUtil.injectYtPlaylistPanelVideoRendererElement(
             this.queueItemsElement,
             selected,
             video.videoId,
@@ -353,6 +353,9 @@ export default class Player {
         this.navigateToVideo(nextVideoId);
     }
 
+    /**
+     * @returns If autoplay is on or not
+     */
     private isAutoplay(): boolean {
         return this.roomInfoElement.find('#autoplay').attr('active') === '';
     }

@@ -244,7 +244,7 @@ export default class YTHTMLUtil {
      *
      * @return The created ytd-playlist-panel-video-renderer>
      */
-    public static injectVideoQueueElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
+    public static injectYtPlaylistPanelVideoRendererElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
         const playlistVideoRenderer = YTHTMLUtil.createYtPlaylistPanelVideoRendererShell(videoId, selected);
         obj.append(playlistVideoRenderer);
 
