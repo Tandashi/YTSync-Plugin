@@ -60,6 +60,9 @@ export default class Player {
             case unsafeWindow.YT.PlayerState.PAUSED:
                 this.sendWsTimeMessage(Message.PAUSE);
                 break;
+            case unsafeWindow.YT.PlayerState.ENDED:
+                this.playNextVideoInQueue();
+                break;
         }
     }
 
@@ -325,6 +328,22 @@ export default class Player {
         }
 
         YTHTMLUtil.removeUpnext();
+    }
+
+    /**
+     * Playes the next Video in Queue if there is one
+     */
+    private playNextVideoInQueue(): void {
+        const current = this.queueItemsElement.find(`[selected]`);
+        const children = this.queueItemsElement.children();
+        const index = children.index(current.get(0));
+
+        if (index === children.length - 1)
+            return;
+
+        const next = children.get(index + 1);
+        const nextVideoId = $(next).attr('videoId');
+        this.navigateToVideo(nextVideoId);
     }
 
     /**
