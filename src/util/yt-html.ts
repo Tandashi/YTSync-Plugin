@@ -323,6 +323,10 @@ export default class YTHTMLUtil {
         const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary div#secondary-inner'), 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
 
         const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
+        autoplayButton.off();
+        autoplayButton.click(() => {
+            autoplayButton.toggleClass('active');
+        });
 
         renderer
             .find('#top-row-buttons')
