@@ -1,3 +1,5 @@
+import { InjectAction } from '../enum/action';
+
 export default class YTHTMLUtil {
     /**
      * Create a SVG
@@ -128,18 +130,26 @@ export default class YTHTMLUtil {
 
     /**
      * Create a <ytd-playlist-panel-renderer>
+     *
+     * @param id The element id
      */
-    private static createYtPlaylistPanelRendererShell(): JQuery<HTMLElement> {
+    private static createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
         return $(`
             <ytd-playlist-panel-renderer
-                id="playlist"
+                id="${id}"
                 class="style-scope ytd-watch-flexy"
                 js-panel-height_=""
                 has-playlist-buttons=""
                 has-toolbar_=""
                 playlist-type_="TLPQ",
-                collapsible=""
-                collapsed=""
+            />
+        `);
+    }
+
+    private static createPaperToggleButtonShell(id: string): JQuery<HTMLElement> {
+        return $(`
+            <paper-toggle-button
+                id="${id}"
             />
         `);
     }
@@ -202,6 +212,19 @@ export default class YTHTMLUtil {
                     autoplayButton.click();
                 }
 
+                container.remove();
+                clearInterval(handle);
+            }
+        }, 200);
+    }
+
+    /**
+     * Removes the related section
+     */
+    public static removeRelated(): void {
+        const handle = setInterval(() => {
+            const container = $('#related');
+            if (container && container.length === 1) {
                 container.remove();
                 clearInterval(handle);
             }
@@ -283,10 +306,53 @@ export default class YTHTMLUtil {
      *
      * @return The created <ytd-playlist-panel-renderer>
      */
-    public static injectEmptyQueueShell(title: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-        const renderer = YTHTMLUtil.createYtPlaylistPanelRendererShell();
-        $('div#secondary #playlist')
-            .replaceWith(renderer);
+    public static injectEmptyQueueShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+        return YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary #playlist'), 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
+    }
+
+    /**
+     * Inject a empty room info shell using a <ytd-playlist-panel-renderer>
+     *
+     * @param title The title of the room info panel
+     * @param collapsible If the room info should be collapsible
+     * @param collapsed If the room info should be initally collapsed
+     *
+     * @return The created <ytd-playlist-panel-renderer>
+     */
+    public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+        const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary div#secondary-inner'), 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
+
+        const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
+
+        renderer
+            .find('#top-row-buttons')
+            .append(autoplayButton);
+
+        return renderer;
+    }
+
+    /**
+     * Inject a Shell <ytd-playlist-panel-renderer> into the given object
+     *
+     * @param element The element to inject the <ytd-playlist-panel-renderer>
+     * @param id The id of the <ytd-playlist-panel-renderer>
+     * @param title The title of the <ytd-playlist-panel-renderer>
+     * @param description The description of <ytd-playlist-panel-renderer>
+     * @param collapsible If the <ytd-playlist-panel-renderer> should be collapsible
+     * @param collapsed If the <ytd-playlist-panel-renderer> should be initally collapsed
+     * @param action The method to use to inject the <ytd-playlist-panel-renderer>
+     */
+    public static injectYtPlaylistPanelRenderer(element: JQuery<HTMLElement>, id: string, title: string, description: string, collapsible: boolean, collapsed: boolean, action: InjectAction): JQuery<HTMLElement> {
+        const renderer = YTHTMLUtil.createYtPlaylistPanelRendererShell(id);
+
+        switch(action) {
+            case InjectAction.APPEND:
+                element.append(renderer);
+                break;
+            case InjectAction.REPLACE:
+                element.replaceWith(renderer);
+                break;
+        }
 
         if(!collapsible) {
             renderer
@@ -300,10 +366,30 @@ export default class YTHTMLUtil {
             }
         }
 
+        YTHTMLUtil.changeYtPlaylistPanelRendererTitle(renderer, title);
+        YTHTMLUtil.changeYtPlaylistPanelRendererDescription(renderer, description);
+        return renderer;
+    }
+
+    /**
+     * Change the title of a <ytd-playlist-panel-renderer> Element
+     *
+     * @param renderer The <ytd-playlist-panel-renderer> Element
+     * @param title The new title text
+     */
+    public static changeYtPlaylistPanelRendererTitle(renderer: JQuery<HTMLElement>, title: string) {
         renderer
             .find('h3 yt-formatted-string')
             .text(title);
+    }
 
-        return renderer;
+    /**
+     * Change the description of a <ytd-playlist-panel-renderer> Element
+     *
+     * @param renderer The <ytd-playlist-panel-renderer> Element
+     * @param description The new description text
+     */
+    public static changeYtPlaylistPanelRendererDescription(renderer: JQuery<HTMLElement>, description: string): void {
+        renderer.find('div.index-message-wrapper span.index-message').text(description);
     }
 }

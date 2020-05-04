@@ -17,6 +17,7 @@ export default class Player {
     private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
     private queueItemsElement: JQuery<Element>;
+    private roomInfoElement: JQuery<HTMLElement>;
 
     constructor(options: PlayerOptions) {
         this.options = options;
@@ -37,8 +38,10 @@ export default class Player {
         // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
         this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
 
-        const renderer = YTHTMLUtil.injectEmptyQueueShell('Queue', true, false);
-        this.queueItemsElement = renderer.find('#items');
+        const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
+        this.queueItemsElement = queueRenderer.find('#items');
+
+        this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell('Room Info', 'Not connected', false, false);
 
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
@@ -61,7 +64,8 @@ export default class Player {
                 this.sendWsTimeMessage(Message.PAUSE);
                 break;
             case unsafeWindow.YT.PlayerState.ENDED:
-                this.playNextVideoInQueue();
+                if (this.isAutoplay())
+                    this.playNextVideoInQueue();
                 break;
         }
     }
@@ -125,6 +129,8 @@ export default class Player {
         const video = VideoUtil.getCurrentVideo();
         this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
+
+        YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, 'Connected');
     }
 
     /**
@@ -328,6 +334,7 @@ export default class Player {
         }
 
         YTHTMLUtil.removeUpnext();
+        YTHTMLUtil.removeRelated();
     }
 
     /**
@@ -344,6 +351,10 @@ export default class Player {
         const next = children.get(index + 1);
         const nextVideoId = $(next).attr('videoId');
         this.navigateToVideo(nextVideoId);
+    }
+
+    private isAutoplay(): boolean {
+        return this.roomInfoElement.find('#autoplay').attr('active') === '';
     }
 
     /**
