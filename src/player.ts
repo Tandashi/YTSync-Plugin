@@ -5,6 +5,7 @@ import VideoUtil from './util/video';
 import { Message } from './enum/message';
 import YTUtil from './util/yt';
 import Client from './model/client';
+import { Role } from './enum/role';
 
 declare global {
     interface Window {
@@ -144,6 +145,7 @@ export default class Player {
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
         this.setAutoplay(this.autoplay, true);
+        console.log('Connected');
     }
 
     /**
@@ -318,7 +320,7 @@ export default class Player {
      */
     private queueElementClickHandler(videoId: string): () => void {
         return () => {
-            this.navigateToVideo(videoId);
+            this.sendWsMessage(Message.PLAY_VIDEO, videoId);
         };
     }
 
@@ -418,10 +420,31 @@ export default class Player {
         if(socketIds.includes(client.socketId))
             return;
 
+        const badges = [];
+        switch(client.role) {
+            case Role.PROMOTED:
+                badges.push({
+                    id: 'unpromote',
+                    onClick: () => {
+                        this.sendWsMessage(Message.UNPROMOTE, client.socketId);
+                    }
+                });
+                break;
+            case Role.MEMBER:
+                badges.push({
+                    id: 'promote',
+                    onClick: () => {
+                        this.sendWsMessage(Message.PROMOTE, client.socketId);
+                    }
+                });
+                break;
+        }
+
         YTHTMLUtil.injectYtLiveChatParticipantRenderer(
             this.roomInfoElement.find('#items'),
             this.options.connection,
-            client
+            client,
+            badges
         );
 
         this.clients.push(client);

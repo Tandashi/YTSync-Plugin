@@ -9,5 +9,7 @@ export enum Message {
     REMOVE_FROM_QUEUE = 'remove-from-queue',
     CLIENTS = 'clients',
     CLIENT_CONNECT = 'client-connect',
-    CLIENT_DISCONNECT = 'client-disconnect'
+    CLIENT_DISCONNECT = 'client-disconnect',
+    PROMOTE = 'promote',
+    UNPROMOTE = 'unpromote'
 }

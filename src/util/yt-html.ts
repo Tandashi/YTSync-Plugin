@@ -155,6 +155,12 @@ export default class YTHTMLUtil {
         `);
     }
 
+    private static createYtLiveChatAuthorBadgeRendererShell() {
+        return $(`
+            <yt-live-chat-author-badge-renderer class="style-scope yt-live-chat-author-chip" style="margin-left: 10px"/>
+        `);
+    }
+
     private static createPaperToggleButtonShell(id: string): JQuery<HTMLElement> {
         return $(`
             <paper-toggle-button
@@ -399,7 +405,7 @@ export default class YTHTMLUtil {
         renderer.find('div.index-message-wrapper span.index-message').text(description);
     }
 
-    public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, client: Client): JQuery<HTMLElement> {
+    public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, client: Client, badges: { id: string, onClick: () => void }[]): JQuery<HTMLElement> {
         const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(client.socketId);
         element.append(renderer);
 
@@ -407,7 +413,21 @@ export default class YTHTMLUtil {
             .find('span#author-name')
             .text(client.name);
 
-        YTHTMLUtil.createImageSrcObserver(renderer, `${config.protocol}://${config.host}:${config.port}/img/role/${client.role}.png`);
+        const serverBasePath = `${config.protocol}://${config.host}:${config.port}`;
+
+        const badgeContainer = renderer.find('span#chat-badges');
+        for(const badge of badges) {
+            const badgeRenderer = YTHTMLUtil.createYtLiveChatAuthorBadgeRendererShell();
+            badgeContainer.append(badgeRenderer);
+
+            badgeRenderer
+                .click(badge.onClick)
+                .find('#image')
+                .append(`<img src="${serverBasePath}/img/badge/${badge.id}.png" class="style-scope yt-live-chat-author-badge-renderer" />`);
+        }
+
+        YTHTMLUtil.createImageSrcObserver(renderer, `${serverBasePath}/img/role/${client.role}.png`);
+
         return renderer;
     }
 
