@@ -155,6 +155,20 @@ export default class YTHTMLUtil {
     }
 
     /**
+     * Set toggle state of a toggle button
+     *
+     * @param button The toggle button
+     * @param state The state to set
+     */
+    public static setPapperToggleButtonState(button: JQuery<Element>, state: boolean): void {
+        state ? button.attr('active', '') : button.removeAttr('active');
+    }
+
+    public static getPapperToggleButtonState(button: JQuery<Element>): boolean {
+        return button.attr('active') === '';
+    }
+
+    /**
      * Inject a <ytd-button-renderer> into an object
      *
      * @param objId The Id of the object the YtRenderedButton should be injected to
@@ -319,13 +333,13 @@ export default class YTHTMLUtil {
      *
      * @return The created <ytd-playlist-panel-renderer>
      */
-    public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+    public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
         const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary div#secondary-inner'), 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
 
         const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
         autoplayButton.off();
         autoplayButton.click(() => {
-            autoplayButton.toggleClass('active');
+            cb(autoplayButton.attr('active') === '');
         });
 
         renderer

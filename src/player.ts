@@ -19,6 +19,8 @@ export default class Player {
     private queueItemsElement: JQuery<Element>;
     private roomInfoElement: JQuery<HTMLElement>;
 
+    private autoplay: boolean = true;
+
     constructor(options: PlayerOptions) {
         this.options = options;
     }
@@ -41,7 +43,15 @@ export default class Player {
         const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
         this.queueItemsElement = queueRenderer.find('#items');
 
-        this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell('Room Info', 'Not connected', false, false);
+        this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
+            'Room Info',
+            'Not connected',
+            false,
+            false,
+            (state: boolean) => {
+                this.setAutoplay(state);
+            }
+        );
 
         ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
@@ -64,7 +74,7 @@ export default class Player {
                 this.sendWsTimeMessage(Message.PAUSE);
                 break;
             case unsafeWindow.YT.PlayerState.ENDED:
-                if (this.isAutoplay())
+                if (this.autoplay)
                     this.playNextVideoInQueue();
                 break;
         }
@@ -131,6 +141,7 @@ export default class Player {
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
         YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, 'Connected');
+        this.setAutoplay(this.autoplay, true);
     }
 
     /**
@@ -164,6 +175,10 @@ export default class Player {
                     break;
                 case Message.SEEK:
                     this.ytPlayer.seekTo(parseFloat(data), true);
+                    break;
+                case Message.AUTOPLAY:
+                    console.log('Set autoplay', data);
+                    this.setAutoplay(data);
                     break;
                 case Message.PLAY_VIDEO:
                     this.navigateToVideo(data);
@@ -354,10 +369,20 @@ export default class Player {
     }
 
     /**
-     * @returns If autoplay is on or not
+     * Set autoplay. Will also update the toggle.
+     *
+     * @param autoplay
      */
-    private isAutoplay(): boolean {
-        return this.roomInfoElement.find('#autoplay').attr('active') === '';
+    private setAutoplay(autoplay: boolean, force: boolean = false): void {
+        if(this.autoplay === autoplay && !force)
+            return;
+
+        const autoplayToggle = this.roomInfoElement.find('#autoplay');
+        console.log(`Set autoplay fucn: ${autoplay}`);
+        this.autoplay = autoplay;
+
+        YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
+        this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
     }
 
     /**
