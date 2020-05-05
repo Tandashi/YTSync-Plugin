@@ -280,28 +280,7 @@ export default class YTHTMLUtil {
 
         YTHTMLUtil.injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), '', null, YTHTMLUtil.createTrashIcon(), dcb);
 
-        const img = playlistVideoRenderer.find('img#img');
-        const imgURL = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-        img.attr('src', imgURL);
-
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                const newImg = playlistVideoRenderer.find('img#img');
-                if (mutation.type === 'attributes' && newImg.attr('src') !== imgURL) {
-                    img.attr('src', imgURL);
-
-                    playlistVideoRenderer.find('a#thumbnail > yt-img-shadow')
-                        .off()
-                        .css('background-color', 'transparent')
-                        .attr('loaded', '')
-                        .removeClass('empty');
-                }
-            });
-        });
-
-        observer.observe(img.get(0), {
-            attributes: true
-        });
+        YTHTMLUtil.createImageSrcObserver(playlistVideoRenderer, `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
 
         playlistVideoRenderer.find('a#wc-endpoint')
             .click(ccb);
@@ -420,7 +399,7 @@ export default class YTHTMLUtil {
         renderer.find('div.index-message-wrapper span.index-message').text(description);
     }
 
-    public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, client: Client): JQuery<HTMLElement> {
+    public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, client: Client): JQuery<HTMLElement> {
         const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(client.socketId);
         element.append(renderer);
 
@@ -428,6 +407,31 @@ export default class YTHTMLUtil {
             .find('span#author-name')
             .text(client.name);
 
+        YTHTMLUtil.createImageSrcObserver(renderer, `${config.protocol}://${config.host}:${config.port}/img/role/${client.role}.png`);
         return renderer;
+    }
+
+    private static createImageSrcObserver(renderer: JQuery<Element>, imgUrl: string) {
+        const img = renderer.find('img#img');
+        img.attr('src', imgUrl);
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                const newImg = renderer.find('img#img');
+                if (mutation.type === 'attributes' && newImg.attr('src') !== imgUrl) {
+                    img.attr('src', imgUrl);
+
+                    renderer.find('yt-img-shadow')
+                        .off()
+                        .css('background-color', 'transparent')
+                        .attr('loaded', '')
+                        .removeClass('empty');
+                }
+            });
+        });
+
+        observer.observe(img.get(0), {
+            attributes: true
+        });
     }
 }

@@ -407,6 +407,7 @@ export default class Player {
 
             YTHTMLUtil.injectYtLiveChatParticipantRenderer(
                 this.roomInfoElement.find('#items'),
+                this.options.connection,
                 c
             );
 
