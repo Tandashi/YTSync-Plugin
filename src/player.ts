@@ -194,10 +194,11 @@ export default class Player {
                     this.removeFromQueue(data);
                     break;
                 case Message.CLIENTS:
-                    this.addClients(data);
+                    this.clients = [];
+                    this.populateClients(data);
                     break;
                 case Message.CLIENT_CONNECT:
-                    this.addClients([data]);
+                    this.addClient(data);
                     break;
                 case Message.CLIENT_DISCONNECT:
                     this.removeClient(data);
@@ -394,25 +395,36 @@ export default class Player {
         this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
     }
 
+    private populateClients(clients: Client[]) {
+        this.clients = [];
+        this.roomInfoElement
+            .find('#items')
+            .children()
+            .remove();
+
+        clients.forEach((c) => {
+            this.addClient(c);
+        });
+    }
+
     /**
      * Add clients visually.
      *
      * @param clients The clients to add
      */
-    private addClients(clients: Client[]): void {
+    private addClient(client: Client): void {
         const socketIds = this.clients.map(c => c.socketId);
-        clients.forEach((c) => {
-            if(socketIds.includes(c.socketId))
-                return;
 
-            YTHTMLUtil.injectYtLiveChatParticipantRenderer(
-                this.roomInfoElement.find('#items'),
-                this.options.connection,
-                c
-            );
+        if(socketIds.includes(client.socketId))
+            return;
 
-            this.clients.push(c);
-        });
+        YTHTMLUtil.injectYtLiveChatParticipantRenderer(
+            this.roomInfoElement.find('#items'),
+            this.options.connection,
+            client
+        );
+
+        this.clients.push(client);
 
         YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
     }
