@@ -1,4 +1,5 @@
 import { InjectAction } from '../enum/action';
+import Client from '../model/client';
 
 export default class YTHTMLUtil {
     /**
@@ -142,6 +143,14 @@ export default class YTHTMLUtil {
                 has-playlist-buttons=""
                 has-toolbar_=""
                 playlist-type_="TLPQ",
+            />
+        `);
+    }
+
+    private static createYtLiveChatParticipantRendererShell(socketId: string): JQuery<HTMLElement> {
+        return $(`
+            <yt-live-chat-participant-renderer
+                socketId="${socketId}"
             />
         `);
     }
@@ -409,5 +418,16 @@ export default class YTHTMLUtil {
      */
     public static changeYtPlaylistPanelRendererDescription(renderer: JQuery<HTMLElement>, description: string): void {
         renderer.find('div.index-message-wrapper span.index-message').text(description);
+    }
+
+    public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, client: Client): JQuery<HTMLElement> {
+        const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(client.socketId);
+        element.append(renderer);
+
+        renderer
+            .find('span#author-name')
+            .text(client.name);
+
+        return renderer;
     }
 }

@@ -4,6 +4,7 @@ import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
 import YTUtil from './util/yt';
+import Client from './model/client';
 
 declare global {
     interface Window {
@@ -20,6 +21,8 @@ export default class Player {
     private roomInfoElement: JQuery<HTMLElement>;
 
     private autoplay: boolean = true;
+
+    private clients: Client[] = [];
 
     constructor(options: PlayerOptions) {
         this.options = options;
@@ -140,7 +143,6 @@ export default class Player {
         this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
-        YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, 'Connected');
         this.setAutoplay(this.autoplay, true);
     }
 
@@ -177,7 +179,6 @@ export default class Player {
                     this.ytPlayer.seekTo(parseFloat(data), true);
                     break;
                 case Message.AUTOPLAY:
-                    console.log('Set autoplay', data);
                     this.setAutoplay(data);
                     break;
                 case Message.PLAY_VIDEO:
@@ -191,6 +192,15 @@ export default class Player {
                     break;
                 case Message.REMOVE_FROM_QUEUE:
                     this.removeFromQueue(data);
+                    break;
+                case Message.CLIENTS:
+                    this.addClients(data);
+                    break;
+                case Message.CLIENT_CONNECT:
+                    this.addClients([data]);
+                    break;
+                case Message.CLIENT_DISCONNECT:
+                    this.removeClient(data);
                     break;
             }
         }
@@ -378,11 +388,46 @@ export default class Player {
             return;
 
         const autoplayToggle = this.roomInfoElement.find('#autoplay');
-        console.log(`Set autoplay fucn: ${autoplay}`);
         this.autoplay = autoplay;
 
         YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
         this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
+    }
+
+    /**
+     * Add clients visually.
+     *
+     * @param clients The clients to add
+     */
+    private addClients(clients: Client[]): void {
+        const socketIds = this.clients.map(c => c.socketId);
+        clients.forEach((c) => {
+            if(socketIds.includes(c.socketId))
+                return;
+
+            YTHTMLUtil.injectYtLiveChatParticipantRenderer(
+                this.roomInfoElement.find('#items'),
+                c
+            );
+
+            this.clients.push(c);
+        });
+
+        YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
+    }
+
+    /**
+     * Remove a clients visually.
+     *
+     * @param socketId The socketId of the client that should be removed
+     */
+    private removeClient(socketId: string): void {
+        this.roomInfoElement
+            .find(`#items [socketId="${socketId}"]`)
+            .remove();
+
+        this.clients = this.clients.filter(c => c.socketId !== socketId);
+        YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
     }
 
     /**
