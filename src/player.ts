@@ -32,9 +32,7 @@ export default class Player {
     /**
      * Create a Player.
      *
-     * @param videoId The video that should be initially be played
      * @param sessionId
-     * @param queueElement The element of the playlist items (Mostly 'ytd-playlist-panel-renderer #items')
      */
     public create(sessionId: string) {
         if(this.ytPlayer !== null)
@@ -65,9 +63,9 @@ export default class Player {
     }
 
     /**
-     * Handler function for a YT.Player -> OnStateChange
+     * Handler function for a YT.Player -> OnStateChange.
      *
-     * @param event
+     * @param state The new state the player is now in
      */
     private onStateChange(state: YT.PlayerState): void {
         switch(state) {
@@ -151,8 +149,7 @@ export default class Player {
     /**
      * Handler function for a Websocket message.
      *
-     * @param message
-     * @param player
+     * @param message The message that was received
      */
     private onWsMessage(message: string): void {
         try {
@@ -385,6 +382,8 @@ export default class Player {
      * Set autoplay. Will also update the toggle.
      *
      * @param autoplay
+     * @param force If the autoplay should be set even if its not different to the current state.
+     *              Might be used to send a initial Message.AUTOPLAY.
      */
     private setAutoplay(autoplay: boolean, force: boolean = false): void {
         if(this.autoplay === autoplay && !force)
@@ -397,7 +396,12 @@ export default class Player {
         this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
     }
 
-    private populateClients(clients: Client[]) {
+    /**
+     * Populate the client renderer.
+     *
+     * @param clients The clients the renderer should be populated with
+     */
+    private populateClients(clients: Client[]): void {
         this.clients = [];
         this.roomInfoElement
             .find('#items')

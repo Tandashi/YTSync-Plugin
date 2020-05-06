@@ -71,7 +71,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Create a <a class="yt-simple-endoint"> Shell
+     * Create a <a class="yt-simple-endoint"> Shell.
      */
     private static createYtSimpleEndpointShell(): JQuery<HTMLElement> {
         return $(`
@@ -112,6 +112,7 @@ export default class YTHTMLUtil {
      * Mostly contained in a <ytd-playlist-panel-renderer>.
      * Represents one Video entry in the Playlist Queue.
      *
+     * @param videoId The id of the video that this renderer represents
      * @param selected If it is selected
      */
     private static createYtPlaylistPanelVideoRendererShell(videoId: string, selected: boolean): JQuery<HTMLElement> {
@@ -130,7 +131,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Create a <ytd-playlist-panel-renderer>
+     * Create a <ytd-playlist-panel-renderer> Shell.
      *
      * @param id The element id
      */
@@ -147,6 +148,12 @@ export default class YTHTMLUtil {
         `);
     }
 
+    /**
+     * Create a <yt-live-chat-participant-renderer> Shell.
+     * Will not contain any text. Text must be set after injection.
+     *
+     * @param socketId The id of the socket that this renderer represents
+     */
     private static createYtLiveChatParticipantRendererShell(socketId: string): JQuery<HTMLElement> {
         return $(`
             <yt-live-chat-participant-renderer
@@ -155,12 +162,20 @@ export default class YTHTMLUtil {
         `);
     }
 
+    /**
+     * Create a yt-live-chat-author-badge-renderer> Shell.
+     */
     private static createYtLiveChatAuthorBadgeRendererShell() {
         return $(`
             <yt-live-chat-author-badge-renderer class="style-scope yt-live-chat-author-chip" style="margin-left: 10px"/>
         `);
     }
 
+    /**
+     * Create a <paper-toggle-button> Shell.
+     *
+     * @param id The id that this toggle should get
+     */
     private static createPaperToggleButtonShell(id: string): JQuery<HTMLElement> {
         return $(`
             <paper-toggle-button
@@ -170,7 +185,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Set toggle state of a toggle button
+     * Set toggle state of a toggle button.
      *
      * @param button The toggle button
      * @param state The state to set
@@ -179,14 +194,20 @@ export default class YTHTMLUtil {
         state ? button.attr('active', '') : button.removeAttr('active');
     }
 
+    /**
+     * Get the current state of the given button.
+     *
+     * @param button The button whos state should be checked
+     */
     public static getPapperToggleButtonState(button: JQuery<Element>): boolean {
         return button.attr('active') === '';
     }
 
     /**
-     * Inject a <ytd-button-renderer> into an object
+     * Inject a <ytd-button-renderer> into an object.
      *
      * @param objId The Id of the object the YtRenderedButton should be injected to
+     * @param containerId The Id the container should get
      * @param text The text of the button
      * @param icon The icon of the button (needs to be a svg Element)
      * @param cb The function that should be called on button click
@@ -229,7 +250,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Remove the Upnext section and disable autoplay
+     * Remove the Upnext section and disable autoplay.
      */
     public static removeUpnext(): void {
         const handle = setInterval(() => {
@@ -248,7 +269,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Removes the related section
+     * Removes the related section.
      */
     public static removeRelated(): void {
         const handle = setInterval(() => {
@@ -261,7 +282,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Inject a Video Queue element
+     * Inject a Video Queue element.
      *
      * @param obj The object the element should be injected as child into. (Most likly "ytd-playlist-panel-renderer #items")
      * @param selected If the element is currently selected
@@ -309,6 +330,7 @@ export default class YTHTMLUtil {
      * So inject this first and then fill it with custom content.
      *
      * @param title The title of the Playlist
+     * @param description The description of the Playlist
      * @param collapsible If the Playlist should be collapsible
      * @param collapsed If the Playlist should be initially collapsed
      *
@@ -319,11 +341,13 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Inject a empty room info shell using a <ytd-playlist-panel-renderer>
+     * Inject a empty room info shell using a <ytd-playlist-panel-renderer>.
      *
      * @param title The title of the room info panel
+     * @param description The description of the room info panel
      * @param collapsible If the room info should be collapsible
      * @param collapsed If the room info should be initally collapsed
+     * @param cb The function that should be called when the autoplay toggle gets clicked
      *
      * @return The created <ytd-playlist-panel-renderer>
      */
@@ -344,7 +368,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Inject a Shell <ytd-playlist-panel-renderer> into the given object
+     * Inject a Shell <ytd-playlist-panel-renderer> into the given object.
      *
      * @param element The element to inject the <ytd-playlist-panel-renderer>
      * @param id The id of the <ytd-playlist-panel-renderer>
@@ -384,7 +408,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Change the title of a <ytd-playlist-panel-renderer> Element
+     * Change the title of a <ytd-playlist-panel-renderer> Element.
      *
      * @param renderer The <ytd-playlist-panel-renderer> Element
      * @param title The new title text
@@ -396,7 +420,7 @@ export default class YTHTMLUtil {
     }
 
     /**
-     * Change the description of a <ytd-playlist-panel-renderer> Element
+     * Change the description of a <ytd-playlist-panel-renderer> Element.
      *
      * @param renderer The <ytd-playlist-panel-renderer> Element
      * @param description The new description text
@@ -405,6 +429,14 @@ export default class YTHTMLUtil {
         renderer.find('div.index-message-wrapper span.index-message').text(description);
     }
 
+    /**
+     * Inject a <yt-live-chat-participant-renderer> into the given element.
+     *
+     * @param element The element that the created element should be appended to
+     * @param config The server connection configuration of this plugin
+     * @param client The client that should be represented
+     * @param badges The badges that should be displayed
+     */
     public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, client: Client, badges: { id: string, onClick: () => void }[]): JQuery<HTMLElement> {
         const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(client.socketId);
         element.append(renderer);
@@ -431,6 +463,13 @@ export default class YTHTMLUtil {
         return renderer;
     }
 
+    /**
+     * Create a Observer that observes the src attribute of the img#img of the provided renderer.
+     * This is needed in some casese because YouTube removes images sometimes.
+     *
+     * @param renderer The renderer whos image should be observed
+     * @param imgUrl The url of the image
+     */
     private static createImageSrcObserver(renderer: JQuery<Element>, imgUrl: string) {
         const img = renderer.find('img#img');
         img.attr('src', imgUrl);

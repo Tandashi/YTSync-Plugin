@@ -41,6 +41,10 @@ window.onunload = () => {
     });
 };
 
+/**
+ * Handler for URL changes.
+ * Will inject needed elements accordignly.
+ */
 function urlChangeHandler(): void {
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -53,11 +57,16 @@ function urlChangeHandler(): void {
         startInjectingNonSessionItems(urlParams);
     }
     else {
-        startInjectingSessionItems(urlParams, videoId, sessionId);
+        startInjectingSessionItems(urlParams, sessionId);
     }
 }
 
-function startInjectingNonSessionItems(urlParams: URLSearchParams) {
+/**
+ * Inject all elements needed when not in a session
+ *
+ * @param urlParams The current window url parameters
+ */
+function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
     intervals.syncButton = injectButton(Consts.CreateSyncButtonId, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
         urlParams.set(Consts.SessionId, WebsocketUtil.generateSessionId());
         window.location.search = urlParams.toString();
@@ -68,7 +77,13 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams) {
     });
 }
 
-function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string, sessionId: string) {
+/**
+ * Inject all elements needed when in a session
+ *
+ * @param urlParams The current window url parameters
+ * @param sessionId The session id
+ */
+function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
     intervals.leaveButton = injectButton(Consts.LeaveSyncButtonId, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
         urlParams.delete(Consts.SessionId);
         window.location.search = urlParams.toString();
@@ -77,6 +92,14 @@ function startInjectingSessionItems(urlParams: URLSearchParams, videoId: string,
     player.create(sessionId);
 }
 
+/**
+ * Inject a button into the #top-level-buttons of the ytd-video-primary-info-renderer
+ *
+ * @param id The id of the button
+ * @param text The text of the button
+ * @param icon The icon of the button
+ * @param cb The function that should be called when the button was clicked
+ */
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
     const handler = setInterval(() => {
         const container = $('ytd-video-primary-info-renderer div#info ytd-menu-renderer div#top-level-buttons');
