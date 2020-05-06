@@ -9,7 +9,7 @@ const BANNER = stripIndent `
     // ==UserScript==
     // @name         YT Sync
     // @namespace    https://tandashi.de
-    // @version      1.4
+    // @version      1.4.1
     // @description  Sync Youtube Videos directly on Youtube :)
     // @author       Tandashi
     // @match        https://www.youtube.com/*
@@ -17,8 +17,8 @@ const BANNER = stripIndent `
     // @icon         http://www.genyoutube.net/helper/favicon.png
     // @icon64       http://www.genyoutube.net/helper/favicon.png
     // @homepage     https://tandashi.de/
-    // @downloadURL  https://github.com/Tandashi/YTSync-Plugin/releases/latest
-    // @updateURL    https://github.com/Tandashi/YTSync-Plugin/releases/latest
+    // @downloadURL  https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
+    // @updateURL    https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
     //
     // @grant        GM_setValue
     // @grant        GM_getValue
