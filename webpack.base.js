@@ -9,7 +9,7 @@ const BANNER = stripIndent `
     // ==UserScript==
     // @name         YT Sync
     // @namespace    https://tandashi.de
-    // @version      1.3
+    // @version      1.4
     // @description  Sync Youtube Videos directly on Youtube :)
     // @author       Tandashi
     // @match        https://www.youtube.com/*
