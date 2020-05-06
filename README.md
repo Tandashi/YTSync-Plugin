@@ -1,6 +1,7 @@
 # YTSync Plugin
-
-Watch videos directly on YouTube with your friends 🍿. You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
+![YT Sync](https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin)  
+Watch videos directly on YouTube with your friends 🍿.  
+You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
 
 ## Why should I use this and not sync-video / watch2gether / ... ?
 
