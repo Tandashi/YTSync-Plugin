@@ -62,4 +62,4 @@ type QueueStoreCallback = (video: Video) => void;
 /**
  * @param player The found YtPlayer
  */
-type YtPlayerCallback = (player: YT.Player, handler?: () => void) => void;
+type YtPlayerCallback = (player: YT.Player) => void;

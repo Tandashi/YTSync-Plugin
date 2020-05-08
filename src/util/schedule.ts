@@ -94,25 +94,26 @@ export default class ScheduleUtil {
      * Start a "schedule" which checks if the YtPlayer exists.
      *
      * @param cb
-     * @param runInstant If the check should occure instant the first time without waiting invertal initially
+     * @param initalDelay
      * @param interval
      */
-    public static startYtPlayerSchedule(cb: YtPlayerCallback, runInstant: boolean, interval: number = 1000): () => void {
-        const checkYtPlayer = (clearFunc: () => void) => {
+    public static startYtPlayerSchedule(cb: YtPlayerCallback, initalDelay: number = 0, interval: number = 1000): () => void {
+        const checkYtPlayer = () => {
             const player = YTUtil.getPlayer();
 
             if(player !== null)
-                cb(player, clearFunc);
+                cb(player);
         };
 
-        const handle = setInterval(checkYtPlayer, interval);
+        let handle: NodeJS.Timeout;
+        setTimeout(() => {
+            handle = setInterval(checkYtPlayer, interval);
+            checkYtPlayer();
+        }, initalDelay);
 
         const clear = () => {
             clearInterval(handle);
         };
-
-        if(runInstant)
-            checkYtPlayer(clear);
 
         return clear;
     }
@@ -124,20 +125,21 @@ export default class ScheduleUtil {
      * @param runInstant If the check should occure instant the first time without waiting invertal initially
      * @param interval
      */
-    public static waitForElement(element: string, cb: (handler?: () => void) => void, runInstant: boolean, interval: number = 1000) {
-        const checkForElement = (clearFunc: () => void) => {
+    public static waitForElement(element: string, cb: () => void, initalDelay: number = 0, interval: number = 1000) {
+        const checkForElement = () => {
             if ($(element).length !== 0)
-                cb(clearFunc);
+                cb();
         };
 
-        const handle = setInterval(checkForElement, interval);
+        let handle: NodeJS.Timeout;
+        setTimeout(() => {
+            handle = setInterval(checkForElement, interval);
+            checkForElement();
+        }, initalDelay);
 
         const clear = () => {
             clearInterval(handle);
         };
-
-        if(runInstant)
-            checkForElement(clear);
 
         return clear;
     }

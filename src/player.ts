@@ -64,36 +64,29 @@ export default class Player {
         // Check if the YtPlayer exists.
         // This might not be always the cause e.g. when the Autoplay feature of the browser is turned off.
         if (this.ytPlayer === null) {
-            const clearSchedule = ScheduleUtil.startYtPlayerSchedule((player, clearFnc) => {
+            const clearSchedule = ScheduleUtil.startYtPlayerSchedule((player) => {
                 this.ytPlayer = player;
-
-                if(clearFnc !== undefined && clearFnc !== null)
-                    clearFnc();
-                else
-                    clearSchedule();
+                clearSchedule();
 
                 this.onPlayerReady();
-            }, true);
+            });
         }
         else {
             // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
             this.onPlayerReady();
         }
 
-        const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, (clearFnc) => {
+        const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, () => {
             const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
             this.queueItemsElement = queueRenderer.find('#items');
 
-            if(clearFnc !== undefined && clearFnc !== null)
-                clearFnc();
-            else
-                clearWaitForQueueContainer();
+            clearWaitForQueueContainer();
 
             this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
             this.bufferedQueueWsMessages = [];
-        }, true);
+        });
 
-        const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, (clearFnc) => {
+        const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, () => {
             this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
                 'Room Info',
                 'Not connected',
@@ -104,14 +97,11 @@ export default class Player {
                 }
             );
 
-            if(clearFnc !== undefined && clearFnc !== null)
-                clearFnc();
-            else
-                clearWaitForRoomInfoContainer();
+            clearWaitForRoomInfoContainer();
 
             this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
             this.bufferedRoomInfoWsMessages = [];
-        }, true);
+        });
 
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
@@ -119,6 +109,11 @@ export default class Player {
         this.connectWs(sessionId);
     }
 
+    /**
+     * Exectue buffered Websocket Commands.
+     *
+     * @param buffer
+     */
     private executeBufferedWsMessages(buffer: string[]): void {
         buffer.forEach(c => this.onWsMessage(c));
     }
