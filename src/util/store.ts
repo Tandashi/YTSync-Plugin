@@ -5,7 +5,7 @@ export default class Store {
      * Get the currently stored videos
      */
     public static getQueue(): Video[] {
-        const json = GM_getValue(StorageId, '[]');
+        const json = window.localStorage.getItem(StorageId) || '[]';
         return JSON.parse(json);
     }
 
@@ -37,6 +37,6 @@ export default class Store {
      * @param data The video that should be set
      */
     private static setQueue(data: Video[]): void {
-        GM_setValue(StorageId, JSON.stringify(data));
+        window.localStorage.setItem(StorageId, JSON.stringify(data));
     }
 }

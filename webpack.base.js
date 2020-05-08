@@ -20,9 +20,6 @@ const BANNER = stripIndent `
     // @downloadURL  https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
     // @updateURL    https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
     //
-    // @grant        GM_setValue
-    // @grant        GM_getValue
-    //
     // @run-at       document-end
     //
     // @require http://code.jquery.com/jquery-3.4.1.min.js
