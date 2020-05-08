@@ -39,8 +39,19 @@ export default class Player {
             return;
 
         this.ytPlayer = YTUtil.getPlayer();
-        // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
-        this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
+        // Check if the YtPlayer exists.
+        // This might not be always the cause e.g. when the Autoplay feature of the browser is turned off.
+        if (this.ytPlayer === null) {
+            const clearSchedule = ScheduleUtil.startYtPlayerSchedule((player) => {
+                this.ytPlayer = player;
+                clearSchedule();
+                this.onPlayerReady();
+            });
+        }
+        else {
+            // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
+            this.onPlayerReady();
+        }
 
         const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
         this.queueItemsElement = queueRenderer.find('#items');
@@ -55,11 +66,20 @@ export default class Player {
             }
         );
 
-        ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
 
         this.connectWs(sessionId);
+    }
+
+    /**
+     * Add the onStateChange Listener
+     */
+    private onPlayerReady(): void {
+        // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
+        this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
+
+        ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
     }
 
     /**
@@ -143,7 +163,6 @@ export default class Player {
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
         this.setAutoplay(this.autoplay, true);
-        console.log('Connected');
     }
 
     /**
@@ -157,26 +176,31 @@ export default class Player {
             const command = json.action;
             const data = json.data;
 
-            const playerState = this.ytPlayer.getPlayerState();
+            if (this.ytPlayer !== null)  {
+                const playerState = this.ytPlayer.getPlayerState();
+
+                switch(command) {
+                    case Message.PLAY:
+                        this.syncPlayerTime(parseFloat(data));
+
+                        if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
+                            this.ytPlayer.playVideo();
+
+                        break;
+                    case Message.PAUSE:
+                        this.syncPlayerTime(parseFloat(data));
+
+                        if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
+                            this.ytPlayer.pauseVideo();
+
+                        break;
+                    case Message.SEEK:
+                        this.ytPlayer.seekTo(parseFloat(data), true);
+                        break;
+                }
+            }
 
             switch(command) {
-                case Message.PLAY:
-                    this.syncPlayerTime(parseFloat(data));
-
-                    if(playerState === unsafeWindow.YT.PlayerState.PAUSED)
-                        this.ytPlayer.playVideo();
-
-                    break;
-                case Message.PAUSE:
-                    this.syncPlayerTime(parseFloat(data));
-
-                    if(playerState === unsafeWindow.YT.PlayerState.PLAYING)
-                        this.ytPlayer.pauseVideo();
-
-                    break;
-                case Message.SEEK:
-                    this.ytPlayer.seekTo(parseFloat(data), true);
-                    break;
                 case Message.AUTOPLAY:
                     this.setAutoplay(data);
                     break;

@@ -58,3 +58,8 @@ type URLChangeCallback = (o: Location, n: Location) => void;
  * @param video The Video from the Store
  */
 type QueueStoreCallback = (video: Video) => void;
+
+/**
+ * @param player The found YtPlayer
+ */
+type YtPlayerCallback = (player: YT.Player) => void;

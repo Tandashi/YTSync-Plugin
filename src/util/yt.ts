@@ -10,8 +10,8 @@ export default class YTUtil {
     /**
      * Get the YT Player
      */
-    public static getPlayer(): YT.Player {
+    public static getPlayer(): YT.Player | null {
         const p: any = $('ytd-player').get(0);
-        return p.getPlayer() as YT.Player;
+        return p !== undefined && p !== null ? p.getPlayer() as YT.Player : null;
     }
 }

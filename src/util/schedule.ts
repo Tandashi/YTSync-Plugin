@@ -1,4 +1,5 @@
 import Store from './store';
+import YTUtil from './yt';
 
 export default class ScheduleUtil {
     /**
@@ -84,6 +85,28 @@ export default class ScheduleUtil {
         };
 
         const handle = setInterval(checkQueue, interval);
+        return () => {
+            clearInterval(handle);
+        };
+    }
+
+    /**
+     * Start a "schedule" which checks if the YtPlayer exists.
+     *
+     * @param cb
+     * @param interval
+     */
+    public static startYtPlayerSchedule(cb: YtPlayerCallback, interval: number = 1000): () => void {
+        const checkYtPlayer = () => {
+            const player = YTUtil.getPlayer();
+
+            if(player === null)
+                return;
+
+            cb(player);
+        };
+
+        const handle = setInterval(checkYtPlayer, interval);
         return () => {
             clearInterval(handle);
         };
