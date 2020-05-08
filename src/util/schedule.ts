@@ -100,13 +100,23 @@ export default class ScheduleUtil {
         const checkYtPlayer = () => {
             const player = YTUtil.getPlayer();
 
-            if(player === null)
-                return;
-
-            cb(player);
+            if(player !== null)
+                cb(player);
         };
 
         const handle = setInterval(checkYtPlayer, interval);
+        return () => {
+            clearInterval(handle);
+        };
+    }
+
+    public static waitForElement(element: string, cb: () => void, interval: number = 1000) {
+        const checkForElement = () => {
+            if ($(element).length !== 0)
+                cb();
+        };
+
+        const handle = setInterval(checkForElement, interval);
         return () => {
             clearInterval(handle);
         };

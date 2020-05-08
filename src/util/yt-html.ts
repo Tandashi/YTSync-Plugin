@@ -1,5 +1,6 @@
 import { InjectAction } from '../enum/action';
 import Client from '../model/client';
+import { QueueContainerSelector, RoomInfoContainerSelector } from './consts';
 
 export default class YTHTMLUtil {
     /**
@@ -337,7 +338,7 @@ export default class YTHTMLUtil {
      * @return The created <ytd-playlist-panel-renderer>
      */
     public static injectEmptyQueueShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-        return YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary #playlist'), 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
+        return YTHTMLUtil.injectYtPlaylistPanelRenderer(QueueContainerSelector, 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
     }
 
     /**
@@ -352,7 +353,7 @@ export default class YTHTMLUtil {
      * @return The created <ytd-playlist-panel-renderer>
      */
     public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
-        const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer($('div#secondary div#secondary-inner'), 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
+        const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(RoomInfoContainerSelector, 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
 
         const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
         autoplayButton.off();
@@ -378,15 +379,15 @@ export default class YTHTMLUtil {
      * @param collapsed If the <ytd-playlist-panel-renderer> should be initally collapsed
      * @param action The method to use to inject the <ytd-playlist-panel-renderer>
      */
-    public static injectYtPlaylistPanelRenderer(element: JQuery<HTMLElement>, id: string, title: string, description: string, collapsible: boolean, collapsed: boolean, action: InjectAction): JQuery<HTMLElement> {
+    public static injectYtPlaylistPanelRenderer(element: string, id: string, title: string, description: string, collapsible: boolean, collapsed: boolean, action: InjectAction): JQuery<HTMLElement> {
         const renderer = YTHTMLUtil.createYtPlaylistPanelRendererShell(id);
 
         switch(action) {
             case InjectAction.APPEND:
-                element.append(renderer);
+                $(element).append(renderer);
                 break;
             case InjectAction.REPLACE:
-                element.replaceWith(renderer);
+                $(element).replaceWith(renderer);
                 break;
         }
 

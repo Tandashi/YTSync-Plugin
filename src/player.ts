@@ -1,5 +1,5 @@
 import ScheduleUtil from './util/schedule';
-import { SessionId } from './util/consts';
+import { SessionId, QueueContainerSelector, RoomInfoContainerSelector } from './util/consts';
 import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
@@ -13,17 +13,33 @@ declare global {
     }
 }
 
+interface ElementCondition {
+    check: () => boolean;
+    types: Message[];
+}
+
 export default class Player {
     private sessionId: string;
     private ytPlayer: YT.Player = null;
     private ws: SocketIOClient.Socket;
     private options: PlayerOptions;
-    private queueItemsElement: JQuery<Element>;
-    private roomInfoElement: JQuery<HTMLElement>;
+    private queueItemsElement: JQuery<Element> = null;
+    private roomInfoElement: JQuery<HTMLElement> = null;
 
     private autoplay: boolean = true;
 
     private clients: Client[] = [];
+
+    private elementConditions: ElementCondition[] = [
+        {
+            check: () => this.queueItemsElement === null,
+            types: [Message.PLAY_VIDEO, Message.QUEUE, Message.ADD_TO_QUEUE, Message.REMOVE_FROM_QUEUE]
+        },
+        {
+            check: () => this.roomInfoElement === null,
+            types: [Message.AUTOPLAY, Message.CLIENTS, Message.CLIENT_CONNECT, Message.CLIENT_DISCONNECT]
+        }
+    ];
 
     constructor(options: PlayerOptions) {
         this.options = options;
@@ -53,18 +69,26 @@ export default class Player {
             this.onPlayerReady();
         }
 
-        const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
-        this.queueItemsElement = queueRenderer.find('#items');
+        const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, () => {
+            const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
+            this.queueItemsElement = queueRenderer.find('#items');
 
-        this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
-            'Room Info',
-            'Not connected',
-            false,
-            false,
-            (state: boolean) => {
-                this.setAutoplay(state);
-            }
-        );
+            clearWaitForQueueContainer();
+        });
+
+        const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, () => {
+            this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
+                'Room Info',
+                'Not connected',
+                false,
+                false,
+                (state: boolean) => {
+                    this.setAutoplay(state);
+                }
+            );
+
+            clearWaitForRoomInfoContainer();
+        });
 
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
@@ -162,7 +186,7 @@ export default class Player {
         this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
-        this.setAutoplay(this.autoplay, true);
+        this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
     }
 
     /**
@@ -175,6 +199,16 @@ export default class Player {
             const json = JSON.parse(message);
             const command = json.action;
             const data = json.data;
+
+            // Filter all messages who's container hasn't been injected yet.
+            if(this.elementConditions.some((c) => {
+                if (c.check() && c.types.includes(command)) {
+                    return true;
+                }
+                return false;
+            })) {
+                return;
+            }
 
             if (this.ytPlayer !== null)  {
                 const playerState = this.ytPlayer.getPlayerState();
@@ -201,9 +235,6 @@ export default class Player {
             }
 
             switch(command) {
-                case Message.AUTOPLAY:
-                    this.setAutoplay(data);
-                    break;
                 case Message.PLAY_VIDEO:
                     this.navigateToVideo(data);
                     break;
@@ -215,6 +246,9 @@ export default class Player {
                     break;
                 case Message.REMOVE_FROM_QUEUE:
                     this.removeFromQueue(data);
+                    break;
+                case Message.AUTOPLAY:
+                    this.setAutoplay(data);
                     break;
                 case Message.CLIENTS:
                     this.clients = [];
