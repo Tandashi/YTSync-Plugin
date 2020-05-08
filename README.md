@@ -60,10 +60,12 @@ To build the plugin you can run the following command:
 # Using npm
 npm build --env=prod		# Production build (Minified version)
 npm build --env=dev			# Development build (Includes Sourcemap, ...)
+npm build --env=browser		# Build the Browser Plugin
 
 # Using yarn
 yarn build --env=prod		# Production build (Minified version)
 yarn build --env=dev		# Development build (Includes Sourcemap, ...)
+yarn build --env=browser	# Build the Browser Plugin
 ```
 
 Once you build the plugin you can find it in `build/`.

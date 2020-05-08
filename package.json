@@ -4,7 +4,7 @@
     "main": "dist/app.js",
     "license": "MIT",
     "scripts": {
-        "build": "webpack"
+        "build": "rm build -Rf && webpack"
     },
     "devDependencies": {
         "@types/common-tags": "^1.8.0",
@@ -16,12 +16,14 @@
         "@types/webpack-merge": "^4.1.5",
         "@types/youtube": "^0.0.38",
         "common-tags": "^1.8.0",
+        "copy-webpack-plugin": "^5.1.1",
         "terser-webpack-plugin": "^3.0.0",
         "ts-loader": "^5.3.3",
         "tslint": "^6.1.1",
         "typescript": "^3.8.3",
         "webpack": "^4.29.3",
         "webpack-cli": "^3.2.3",
-        "webpack-merge": "^4.2.2"
+        "webpack-merge": "^4.2.2",
+        "zip-webpack-plugin": "^3.0.0"
     }
 }
