@@ -1,40 +1,40 @@
-# YTSync Plugin
+# YTSync Plugin 📺
 ![YT Sync](https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin)  
 Watch videos directly on YouTube with your friends 🍿.  
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
 
 ## Why should I use this and not sync-video / watch2gether / ... ?
 
-Using this plugin you can watch direktly on YouTube and don't need to visit an extra site.
-You also have the advantage that you can syncronize Livestreams and Videos which have been blocked for embeeded play. You also can use the features YouTube has to offer e.g. liking the current video, storing the current video in your private playlist and many more 🥺.
+Using this plugin you can watch directly on YouTube and don't need to visit an extra site.
+You also have the advantage that you can synchronise livestreams and Videos which have been blocked for embedded play. You also can use the features YouTube has to offer e.g. liking the current video, storing the current video in your private playlist and many more 🤩.
 
 ## Features
 
-- Syncronizing Videos and Livestreams directly on YouTube
+- Synchronising Videos and livestreams directly on YouTube
 - Basic permission system
-- Queue functionallity
-- Autoplay functionallity
+- Queue functionality
+- Autoplay functionality
 
 If you think there is anything missing then just create a [feature request](#feature-request).
 
 ## Installation
 
-To install the plugin you first need to download and install Tempermonkey for your Browser:
+To install the plugin you first need to download and install Tampermonkey for your Browser:
 
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/)
 - [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
 - [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/)
 
-After you installed Tempermoneky just head to the [release section](https://github.com/Tandashi/YTSync-Plugin/releases)  and click on the `lib.user.js` Assert on the latest release. A popup should appear. Just click on install and you're done 🙂.
+After you installed Tampermonkey just head to the [release section](https://github.com/Tandashi/YTSync-Plugin/releases)  and click on the `lib.user.js` Asset on the latest release. A popup should appear. Just click on install and you're done 🎉.
 
 ### Build from source
 
 Required build dependencies:
 
 - [yarn](https://yarnpkg.com) or [npm](https://www.npmjs.com)
-- [node.js](https://nodejs.org/en/) (testet with v14+ but will probably work with v12 or less as well)
+- [node.js](https://nodejs.org/en/) (tested with v14+ but will probably work with v12 or less as well)
 
-After you installed all the needed decpendencies you can get the source code by cloning the git repository:
+After you installed all the needed dependencies you can get the source code by cloning the git repository:
 
 ```bash
 # SSH
@@ -82,7 +82,7 @@ Simply navigate to the video you want to add and click the `Add to Queue` button
 
 ### Host
 
-You will automatically be assigned to the Host role when you create a sync room. You can also aquire this role if the current host left the session.
+You will automatically be assigned to the Host role when you create a sync room. You can also acquire this role if the current host left the session.
 
 **What you are able to do**:
 
@@ -93,7 +93,7 @@ You will automatically be assigned to the Host role when you create a sync room.
 
 ### Promoted
 
-You can only get this role if the Host assignes it to you.
+You can only get this role if the Host assigned it to you.
 
 **What you are able to do**:
 
@@ -104,7 +104,7 @@ You can only get this role if the Host assignes it to you.
 
 ### Member
 
-You will automatically be assinged to the Member role when you join a sync room.
+You will automatically be assigned to the Member role when you join a sync room.
 
 **What you are able to do**:
 
@@ -112,7 +112,7 @@ You will automatically be assinged to the Member role when you join a sync room.
 
 ## Technical aspects
 
-The Plugin communicates via [socket.io ](https://socket.io)with the [YTSync Server](https://github.com/Tandashi/YTSync-Server) to synchronize the rooms.
+The Plugin communicates via [socket.io ](https://socket.io)with the [YTSync Server](https://github.com/Tandashi/YTSync-Server) to synchronise the rooms.
 
 ## Contributing
 
