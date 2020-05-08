@@ -94,31 +94,51 @@ export default class ScheduleUtil {
      * Start a "schedule" which checks if the YtPlayer exists.
      *
      * @param cb
+     * @param runInstant If the check should occure instant the first time without waiting invertal initially
      * @param interval
      */
-    public static startYtPlayerSchedule(cb: YtPlayerCallback, interval: number = 1000): () => void {
-        const checkYtPlayer = () => {
+    public static startYtPlayerSchedule(cb: YtPlayerCallback, runInstant: boolean, interval: number = 1000): () => void {
+        const checkYtPlayer = (clearFunc: () => void) => {
             const player = YTUtil.getPlayer();
 
             if(player !== null)
-                cb(player);
+                cb(player, clearFunc);
         };
 
         const handle = setInterval(checkYtPlayer, interval);
-        return () => {
+
+        const clear = () => {
             clearInterval(handle);
         };
+
+        if(runInstant)
+            checkYtPlayer(clear);
+
+        return clear;
     }
 
-    public static waitForElement(element: string, cb: () => void, interval: number = 1000) {
-        const checkForElement = () => {
+    /**
+     * Start a "schedule" which checks if a element exists.
+     *
+     * @param cb
+     * @param runInstant If the check should occure instant the first time without waiting invertal initially
+     * @param interval
+     */
+    public static waitForElement(element: string, cb: (handler?: () => void) => void, runInstant: boolean, interval: number = 1000) {
+        const checkForElement = (clearFunc: () => void) => {
             if ($(element).length !== 0)
-                cb();
+                cb(clearFunc);
         };
 
         const handle = setInterval(checkForElement, interval);
-        return () => {
+
+        const clear = () => {
             clearInterval(handle);
         };
+
+        if(runInstant)
+            checkForElement(clear);
+
+        return clear;
     }
 }

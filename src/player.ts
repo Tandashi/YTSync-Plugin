@@ -13,9 +13,10 @@ declare global {
     }
 }
 
-interface ElementCondition {
+interface BufferCondition {
     check: () => boolean;
     types: Message[];
+    buffer: string[];
 }
 
 export default class Player {
@@ -26,18 +27,23 @@ export default class Player {
     private queueItemsElement: JQuery<Element> = null;
     private roomInfoElement: JQuery<HTMLElement> = null;
 
+    private bufferedQueueWsMessages: string[] = [];
+    private bufferedRoomInfoWsMessages: string[] = [];
+
     private autoplay: boolean = true;
 
     private clients: Client[] = [];
 
-    private elementConditions: ElementCondition[] = [
+    private bufferConditions: BufferCondition[] = [
         {
             check: () => this.queueItemsElement === null,
-            types: [Message.PLAY_VIDEO, Message.QUEUE, Message.ADD_TO_QUEUE, Message.REMOVE_FROM_QUEUE]
+            types: [Message.PLAY_VIDEO, Message.QUEUE, Message.ADD_TO_QUEUE, Message.REMOVE_FROM_QUEUE],
+            buffer: this.bufferedQueueWsMessages
         },
         {
             check: () => this.roomInfoElement === null,
-            types: [Message.AUTOPLAY, Message.CLIENTS, Message.CLIENT_CONNECT, Message.CLIENT_DISCONNECT]
+            types: [Message.AUTOPLAY, Message.CLIENTS, Message.CLIENT_CONNECT, Message.CLIENT_DISCONNECT],
+            buffer: this.bufferedRoomInfoWsMessages
         }
     ];
 
@@ -58,25 +64,36 @@ export default class Player {
         // Check if the YtPlayer exists.
         // This might not be always the cause e.g. when the Autoplay feature of the browser is turned off.
         if (this.ytPlayer === null) {
-            const clearSchedule = ScheduleUtil.startYtPlayerSchedule((player) => {
+            const clearSchedule = ScheduleUtil.startYtPlayerSchedule((player, clearFnc) => {
                 this.ytPlayer = player;
-                clearSchedule();
+
+                if(clearFnc !== undefined && clearFnc !== null)
+                    clearFnc();
+                else
+                    clearSchedule();
+
                 this.onPlayerReady();
-            });
+            }, true);
         }
         else {
             // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
             this.onPlayerReady();
         }
 
-        const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, () => {
+        const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, (clearFnc) => {
             const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
             this.queueItemsElement = queueRenderer.find('#items');
 
-            clearWaitForQueueContainer();
-        });
+            if(clearFnc !== undefined && clearFnc !== null)
+                clearFnc();
+            else
+                clearWaitForQueueContainer();
 
-        const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, () => {
+            this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
+            this.bufferedQueueWsMessages = [];
+        }, true);
+
+        const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, (clearFnc) => {
             this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
                 'Room Info',
                 'Not connected',
@@ -87,13 +104,23 @@ export default class Player {
                 }
             );
 
-            clearWaitForRoomInfoContainer();
-        });
+            if(clearFnc !== undefined && clearFnc !== null)
+                clearFnc();
+            else
+                clearWaitForRoomInfoContainer();
+
+            this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
+            this.bufferedRoomInfoWsMessages = [];
+        }, true);
 
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
         ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
 
         this.connectWs(sessionId);
+    }
+
+    private executeBufferedWsMessages(buffer: string[]): void {
+        buffer.forEach(c => this.onWsMessage(c));
     }
 
     /**
@@ -182,6 +209,7 @@ export default class Player {
      * Handler function for the Websocket 'connect' event
      */
     private onWsConnected(): void {
+        console.log('Connected');
         const video = VideoUtil.getCurrentVideo();
         this.sendWsRequestToAddToQueue(video);
         this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
@@ -201,8 +229,9 @@ export default class Player {
             const data = json.data;
 
             // Filter all messages who's container hasn't been injected yet.
-            if(this.elementConditions.some((c) => {
+            if(this.bufferConditions.some((c) => {
                 if (c.check() && c.types.includes(command)) {
+                    c.buffer.push(message);
                     return true;
                 }
                 return false;
