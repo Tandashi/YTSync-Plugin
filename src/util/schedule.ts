@@ -3,6 +3,43 @@ import YTUtil from './yt';
 
 export default class ScheduleUtil {
     /**
+     * Create a "scheduled" function that gets executed every interval.
+     *
+     * @param executor The function that should be executed
+     * @param interval The interval in which the executor should be executed (ms)
+     *
+     * @returns A function that cancels the schedule
+     */
+    private static createIntervalSchedule(executor: () => void, interval: number): ScheduleClear {
+        const handle = setInterval(executor, interval);
+
+        return () => {
+            clearInterval(handle);
+        };
+    }
+
+    /**
+     * Create a "scheduled" function that gets executed every interval after the inital delay.
+     *
+     * @param executor The function that should be executed
+     * @param initalDelay The inital delay before the executor gets executed the first time (ms)
+     * @param interval The interval in which the executor should be executed (ms)
+     *
+     * @returns A function that cancels the schedule
+     */
+    private static createInitalDelayIntervalSchedule(checkFunc: () => void, initalDelay: number, interval: number): ScheduleClear {
+        let handle: NodeJS.Timeout;
+        setTimeout(() => {
+            handle = setInterval(checkFunc, interval);
+            checkFunc();
+        }, initalDelay);
+
+        return () => {
+            clearInterval(handle);
+        };
+    }
+
+    /**
      * Start a "schedule" that checks if the video currently played by the YT.Player was seeked.
      *
      * @param player The player that should be checked for seeks
@@ -14,10 +51,10 @@ export default class ScheduleUtil {
      *
      * @returns A function which stopps the "scheduler"
      */
-    public static startSeekSchedule(player: YT.Player, cb: () => void, interval: number = 1000, margin: number = 1.5): () => void {
+    public static startSeekSchedule(player: YT.Player, cb: () => void, interval: number = 1000, margin: number = 1.5): ScheduleClear {
         let lastTime = -1;
 
-        const checkPlayerTime = () => {
+        return ScheduleUtil.createIntervalSchedule(() => {
             if (lastTime !== -1) {
                 const time = player.getCurrentTime();
 
@@ -28,12 +65,7 @@ export default class ScheduleUtil {
                 }
             }
             lastTime = player.getCurrentTime();
-        };
-
-        const handle = setInterval(checkPlayerTime, interval);
-        return () => {
-            clearInterval(handle);
-        };
+        }, interval);
     }
 
 
@@ -45,10 +77,10 @@ export default class ScheduleUtil {
      *
      * @returns A function which stopps the "scheduler"
      */
-    public static startUrlChangeSchedule(cb: URLChangeCallback, interval: number = 1000): () => void {
+    public static startUrlChangeSchedule(cb: URLChangeCallback, interval: number = 1000): ScheduleClear {
         let old: Location = JSON.parse(JSON.stringify(window.location));
 
-        const checkURL = () => {
+        return ScheduleUtil.createIntervalSchedule(() => {
             const current = window.location;
 
             // Check if the URL has changed
@@ -58,12 +90,7 @@ export default class ScheduleUtil {
             }
 
             old = JSON.parse(JSON.stringify(current));
-        };
-
-        const handle = setInterval(checkURL, interval);
-        return () => {
-            clearInterval(handle);
-        };
+        }, interval);
     }
 
     /**
@@ -74,20 +101,15 @@ export default class ScheduleUtil {
      *
      * @returns A function which stopps the "scheduler"
      */
-    public static startQueueStoreSchedule(cb: QueueStoreCallback, interval: number = 1000): () => void {
-        const checkQueue = () => {
+    public static startQueueStoreSchedule(cb: QueueStoreCallback, interval: number = 1000): ScheduleClear {
+        return ScheduleUtil.createIntervalSchedule(() => {
             const data = Store.getQueue();
 
             for(const vobj of data) {
                 cb(vobj);
                 Store.removeElement(vobj);
             }
-        };
-
-        const handle = setInterval(checkQueue, interval);
-        return () => {
-            clearInterval(handle);
-        };
+        }, interval);
     }
 
     /**
@@ -97,25 +119,13 @@ export default class ScheduleUtil {
      * @param initalDelay
      * @param interval
      */
-    public static startYtPlayerSchedule(cb: YtPlayerCallback, initalDelay: number = 0, interval: number = 1000): () => void {
-        const checkYtPlayer = () => {
+    public static startYtPlayerSchedule(cb: YtPlayerCallback, initalDelay: number = 0, interval: number = 1000): ScheduleClear {
+        return ScheduleUtil.createInitalDelayIntervalSchedule(() => {
             const player = YTUtil.getPlayer();
 
             if(player !== null)
                 cb(player);
-        };
-
-        let handle: NodeJS.Timeout;
-        setTimeout(() => {
-            handle = setInterval(checkYtPlayer, interval);
-            checkYtPlayer();
-        }, initalDelay);
-
-        const clear = () => {
-            clearInterval(handle);
-        };
-
-        return clear;
+        }, initalDelay, interval);
     }
 
     /**
@@ -125,22 +135,10 @@ export default class ScheduleUtil {
      * @param runInstant If the check should occure instant the first time without waiting invertal initially
      * @param interval
      */
-    public static waitForElement(element: string, cb: () => void, initalDelay: number = 0, interval: number = 1000) {
-        const checkForElement = () => {
+    public static waitForElement(element: string, cb: () => void, initalDelay: number = 0, interval: number = 1000): ScheduleClear {
+        return ScheduleUtil.createInitalDelayIntervalSchedule(() => {
             if ($(element).length !== 0)
                 cb();
-        };
-
-        let handle: NodeJS.Timeout;
-        setTimeout(() => {
-            handle = setInterval(checkForElement, interval);
-            checkForElement();
-        }, initalDelay);
-
-        const clear = () => {
-            clearInterval(handle);
-        };
-
-        return clear;
+        }, initalDelay, interval);
     }
 }
