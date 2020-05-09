@@ -16,7 +16,7 @@ export const Reactions: Reaction[] = [
     { id: 'grin', symbol: '😀', text: 'Grin' },
     { id: 'tears-of-joy', symbol: '😂', text: 'Hahaha' },
     { id: 'popcorn', symbol: '🍿', text: 'Crunch!' },
-    { id: 'exploding-head', symbol: '🤯', text: 'Boom' },
+    { id: 'exploding-head', symbol: '🤯', text: 'Boom!' },
     { id: 'partying-face', symbol: '🥳', text: '*Pop*' },
     { id: 'scream-in-fear', symbol: '😱', text: 'Huuuh' }
 ];
