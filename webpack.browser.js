@@ -21,12 +21,6 @@ module.exports = merge(baseConfig.webpack, {
             from: 'browser',
             to: '.',
         }]),
-        new ZipPlugin({
-            pathMapper: function(assetPath) {
-                if (assetPath.toString() === 'lib.user.js')
-                    return 'js/lib.user.js';
-                return assetPath;
-            },
-        })
+        new ZipPlugin()
     ]
 });

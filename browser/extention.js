@@ -13,7 +13,7 @@ socketio.onload = function() {
 (document.head || document.documentElement).appendChild(socketio);
 
 const lib = document.createElement('script');
-lib.src = chrome.runtime.getURL('js/lib.user.js');
+lib.src = chrome.runtime.getURL('lib.user.js');
 lib.onload = function() {
     this.remove();
 };

@@ -10,7 +10,7 @@
     "web_accessible_resources": [
         "js/jquery-3.4.1.min.js",
         "js/socket.io.slim.js",
-        "js/lib.user.js"
+        "lib.user.js"
     ],
     "content_scripts": [{
         "matches": ["https://www.youtube.com/*"],
