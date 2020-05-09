@@ -14,6 +14,12 @@ interface Video {
     byline: string;
 }
 
+interface Reaction {
+    id: string;
+    symbol: string;
+    text: string;
+}
+
 interface PluginInjectIntervals {
     syncButton: NodeJS.Timeout | null;
     leaveButton: NodeJS.Timeout| null

@@ -1,6 +1,6 @@
 import { InjectAction } from '../enum/action';
 import Client from '../model/client';
-import { QueueContainerSelector, RoomInfoContainerSelector } from './consts';
+import { QueueContainerSelector, RoomInfoContainerSelector, ReactionsContainerSelector, ReactionTimeTillRemove, ReactionFadeInTime } from './consts';
 
 export default class YTHTMLUtil {
     /**
@@ -57,6 +57,74 @@ export default class YTHTMLUtil {
      */
     private static createYtIconButtonShell(): JQuery<HTMLElement> {
         return $(`<yt-icon-button class="style-scope ytd-button-renderer style-default size-default" id="button">`);
+    }
+
+    private static createReaction(symbol: string): JQuery<HTMLElement> {
+        return $(`
+            <div style="justify-content: center; display: inline-flex; cursor: pointer;" >
+                <div
+                    style="font-size: 24px; margin: 4px;"
+                >
+                    ${symbol}
+                </div>
+            </div>
+        `);
+    }
+
+    private static createReactionChip(name: string, symbol: string): JQuery<HTMLElement> {
+        return $(`
+            <div
+                style="
+                    opacity: 0.0;
+                    padding: 0 24px;
+                    margin: 20px;
+                    height: 28px;
+                    font-size: 16px;
+                    line-height: 24px;
+                    border-radius: 25px;
+                    background-color: #f1f1f1;
+                "
+            >
+                <div style="
+                    float: left;
+                    margin: 0 10px 0 -25px;
+                    height: 24px;
+                    width: 30px;
+                    border-radius: 50%;
+                    font-size: 24px;"
+                >
+                    ${symbol}
+                </div>
+                ${name}
+            </div>
+        `);
+    }
+
+    private static createReactionOverlay(): JQuery<HTMLElement> {
+        return $(`
+            <div
+                id="reaction-overlay"
+                style="
+                    position: relative;
+                    float: right;
+                    color: #000;
+                    z-index: 2;
+                "
+            />
+        `);
+    }
+
+    public static addReaction(reaction: Reaction): JQuery<HTMLElement> {
+        const renderer = YTHTMLUtil.createReactionChip(reaction.text, reaction.symbol);
+        $('#reaction-overlay')
+            .append(renderer);
+
+        renderer.
+            animate({opacity: 1}, ReactionFadeInTime);
+
+        setTimeout(() => renderer.remove(), ReactionTimeTillRemove);
+
+        return renderer;
     }
 
     /**
@@ -145,6 +213,7 @@ export default class YTHTMLUtil {
                 has-playlist-buttons=""
                 has-toolbar_=""
                 playlist-type_="TLPQ",
+                style="margin-bottom: var(--ytd-margin-6x)"
             />
         `);
     }
@@ -364,6 +433,37 @@ export default class YTHTMLUtil {
         renderer
             .find('#top-row-buttons')
             .append(autoplayButton);
+
+        return renderer;
+    }
+
+    /**
+     * Inject a reactions panel using a <ytd-playlist-panel-renderer>.
+     *
+     * @param title The title of the reaction panel
+     * @param description The description of the reaction panel
+     * @param reactions The reactions that should be displayed
+     * @param collapsible If the reaction should be collapsible
+     * @param collapsed If the reaction should be initally collapsed
+     *
+     * @return The created <ytd-playlist-panel-renderer>
+     */
+    public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onClick: (id: string) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+        const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ReactionsContainerSelector, 'reactions', title, description, collapsible, collapsed, InjectAction.APPEND);
+
+        const items = renderer.find('#items');
+        items.css('text-align', 'center');
+
+        for(const reaction of reactions) {
+            const reactionRenderer = YTHTMLUtil.createReaction(reaction.symbol);
+            reactionRenderer.click(() => {
+                onClick(reaction.id);
+            });
+            items.append(reactionRenderer);
+        }
+
+        $('.html5-video-container')
+            .append(YTHTMLUtil.createReactionOverlay());
 
         return renderer;
     }

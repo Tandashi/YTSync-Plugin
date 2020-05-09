@@ -1,5 +1,5 @@
 import ScheduleUtil from './util/schedule';
-import { SessionId, QueueContainerSelector, RoomInfoContainerSelector } from './util/consts';
+import { SessionId, QueueContainerSelector, RoomInfoContainerSelector, ReactionsContainerSelector, Reactions, ReactionsMap } from './util/consts';
 import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
@@ -101,6 +101,20 @@ export default class Player {
 
             this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
             this.bufferedRoomInfoWsMessages = [];
+        });
+
+        const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(ReactionsContainerSelector, () => {
+            YTHTMLUtil.injectReactionsPanel(
+                'Reactions',
+                'Find it funny? React!',
+                Reactions,
+                (id: string) => {
+                    this.sendWsMessage(Message.REACTION, id);
+                },
+                true,
+                false
+            );
+            clearWaitForReactionsContainer();
         });
 
         ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
@@ -283,6 +297,13 @@ export default class Player {
                     break;
                 case Message.CLIENT_DISCONNECT:
                     this.removeClient(data);
+                    break;
+                case Message.REACTION:
+                    const reaction = ReactionsMap[data];
+                    if (reaction === null || reaction === undefined)
+                        return;
+
+                    YTHTMLUtil.addReaction(reaction);
                     break;
             }
         }

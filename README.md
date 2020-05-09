@@ -3,9 +3,9 @@
 Watch videos directly on YouTube with your friends 🍿.  
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
 
-## Why should I use this and not sync-video / watch2gether / ... ?
+## wWhy should I use this and not sync-video / watch2gether / ... ?
 
-Using this plugin you can watch directly on YouTube and don't need to visit an extra site.
+Using this plugin you can watch videos directly on YouTube with your friends and don't need to visit an extra site.
 You also have the advantage that you can synchronise livestreams and Videos which have been blocked for embedded play. You also can use the features YouTube has to offer e.g. liking the current video, storing the current video in your private playlist and many more 🤩.
 
 ## Features

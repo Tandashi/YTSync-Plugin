@@ -22,7 +22,8 @@ const player = new Player({
     }
 });
 
-let urlSchedule: () => void;
+// tslint:disable-next-line: no-empty
+let urlSchedule: () => void = () => {};
 
 window.onload = () => {
     urlSchedule = ScheduleUtil.startUrlChangeSchedule(urlChangeHandler);
