@@ -1,6 +1,7 @@
 # YTSync Plugin 📺
 
 ![YT Sync](https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin)
+
 Watch videos directly on YouTube with your friends 🍿.
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
 
@@ -15,6 +16,7 @@ You also have the advantage that you can synchronise livestreams and Videos whic
 - Basic permission system
 - Queue functionality
 - Autoplay functionality
+- Reactions
 - Dark and light mode (depending on your YouTube setting)
 
 If you think there is anything missing then just create a [feature request](#feature-request).
@@ -68,14 +70,14 @@ To build the plugin you can run the following command:
 
 ```bash
 # Using npm
-npm build --env=prod # Production build (Minified version)
-npm build --env=dev # Development build (Includes Source map, ...)
-npm build --env=browser # Build the Browser Plugin
+npm build --env=prod 		# Production build (Minified version)
+npm build --env=dev 		# Development build (Includes Source map, ...)
+npm build --env=browser 	# Build the Browser Plugin
 
 # Using yarn
-yarn build --env=prod # Production build (Minified version)
-yarn build --env=dev # Development build (Includes Source map, ...)
-yarn build --env=browser # Build the Browser Plugin
+yarn build --env=prod 		# Production build (Minified version)
+yarn build --env=dev 		# Development build (Includes Source map, ...)
+yarn build --env=browser 	# Build the Browser Plugin
 ```
 
 After you build the plugin you can find it in `build/`.
@@ -84,11 +86,11 @@ After you build the plugin you can find it in `build/`.
 
 ### Creating a room
 
-To create a room simply visit a video and click on the 'Create Sync' button. After you joined the sync session simply copy the URL and share it with your friends.
+To create a room simply visit a video and click on the `Create Sync` button. After you joined the sync session simply copy the URL and share it with your friends.
 
 ### Adding a video to the queue
 
-Simply navigate to the video you want to add and click the 'Add to Queue' button. It should automatically be added to the queue if you have the [permissions](#permissions-roles) to do so.
+Simply navigate to the video you want to add and click the `Add to Queue` button. It should automatically be added to the queue if you have the [permissions](#permissions-roles) to do so.
 
 ### Removing a video from the queue
 
@@ -96,7 +98,7 @@ Simply use the [trash icon](#queue) next to the video. If you have the [permissi
 
 ### Playing the next video / a video from the queue
 
-To play the next video or any video that is currently in the queue simply click on it. If you have the [permissions](#permissions-roles) to do so the clicked video should begin to start for everyone. There is also an autoplay functionality that, when enabled, will play the next video in the queue, if there is any, after the current video has ended.
+To play the next video or any video that is currently in the queue simply click on it. If you have the permissions to do so the clicked video should begin to start for everyone. There is also an autoplay functionality that, when enabled, will play the next video in the queue, if there is any, after the current video has ended.
 
 ## Queue
 
@@ -166,7 +168,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 To create a feature request head over [here](https://github.com/Tandashi/YTSync-Plugin/issues) and create a new issue as follows:
 
-- Label it with 'feature-request' 🙏
+- Label it with `feature-request` 🙏
 - Explain the feature
 
 ## License
