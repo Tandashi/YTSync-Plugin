@@ -5,6 +5,7 @@ import WebsocketUtil from './util/websocket';
 import Store from './util/store';
 import VideoUtil from './util/video';
 import ScheduleUtil from './util/schedule';
+import ClipboardUtil from './util/clipboard';
 
 const intervals: PluginInjectIntervals = {
     syncButton: null,
@@ -71,6 +72,7 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
     intervals.syncButton = injectButton(Consts.CreateSyncButtonId, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
         urlParams.set(Consts.SessionId, WebsocketUtil.generateSessionId());
         window.location.search = urlParams.toString();
+        ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
     });
 
     intervals.queueAddButton = injectButton(Consts.QueueAddButtonId, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
@@ -90,7 +92,6 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
         window.location.search = urlParams.toString();
     });
 
-    navigator.clipboard.writeText(window.location.href);
     player.create(sessionId);
 }
 
