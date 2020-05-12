@@ -505,6 +505,11 @@ export default class YTHTMLUtil {
 
         YTHTMLUtil.changeYtPlaylistPanelRendererTitle(renderer, title);
         YTHTMLUtil.changeYtPlaylistPanelRendererDescription(renderer, description);
+
+        renderer
+            .find('div.header')
+            .css('padding-bottom', '12px');
+
         return renderer;
     }
 
