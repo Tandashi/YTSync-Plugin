@@ -90,6 +90,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
         window.location.search = urlParams.toString();
     });
 
+    navigator.clipboard.writeText(window.location.href);
     player.create(sessionId);
 }
 
@@ -103,7 +104,8 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
  */
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
     const handler = setInterval(() => {
-        const container = $('ytd-video-primary-info-renderer div#info ytd-menu-renderer div#top-level-buttons');
+        const container = $('div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons');
+        $(`#${id}`).remove();
         if (container.length === 1 && container.find(`#${id}`).length === 0) {
             YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);
             clearInterval(handler);

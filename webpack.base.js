@@ -22,9 +22,6 @@ const BANNER = stripIndent `
     //
     // @run-at       document-end
     //
-    // @require http://code.jquery.com/jquery-3.4.1.min.js
-    // @require https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js
-    //
     // ==/UserScript==
 `
 
@@ -50,6 +47,13 @@ module.exports = {
             new webpack.BannerPlugin({
                 raw: true,
                 banner: BANNER
+            }),
+            new webpack.ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery'
+            }),
+            new webpack.ProvidePlugin({
+                io: 'socket.io-client'
             })
         ]
     }

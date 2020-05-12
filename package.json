@@ -17,6 +17,8 @@
         "@types/youtube": "^0.0.38",
         "common-tags": "^1.8.0",
         "copy-webpack-plugin": "^5.1.1",
+        "jquery": "^3.5.1",
+        "socket.io-client": "^2.3.0",
         "terser-webpack-plugin": "^3.0.0",
         "ts-loader": "^5.3.3",
         "tslint": "^6.1.1",
