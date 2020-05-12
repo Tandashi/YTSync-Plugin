@@ -71,31 +71,45 @@ export default class YTHTMLUtil {
         `);
     }
 
-    private static createReactionChip(name: string, symbol: string): JQuery<HTMLElement> {
-        return $(`
-            <div
-                style="
-                    opacity: 0.0;
-                    padding: 0 24px;
-                    margin: 20px;
-                    height: 28px;
-                    font-size: 16px;
-                    line-height: 24px;
-                    border-radius: 25px;
-                    background-color: #f1f1f1;
-                "
-            >
-                <div style="
-                    float: left;
-                    margin: 0 10px 0 -25px;
-                    height: 24px;
-                    width: 30px;
-                    border-radius: 50%;
-                    font-size: 24px;"
+    private static createReactionChip(text: string, symbol: string): JQuery<HTMLElement> {
+        if (text !== '') {
+            return $(`
+                <div
+                    style="
+                        opacity: 0.0;
+                        padding: 0 24px;
+                        margin: 20px;
+                        height: 28px;
+                        font-size: 16px;
+                        line-height: 24px;
+                        border-radius: 25px;
+                        background-color: #f1f1f1;
+                    "
                 >
-                    ${symbol}
+                    <div style="
+                        float: left;
+                        margin: 0 10px 0 -25px;
+                        height: 24px;
+                        width: 30px;
+                        border-radius: 50%;
+                        font-size: 24px;"
+                    >
+                        ${symbol}
+                    </div>
+                    ${text}
                 </div>
-                ${name}
+            `);
+        }
+
+        return $(`
+            <div style="
+                margin: 10px;
+                height: 24px;
+                width: 30px;
+                border-radius: 50%;
+                font-size: 24px;"
+            >
+                ${symbol}
             </div>
         `);
     }
@@ -123,6 +137,7 @@ export default class YTHTMLUtil {
             animate({opacity: 1}, ReactionFadeInTime);
 
         setTimeout(() => renderer.remove(), ReactionTimeTillRemove);
+        renderer.click(() => renderer.remove());
 
         return renderer;
     }
