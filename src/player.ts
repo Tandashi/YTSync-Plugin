@@ -6,6 +6,7 @@ import { Message } from './enum/message';
 import YTUtil from './util/yt';
 import Client from './model/client';
 import { Role } from './enum/role';
+import Store from './util/store';
 
 declare global {
   interface Window {
@@ -110,6 +111,11 @@ export default class Player {
         Reactions,
         (id: string) => {
           this.sendWsMessage(Message.REACTION, id);
+        },
+        (state: boolean) => {
+          const settings = Store.getSettings();
+          settings.showReactions = state;
+          Store.setSettings(settings);
         },
         true,
         false
