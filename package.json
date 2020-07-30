@@ -1,31 +1,31 @@
 {
-    "name": "ytsync-plugin",
-    "version": "1.5",
-    "main": "dist/app.js",
-    "license": "MIT",
-    "scripts": {
-        "build": "rm build -Rf && webpack"
-    },
-    "devDependencies": {
-        "@types/common-tags": "^1.8.0",
-        "@types/jquery": "^3.3.36",
-        "@types/socket.io-client": "^1.4.32",
-        "@types/tampermonkey": "^4.0.0",
-        "@types/terser-webpack-plugin": "^2.2.0",
-        "@types/webpack": "^4.41.12",
-        "@types/webpack-merge": "^4.1.5",
-        "@types/youtube": "^0.0.38",
-        "common-tags": "^1.8.0",
-        "copy-webpack-plugin": "^5.1.1",
-        "jquery": "^3.5.1",
-        "socket.io-client": "^2.3.0",
-        "terser-webpack-plugin": "^3.0.0",
-        "ts-loader": "^5.3.3",
-        "tslint": "^6.1.1",
-        "typescript": "^3.8.3",
-        "webpack": "^4.29.3",
-        "webpack-cli": "^3.2.3",
-        "webpack-merge": "^4.2.2",
-        "zip-webpack-plugin": "^3.0.0"
-    }
+  "name": "ytsync-plugin",
+  "version": "1.5.0",
+  "main": "dist/app.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm build -Rf && webpack --config webpack/webpack.config.js"
+  },
+  "devDependencies": {
+    "@types/common-tags": "^1.8.0",
+    "@types/jquery": "^3.3.36",
+    "@types/socket.io-client": "^1.4.32",
+    "@types/tampermonkey": "^4.0.0",
+    "@types/terser-webpack-plugin": "^2.2.0",
+    "@types/webpack": "^4.41.12",
+    "@types/webpack-merge": "^4.1.5",
+    "@types/youtube": "^0.0.38",
+    "common-tags": "^1.8.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "jquery": "^3.5.1",
+    "socket.io-client": "^2.3.0",
+    "terser-webpack-plugin": "^3.0.0",
+    "ts-loader": "^5.3.3",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3",
+    "webpack-merge": "^4.2.2",
+    "zip-webpack-plugin": "^3.0.0"
+  }
 }

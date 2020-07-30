@@ -70,13 +70,13 @@ To build the plugin you can run the following command:
 
 ```bash
 # Using npm
-npm build --env=prod 		# Production build (Minified version)
-npm build --env=dev 		# Development build (Includes Source map, ...)
-npm build --env=browser 	# Build the Browser Plugin
+npm run build -- --env=prod 		# Production build (Minified version)
+npm run build -- --env=dev 		  # Development build (Includes Source map, ...)
+npm run build -- --env=browser 	# Build the Browser Plugin
 
 # Using yarn
 yarn build --env=prod 		# Production build (Minified version)
-yarn build --env=dev 		# Development build (Includes Source map, ...)
+yarn build --env=dev 		  # Development build (Includes Source map, ...)
 yarn build --env=browser 	# Build the Browser Plugin
 ```
 

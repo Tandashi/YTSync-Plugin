@@ -40,7 +40,7 @@ module.exports = {
             extensions: [".ts", ".js"]
         },
         output: {
-            path: path.resolve(__dirname, "build"),
+            path: path.resolve(__dirname, "../build"),
             filename: "lib.user.js"
         },
         plugins: [
