@@ -1,22 +1,24 @@
 {
-    "manifest_version": 2,
-
-    "name": "YTSync",
-    "description": "Watch videos directly on YouTube with your friends.",
-    "author": "Tandashi",
-    "version": "1.5",
-    "homepage_url": "https://github.com/Tandashi/YTSync-Plugin",
-
-    "web_accessible_resources": [
-        "js/jquery-3.4.1.min.js",
-        "js/socket.io.slim.js",
-        "lib.user.js"
-    ],
-    "content_scripts": [{
-        "matches": ["https://www.youtube.com/*"],
-        "js": [
-            "extention.js"
-        ],
-        "run_at": "document_end"
-    }]
+  "manifest_version": 2,
+  "name": "YTSync",
+  "description": "Watch videos directly on YouTube with your friends.",
+  "author": "Tandashi",
+  "version": "1.5",
+  "homepage_url": "https://github.com/Tandashi/YTSync-Plugin",
+  "web_accessible_resources": [
+    "js/jquery-3.4.1.min.js",
+    "js/socket.io.slim.js",
+    "lib.user.js"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "extention.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
 }

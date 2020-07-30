@@ -1,48 +1,48 @@
 interface PlayerOptions {
-    connection: ServerConnectionOptions;
+  connection: ServerConnectionOptions;
 }
 
 interface ServerConnectionOptions {
-    protocol: string;
-    host: string;
-    port: string;
+  protocol: string;
+  host: string;
+  port: string;
 }
 
 interface Video {
-    videoId: string;
-    title: string;
-    byline: string;
+  videoId: string;
+  title: string;
+  byline: string;
 }
 
 interface Reaction {
-    id: string;
-    symbol: string;
-    text: string;
+  id: string;
+  symbol: string;
+  text: string;
 }
 
 interface PluginInjectIntervals {
-    syncButton: NodeJS.Timeout | null;
-    leaveButton: NodeJS.Timeout| null
-    removeUpnext: NodeJS.Timeout | null
-    queueInject: NodeJS.Timeout | null
-    queueAddButton: NodeJS.Timeout | null
+  syncButton: NodeJS.Timeout | null;
+  leaveButton: NodeJS.Timeout | null
+  removeUpnext: NodeJS.Timeout | null
+  queueInject: NodeJS.Timeout | null
+  queueAddButton: NodeJS.Timeout | null
 }
 
 interface YTApp {
-    onYtNavigate_: (e: Endpoint) => void;
+  onYtNavigate_: (e: Endpoint) => void;
 }
 
 interface Endpoint {
-    detail: {
-        endpoint: {
-            watchEndpoint: {
-                videoId: any;
-            }
-        },
-        params: {
-            syncId: string;
-        }
+  detail: {
+    endpoint: {
+      watchEndpoint: {
+        videoId: any;
+      }
+    },
+    params: {
+      syncId: string;
     }
+  }
 }
 
 /**
@@ -50,8 +50,8 @@ interface Endpoint {
  * @param video The currently playing video
  */
 interface QueueMessageData {
-    videos: Video[],
-    video: Video
+  videos: Video[],
+  video: Video
 }
 
 /**

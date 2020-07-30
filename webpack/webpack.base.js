@@ -5,7 +5,7 @@ const webpack = require('webpack');
 // required for pretty format for the Userscript banner
 const stripIndent = require('common-tags').stripIndent
 
-const BANNER = stripIndent `
+const BANNER = stripIndent`
     // ==UserScript==
     // @name         YT Sync
     // @namespace    https://tandashi.de
@@ -26,35 +26,35 @@ const BANNER = stripIndent `
 `
 
 module.exports = {
-    banner: BANNER,
-    webpack: {
-        entry: "./src/plugin.ts",
-        module: {
-            rules: [{
-                test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
-            }]
-        },
-        resolve: {
-            extensions: [".ts", ".js"]
-        },
-        output: {
-            path: path.resolve(__dirname, "../build"),
-            filename: "lib.user.js"
-        },
-        plugins: [
-            new webpack.BannerPlugin({
-                raw: true,
-                banner: BANNER
-            }),
-            new webpack.ProvidePlugin({
-                $: 'jquery',
-                jQuery: 'jquery'
-            }),
-            new webpack.ProvidePlugin({
-                io: 'socket.io-client'
-            })
-        ]
-    }
+  banner: BANNER,
+  webpack: {
+    entry: "./src/plugin.ts",
+    module: {
+      rules: [{
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      }]
+    },
+    resolve: {
+      extensions: [".ts", ".js"]
+    },
+    output: {
+      path: path.resolve(__dirname, "../build"),
+      filename: "lib.user.js"
+    },
+    plugins: [
+      new webpack.BannerPlugin({
+        raw: true,
+        banner: BANNER
+      }),
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery'
+      }),
+      new webpack.ProvidePlugin({
+        io: 'socket.io-client'
+      })
+    ]
+  }
 };
