@@ -1,5 +1,5 @@
 import ScheduleUtil from './util/schedule';
-import { SessionId, QueueContainerSelector, RoomInfoContainerSelector, ReactionsContainerSelector, Reactions, ReactionsMap } from './util/consts';
+import { SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap } from './util/consts';
 import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import { Message } from './enum/message';
@@ -76,7 +76,7 @@ export default class Player {
       this.onPlayerReady();
     }
 
-    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QueueContainerSelector, () => {
+    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QUEUE_CONTAINER_SELECTOR, () => {
       const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
       this.queueItemsElement = queueRenderer.find('#items');
 
@@ -86,7 +86,7 @@ export default class Player {
       this.bufferedQueueWsMessages = [];
     });
 
-    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(RoomInfoContainerSelector, () => {
+    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
       this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
         'Room Info',
         'Not connected',
@@ -103,7 +103,7 @@ export default class Player {
       this.bufferedRoomInfoWsMessages = [];
     });
 
-    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(ReactionsContainerSelector, () => {
+    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(REACTIONS_CONTAINER_SELECTOR, () => {
       YTHTMLUtil.injectReactionsPanel(
         'Reactions',
         'Find it funny? React!',
@@ -174,8 +174,8 @@ export default class Player {
     const oldParams = new URLSearchParams(o.search);
     const newParams = new URLSearchParams(n.search);
 
-    const oldSessionId = oldParams.get(SessionId);
-    const newSessionId = newParams.get(SessionId);
+    const oldSessionId = oldParams.get(SESSION_ID);
+    const newSessionId = newParams.get(SESSION_ID);
     if (oldSessionId !== null && newSessionId === null) {
       // newParams.set(SessionId, oldSessionId);
       // changeQueryString(newParams.toString(), undefined);
@@ -455,7 +455,7 @@ export default class Player {
             }
           },
           params: {
-            [SessionId]: this.sessionId
+            [SESSION_ID]: this.sessionId
           }
         }
       });

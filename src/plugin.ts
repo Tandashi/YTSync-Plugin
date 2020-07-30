@@ -1,5 +1,5 @@
 import YTHTMLUtil from './util/yt-html';
-import * as Consts from './util/consts';
+import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, SESSION_ID, LEAVE_SYNC_BUTTON_ID } from './util/consts';
 import Player from './player';
 import WebsocketUtil from './util/websocket';
 import Store from './util/store';
@@ -54,7 +54,7 @@ function urlChangeHandler(): void {
   if (videoId === null)
     return;
 
-  const sessionId = urlParams.get(Consts.SessionId);
+  const sessionId = urlParams.get(SESSION_ID);
   if (sessionId === null) {
     startInjectingNonSessionItems(urlParams);
   }
@@ -69,13 +69,13 @@ function urlChangeHandler(): void {
  * @param urlParams The current window url parameters
  */
 function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
-  intervals.syncButton = injectButton(Consts.CreateSyncButtonId, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
-    urlParams.set(Consts.SessionId, WebsocketUtil.generateSessionId());
+  intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
+    urlParams.set(SESSION_ID, WebsocketUtil.generateSessionId());
     window.location.search = urlParams.toString();
     ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
   });
 
-  intervals.queueAddButton = injectButton(Consts.QueueAddButtonId, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
+  intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
     Store.addElement(VideoUtil.getCurrentVideo());
   });
 }
@@ -87,8 +87,8 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
  * @param sessionId The session id
  */
 function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
-  intervals.leaveButton = injectButton(Consts.LeaveSyncButtonId, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
-    urlParams.delete(Consts.SessionId);
+  intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
+    urlParams.delete(SESSION_ID);
     window.location.search = urlParams.toString();
   });
 
