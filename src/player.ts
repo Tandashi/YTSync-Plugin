@@ -27,6 +27,7 @@ export default class Player {
   private options: PlayerOptions;
   private queueItemsElement: JQuery<Element> = null;
   private roomInfoElement: JQuery<HTMLElement> = null;
+  private reactionPanelElement: JQuery<HTMLElement> = null;
 
   private bufferedQueueWsMessages: string[] = [];
   private bufferedRoomInfoWsMessages: string[] = [];
@@ -105,7 +106,7 @@ export default class Player {
     });
 
     const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(REACTIONS_CONTAINER_SELECTOR, () => {
-      YTHTMLUtil.injectReactionsPanel(
+      this.reactionPanelElement = YTHTMLUtil.injectReactionsPanel(
         'Reactions',
         'Find it funny? React!',
         Reactions,
@@ -113,9 +114,7 @@ export default class Player {
           this.sendWsMessage(Message.REACTION, id);
         },
         (state: boolean) => {
-          const settings = Store.getSettings();
-          settings.showReactions = state;
-          Store.setSettings(settings);
+          this.setReactionToggle(state);
         },
         true,
         false
@@ -230,6 +229,7 @@ export default class Player {
     this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
 
     this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
+    this.setReactionToggle(Store.getSettings().showReactions, false);
   }
 
   /**
@@ -307,6 +307,9 @@ export default class Player {
         case Message.REACTION:
           const reaction = ReactionsMap[data];
           if (reaction === null || reaction === undefined)
+            return;
+
+          if (!Store.getSettings().showReactions)
             return;
 
           YTHTMLUtil.addReaction(reaction);
@@ -503,6 +506,19 @@ export default class Player {
 
     YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
     this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
+  }
+
+  private setReactionToggle(state: boolean, updateSettings: boolean = true): void {
+    if (this.reactionPanelElement === null)
+      return;
+
+    YTHTMLUtil.setPapperToggleButtonState(this.reactionPanelElement.find('#reactionToggle'), state);
+
+    if (updateSettings) {
+      const settings = Store.getSettings();
+      settings.showReactions = state;
+      Store.setSettings(settings);
+    }
   }
 
   /**
