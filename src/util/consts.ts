@@ -1,16 +1,17 @@
-export const SessionId = 'syncId';
-export const StorageId = 'syncStore';
+export const SESSION_ID = 'syncId';
+export const QUEUE_ID = 'syncQueue';
+export const SETTINGS_ID = 'syncSettings';
 
-export const CreateSyncButtonId = 'create-sync-button';
-export const LeaveSyncButtonId = 'leave-sync-button';
-export const QueueAddButtonId = 'queue-add-button';
+export const CREATE_SYNC_BUTTON_ID = 'create-sync-button';
+export const LEAVE_SYNC_BUTTON_ID = 'leave-sync-button';
+export const QUEUE_ADD_BUTTON_ID = 'queue-add-button';
 
-export const QueueContainerSelector = 'div#secondary #playlist';
-export const RoomInfoContainerSelector = 'div#secondary div#secondary-inner';
-export const ReactionsContainerSelector = 'div#secondary div#secondary-inner';
+export const QUEUE_CONTAINER_SELECTOR = 'div#secondary #playlist';
+export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
+export const REACTIONS_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
-export const ReactionTimeTillRemove = 8000;
-export const ReactionFadeInTime = 600;
+export const REACTION_TIME_TILL_REMOVE = 8000;
+export const REACTION_FADE_IN_TIME = 600;
 
 export const Reactions: Reaction[] = [
   { id: 'grin', symbol: '😀', text: '' },
@@ -35,3 +36,7 @@ export const ReactionsMap: { [id: string]: Reaction; } = Reactions.reduce((acc, 
   acc[cur.id] = cur;
   return acc;
 }, {});
+
+export const DEFAULT_SETTINGS: Settings = {
+  showReactions: true
+};

@@ -20,6 +20,10 @@ interface Reaction {
   text: string;
 }
 
+interface Settings {
+  showReactions: boolean;
+}
+
 interface PluginInjectIntervals {
   syncButton: NodeJS.Timeout | null;
   leaveButton: NodeJS.Timeout | null

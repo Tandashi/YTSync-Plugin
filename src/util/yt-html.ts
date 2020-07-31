@@ -1,6 +1,6 @@
 import { InjectAction } from '../enum/action';
 import Client from '../model/client';
-import { QueueContainerSelector, RoomInfoContainerSelector, ReactionsContainerSelector, ReactionTimeTillRemove, ReactionFadeInTime } from './consts';
+import { QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, REACTION_TIME_TILL_REMOVE, REACTION_FADE_IN_TIME } from './consts';
 
 export default class YTHTMLUtil {
   /**
@@ -134,9 +134,9 @@ export default class YTHTMLUtil {
       .append(renderer);
 
     renderer.
-      animate({ opacity: 1 }, ReactionFadeInTime);
+      animate({ opacity: 1 }, REACTION_FADE_IN_TIME);
 
-    setTimeout(() => renderer.remove(), ReactionTimeTillRemove);
+    setTimeout(() => renderer.remove(), REACTION_TIME_TILL_REMOVE);
     renderer.click(() => renderer.remove());
 
     return renderer;
@@ -422,7 +422,7 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectEmptyQueueShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QueueContainerSelector, 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
+    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QUEUE_CONTAINER_SELECTOR, 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
   }
 
   /**
@@ -437,7 +437,7 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(RoomInfoContainerSelector, 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
+    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
 
     const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
     autoplayButton.off();
@@ -458,13 +458,15 @@ export default class YTHTMLUtil {
    * @param title The title of the reaction panel
    * @param description The description of the reaction panel
    * @param reactions The reactions that should be displayed
+   * @param onReactionClicked Callback which gets fired when a reaction was clicked
+   * @param onReactionToggle Callback which gets fired when the toggle status of the reaction toggle changes
    * @param collapsible If the reaction should be collapsible
    * @param collapsed If the reaction should be initally collapsed
    *
    * @return The created <ytd-playlist-panel-renderer>
    */
-  public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onClick: (id: string) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ReactionsContainerSelector, 'reactions', title, description, collapsible, collapsed, InjectAction.APPEND);
+  public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onReactionClicked: (id: string) => void, onReactionToggle: (state: boolean) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(REACTIONS_CONTAINER_SELECTOR, 'reactions', title, description, collapsible, collapsed, InjectAction.APPEND);
 
     const items = renderer.find('#items');
     items.css('text-align', 'center');
@@ -472,13 +474,24 @@ export default class YTHTMLUtil {
     for (const reaction of reactions) {
       const reactionRenderer = YTHTMLUtil.createReaction(reaction.symbol);
       reactionRenderer.click(() => {
-        onClick(reaction.id);
+        onReactionClicked(reaction.id);
       });
       items.append(reactionRenderer);
     }
 
     $('.html5-video-container')
       .append(YTHTMLUtil.createReactionOverlay());
+
+
+    const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell('reactionToggle');
+    reactionToggle.off();
+    reactionToggle.click(() => {
+      onReactionToggle(reactionToggle.attr('active') === '');
+    });
+
+    renderer
+      .find('#top-row-buttons')
+      .append(reactionToggle);
 
     return renderer;
   }
