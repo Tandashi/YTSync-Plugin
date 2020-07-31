@@ -116,9 +116,10 @@ export default class Player {
         (state: boolean) => {
           this.setReactionToggle(state);
         },
-        true,
+        false,
         false
       );
+
       clearWaitForReactionsContainer();
     });
 
