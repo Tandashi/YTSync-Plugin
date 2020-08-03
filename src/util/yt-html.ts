@@ -436,6 +436,11 @@ export default class YTHTMLUtil {
     playlistVideoRenderer.find('span#byline')
       .text(byline);
 
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${videoId}-tooltip`, 'meta');
+    playlistVideoRenderer.find('a#wc-endpoint > div#container')
+      .append(tooltip);
+    YTHTMLUtil.setPaperTooltipText(tooltip, title);
+
     return playlistVideoRenderer;
   }
 
