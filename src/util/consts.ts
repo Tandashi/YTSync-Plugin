@@ -14,6 +14,10 @@ export const REACTION_TIME_TILL_REMOVE = 8000;
 export const REACTION_FADE_IN_TIME = 600;
 
 export const Reactions: Reaction[] = [
+  { id: 'play', symbol: '▶️', text: '' },
+  { id: 'pause', symbol: '⏸️', text: '' },
+  { id: 'rewind', symbol: '⏪', text: '' },
+  { id: 'forward', symbol: '⏩', text: '' },
   { id: 'grin', symbol: '😀', text: '' },
   { id: 'tears-of-joy', symbol: '😂', text: '' },
   { id: 'exploding-head', symbol: '🤯', text: '' },
