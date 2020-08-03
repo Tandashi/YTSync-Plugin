@@ -59,16 +59,19 @@ export default class YTHTMLUtil {
     return $(`<yt-icon-button class="style-scope ytd-button-renderer style-default size-default" id="button">`);
   }
 
-  private static createReaction(symbol: string): JQuery<HTMLElement> {
+  private static createReaction(reaction: Reaction): JQuery<HTMLElement> {
+    const id = `emoji-${reaction.id}`;
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${id}-tooltip`, id);
+
     return $(`
       <div style="justify-content: center; display: inline-flex; cursor: pointer;" >
-        <div
+        <div id="${id}"
             style="font-size: 24px; margin: 4px;"
         >
-          ${symbol}
+          ${reaction.symbol}
         </div>
       </div>
-    `);
+    `).append(tooltip);
   }
 
   private static createReactionChip(text: string, symbol: string): JQuery<HTMLElement> {
@@ -248,12 +251,39 @@ export default class YTHTMLUtil {
   }
 
   /**
-   * Create a yt-live-chat-author-badge-renderer> Shell.
+   * Create a <yt-live-chat-author-badge-renderer> Shell.
    */
   private static createYtLiveChatAuthorBadgeRendererShell() {
     return $(`
       <yt-live-chat-author-badge-renderer class="style-scope yt-live-chat-author-chip" style="margin-left: 10px"/>
     `);
+  }
+
+  /**
+   * Create a <paper-tooltip> Shell. You still need to set the Text inside!
+   *
+   * @param id The tooltip Id
+   * @param forId The element Id the tooltip is for
+   * @param text The tooltip text
+   */
+  private static createPaperTooltipShell(id: string, forId: string): JQuery<HTMLElement> {
+    return $(`
+      <paper-tooltip id="${id}" for="${forId}" role="tooltip">
+        <div id="tooltip" class="style-scope paper-tooltip">
+          This will be replaced
+        </div>
+      </paper-tooltip>
+    `);
+  }
+
+  /**
+   * Set the <paper-tooltip> text. This should be called after the renderer has been injected into the DOM!
+   * @param renderer The <paper-tooltip> renderer
+   * @param text The text
+   */
+  private static setPaperTooltipText(renderer: JQuery<HTMLElement>, text: string): void {
+    renderer.find('div#tooltip')
+      .text(text);
   }
 
   /**
@@ -440,14 +470,20 @@ export default class YTHTMLUtil {
     const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
 
     const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
-    autoplayButton.off();
+    // autoplayButton.off();
+    // Set onClick to report to callback
     autoplayButton.click(() => {
       cb(autoplayButton.attr('active') === '');
     });
 
+    const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell('tooltip-autoplay', 'autoplay');
+
     renderer
       .find('#top-row-buttons')
-      .append(autoplayButton);
+      .append(autoplayButton)
+      .append(autoplayTooltip);
+
+    YTHTMLUtil.setPaperTooltipText(autoplayTooltip, 'Autoplay');
 
     return renderer;
   }
@@ -472,26 +508,33 @@ export default class YTHTMLUtil {
     items.css('text-align', 'center');
 
     for (const reaction of reactions) {
-      const reactionRenderer = YTHTMLUtil.createReaction(reaction.symbol);
+      const reactionRenderer = YTHTMLUtil.createReaction(reaction);
       reactionRenderer.click(() => {
         onReactionClicked(reaction.id);
       });
       items.append(reactionRenderer);
+      YTHTMLUtil.setPaperTooltipText(reactionRenderer, reaction.tooltip);
     }
 
     $('.html5-video-container')
       .append(YTHTMLUtil.createReactionOverlay());
 
 
-    const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell('reactionToggle');
-    reactionToggle.off();
+    const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell('reaction-toggle');
+    // reactionToggle.off();
+    // Set onClick to report to callback
     reactionToggle.click(() => {
       onReactionToggle(reactionToggle.attr('active') === '');
     });
 
+    const reactionToggleTooltip = YTHTMLUtil.createPaperTooltipShell('tooltip-reaction-toggle', 'reaction-toggle');
+
     renderer
       .find('#top-row-buttons')
-      .append(reactionToggle);
+      .append(reactionToggle)
+      .append(reactionToggleTooltip);
+
+    YTHTMLUtil.setPaperTooltipText(reactionToggleTooltip, 'Show Reactions');
 
     return renderer;
   }

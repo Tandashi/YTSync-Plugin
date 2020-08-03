@@ -17,6 +17,7 @@ interface Video {
 interface Reaction {
   id: string;
   symbol: string;
+  tooltip: string;
   text: string;
 }
 
