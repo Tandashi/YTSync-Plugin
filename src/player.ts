@@ -10,7 +10,7 @@ import Client from './model/client';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
-import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId } from './util/consts';
+import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId, AUTOPLAY_TOGGLE_ID, REACTION_TOGGLE_ID, BADGE_PROMOTE_ID, BADGE_UNPROMOTE_ID } from './util/consts';
 
 declare global {
   interface Window {
@@ -489,7 +489,7 @@ export default class Player {
     if (this.autoplay === autoplay && !force)
       return;
 
-    const autoplayToggle = this.roomInfoElement.find('#autoplay');
+    const autoplayToggle = this.roomInfoElement.find(`#${AUTOPLAY_TOGGLE_ID}`);
     this.autoplay = autoplay;
 
     YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
@@ -500,7 +500,7 @@ export default class Player {
     if (this.reactionPanelElement === null)
       return;
 
-    YTHTMLUtil.setPapperToggleButtonState(this.reactionPanelElement.find('#reactionToggle'), state);
+    YTHTMLUtil.setPapperToggleButtonState(this.reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`), state);
 
     if (updateSettings) {
       const settings = Store.getSettings();
@@ -541,7 +541,7 @@ export default class Player {
     switch (client.role) {
       case Role.PROMOTED:
         badges.push({
-          id: 'unpromote',
+          id: BADGE_UNPROMOTE_ID,
           onClick: () => {
             this.ws.sendWsUnpromoteMessage(client);
           }
@@ -549,7 +549,7 @@ export default class Player {
         break;
       case Role.MEMBER:
         badges.push({
-          id: 'promote',
+          id: BADGE_PROMOTE_ID,
           onClick: () => {
             this.ws.sendWsPromoteMessage(client);
           }

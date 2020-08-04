@@ -20,6 +20,10 @@ export const YT_PLAYER_SELECTOR = 'ytd-player';
 export const YT_VIDEO_TITLE_SELECTOR = 'ytd-video-primary-info-renderer h1 yt-formatted-string';
 export const YT_VIDEO_BYLINE_SELECTOR = 'ytd-channel-name a';
 
+// The Badge ids are the ids on the server for the badge images
+export const BADGE_PROMOTE_ID = 'promote';
+export const BADGE_UNPROMOTE_ID = 'unpromote';
+
 export const BUTTON_INJECT_CONTAINER_SELECTOR = 'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons';
 export const QUEUE_CONTAINER_SELECTOR = 'div#secondary #playlist';
 export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
