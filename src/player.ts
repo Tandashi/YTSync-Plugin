@@ -125,7 +125,7 @@ export default class Player {
           }
 
           this.currentAnimation = anime({
-            targets: getReactionId(reaction),
+            targets: `#${getReactionId(reaction)}`,
             duration: 400,
             rotate: '+=1turn',
             easing: 'linear'
