@@ -511,6 +511,7 @@ export default class YTHTMLUtil {
 
     const items = renderer.find('#items');
     items.css('text-align', 'center');
+    items.css('overflow-y', 'hidden');
 
     for (const reaction of reactions) {
       const reactionRenderer = YTHTMLUtil.createReaction(reaction);
