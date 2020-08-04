@@ -1,13 +1,16 @@
+import anime from 'animejs';
+
+import { Message } from './enum/message';
+import { Role } from './enum/role';
 import ScheduleUtil from './util/schedule';
-import { SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap } from './util/consts';
 import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
-import { Message } from './enum/message';
 import YTUtil from './util/yt';
 import Client from './model/client';
-import { Role } from './enum/role';
 import Store from './util/store';
-import anime from 'animejs';
+import SyncSocket from './model/sync-socket';
+
+import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId, AUTOPLAY_TOGGLE_ID, REACTION_TOGGLE_ID, BADGE_PROMOTE_ID, BADGE_UNPROMOTE_ID } from './util/consts';
 
 declare global {
   interface Window {
@@ -24,7 +27,7 @@ interface BufferCondition {
 export default class Player {
   private sessionId: string;
   private ytPlayer: YT.Player = null;
-  private ws: SocketIOClient.Socket;
+  private ws: SyncSocket;
   private options: PlayerOptions;
   private queueItemsElement: JQuery<Element> = null;
   private roomInfoElement: JQuery<HTMLElement> = null;
@@ -113,8 +116,8 @@ export default class Player {
         'Reactions',
         'Find it funny? React!',
         Reactions,
-        (id: string) => {
-          this.sendWsMessage(Message.REACTION, id);
+        (reaction: Reaction) => {
+          this.ws.sendWsReactionMessage(reaction);
 
           if (this.currentAnimation !== null) {
             this.currentAnimation.restart();
@@ -122,7 +125,7 @@ export default class Player {
           }
 
           this.currentAnimation = anime({
-            targets: `#emoji-${id}`,
+            targets: `#${getReactionId(reaction)}`,
             duration: 400,
             rotate: '+=1turn',
             easing: 'linear'
@@ -139,7 +142,7 @@ export default class Player {
     });
 
     ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
-    ScheduleUtil.startQueueStoreSchedule((v) => this.sendWsRequestToAddToQueue(v));
+    ScheduleUtil.startQueueStoreSchedule((v) => this.ws.sendWsRequestToAddToQueue(v));
 
     this.connectWs(sessionId);
   }
@@ -171,10 +174,10 @@ export default class Player {
   private onStateChange(state: YT.PlayerState): void {
     switch (state) {
       case unsafeWindow.YT.PlayerState.PLAYING:
-        this.sendWsTimeMessage(Message.PLAY);
+        this.ws.sendWsTimeMessage(Message.PLAY, this.ytPlayer);
         break;
       case unsafeWindow.YT.PlayerState.PAUSED:
-        this.sendWsTimeMessage(Message.PAUSE);
+        this.ws.sendWsTimeMessage(Message.PAUSE, this.ytPlayer);
         break;
       case unsafeWindow.YT.PlayerState.ENDED:
         if (this.autoplay)
@@ -195,8 +198,8 @@ export default class Player {
     const oldParams = new URLSearchParams(o.search);
     const newParams = new URLSearchParams(n.search);
 
-    const oldSessionId = oldParams.get(SESSION_ID);
-    const newSessionId = newParams.get(SESSION_ID);
+    const oldSessionId = oldParams.get(STORAGE_SESSION_ID);
+    const newSessionId = newParams.get(STORAGE_SESSION_ID);
     if (oldSessionId !== null && newSessionId === null) {
       // newParams.set(SessionId, oldSessionId);
       // changeQueryString(newParams.toString(), undefined);
@@ -206,7 +209,7 @@ export default class Player {
 
     const videoId = newParams.get('v');
     if (videoId !== null) {
-      this.sendWsMessage(Message.PLAY_VIDEO, videoId);
+      this.ws.sendWsRequestToPlayVideo(videoId);
     }
   }
 
@@ -215,7 +218,7 @@ export default class Player {
    * Will send a SEEK Message.
    */
   private onPlayerSeek(): void {
-    this.sendWsTimeMessage(Message.SEEK);
+    this.ws.sendWsTimeMessage(Message.SEEK, this.ytPlayer);
   }
 
   /**
@@ -227,12 +230,14 @@ export default class Player {
     this.sessionId = sessionId;
     const { protocol, host, port } = this.options.connection;
 
-    this.ws = io(`${protocol}://${host}:${port}/${sessionId}`, {
+    const socket = io(`${protocol}://${host}:${port}/${sessionId}`, {
       autoConnect: true,
       path: '/socket.io'
     });
-    this.ws.on('connect', () => this.onWsConnected());
-    this.ws.on('message', (d: string) => this.onWsMessage(d));
+
+    this.ws = new SyncSocket(socket);
+    this.ws.socket.on('connect', () => this.onWsConnected());
+    this.ws.socket.on('message', (d: string) => this.onWsMessage(d));
   }
 
   /**
@@ -241,8 +246,8 @@ export default class Player {
   private onWsConnected(): void {
     console.log('Connected');
     const video = VideoUtil.getCurrentVideo();
-    this.sendWsRequestToAddToQueue(video);
-    this.sendWsMessage(Message.PLAY_VIDEO, video.videoId);
+    this.ws.sendWsRequestToAddToQueue(video);
+    this.ws.sendWsRequestToPlayVideo(video.videoId);
 
     this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
     this.setReactionToggle(Store.getSettings().showReactions, false);
@@ -336,39 +341,6 @@ export default class Player {
   }
 
   /**
-   * Send a message to the session containing the current video time as data
-   *
-   * @param type The type of the message
-   */
-  private sendWsTimeMessage(type: Message.PLAY | Message.PAUSE | Message.SEEK): void {
-    this.sendWsMessage(type, this.ytPlayer.getCurrentTime().toString());
-  }
-
-  /**
-   * Send a message to the session
-   *
-   * @param type The message type
-   * @param data The message data
-   */
-  private sendWsMessage(type: Message, data: any): void {
-    const message = {
-      action: type,
-      data
-    };
-    this.ws.send(JSON.stringify(message));
-  }
-
-  /**
-   * Request to add the given Video to the Queue.
-   * Will only work if the client has the needed Permissions.
-   *
-   * @param video The video that should be added to the Queue
-   */
-  private sendWsRequestToAddToQueue(video: Video) {
-    this.sendWsMessage(Message.ADD_TO_QUEUE, video);
-  }
-
-  /**
    * Populate the Queue.
    *
    * **Caution**: Will clear existing Queue.
@@ -445,7 +417,7 @@ export default class Player {
    */
   private queueElementClickHandler(videoId: string): () => void {
     return () => {
-      this.sendWsMessage(Message.PLAY_VIDEO, videoId);
+      this.ws.sendWsRequestToPlayVideo(videoId);
     };
   }
 
@@ -455,7 +427,7 @@ export default class Player {
    */
   private queueElementDeleteHandler(videoId: string): () => void {
     return () => {
-      this.sendWsMessage(Message.REMOVE_FROM_QUEUE, videoId);
+      this.ws.sendWsRequestToRemoveFromQueue(videoId);
     };
   }
 
@@ -480,7 +452,7 @@ export default class Player {
             }
           },
           params: {
-            [SESSION_ID]: this.sessionId
+            [STORAGE_SESSION_ID]: this.sessionId
           }
         }
       });
@@ -517,18 +489,19 @@ export default class Player {
     if (this.autoplay === autoplay && !force)
       return;
 
-    const autoplayToggle = this.roomInfoElement.find('#autoplay');
+    const autoplayToggle = this.roomInfoElement.find(`#${AUTOPLAY_TOGGLE_ID}`);
     this.autoplay = autoplay;
 
     YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
-    this.sendWsMessage(Message.AUTOPLAY, this.autoplay);
+    this.ws.sendWsAutoplayMessage(this.autoplay);
   }
 
   private setReactionToggle(state: boolean, updateSettings: boolean = true): void {
     if (this.reactionPanelElement === null)
       return;
 
-    YTHTMLUtil.setPapperToggleButtonState(this.reactionPanelElement.find('#reactionToggle'), state);
+    const reactionToggle = this.reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`);
+    YTHTMLUtil.setPapperToggleButtonState(reactionToggle, state);
 
     if (updateSettings) {
       const settings = Store.getSettings();
@@ -569,17 +542,17 @@ export default class Player {
     switch (client.role) {
       case Role.PROMOTED:
         badges.push({
-          id: 'unpromote',
+          id: BADGE_UNPROMOTE_ID,
           onClick: () => {
-            this.sendWsMessage(Message.UNPROMOTE, client.socketId);
+            this.ws.sendWsUnpromoteMessage(client);
           }
         });
         break;
       case Role.MEMBER:
         badges.push({
-          id: 'promote',
+          id: BADGE_PROMOTE_ID,
           onClick: () => {
-            this.sendWsMessage(Message.PROMOTE, client.socketId);
+            this.ws.sendWsPromoteMessage(client);
           }
         });
         break;

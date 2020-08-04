@@ -1,3 +1,4 @@
+import { YT_VIDEO_BYLINE_SELECTOR, YT_VIDEO_TITLE_SELECTOR } from './consts';
 
 export default class VideoUtil {
   /**
@@ -12,8 +13,8 @@ export default class VideoUtil {
 
     return {
       videoId,
-      title: $('ytd-video-primary-info-renderer h1 yt-formatted-string').text(),
-      byline: $('ytd-channel-name a').text()
+      title: $(YT_VIDEO_TITLE_SELECTOR).text(),
+      byline: $(YT_VIDEO_BYLINE_SELECTOR).text()
     };
   }
 }

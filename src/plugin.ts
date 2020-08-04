@@ -1,5 +1,5 @@
 import YTHTMLUtil from './util/yt-html';
-import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, SESSION_ID, LEAVE_SYNC_BUTTON_ID } from './util/consts';
+import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, STORAGE_SESSION_ID, LEAVE_SYNC_BUTTON_ID, BUTTON_INJECT_CONTAINER_SELECTOR } from './util/consts';
 import Player from './player';
 import WebsocketUtil from './util/websocket';
 import Store from './util/store';
@@ -59,7 +59,7 @@ function urlChangeHandler(): void {
   if (videoId === null)
     return;
 
-  const sessionId = urlParams.get(SESSION_ID);
+  const sessionId = urlParams.get(STORAGE_SESSION_ID);
   if (sessionId === null) {
     startInjectingNonSessionItems(urlParams);
   }
@@ -75,7 +75,7 @@ function urlChangeHandler(): void {
  */
 function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
   intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
-    urlParams.set(SESSION_ID, WebsocketUtil.generateSessionId());
+    urlParams.set(STORAGE_SESSION_ID, WebsocketUtil.generateSessionId());
     window.location.search = urlParams.toString();
     ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
   });
@@ -93,7 +93,7 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
  */
 function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
   intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
-    urlParams.delete(SESSION_ID);
+    urlParams.delete(STORAGE_SESSION_ID);
     window.location.search = urlParams.toString();
   });
 
@@ -110,7 +110,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
  */
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
   const handler = setInterval(() => {
-    const container = $('div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons');
+    const container = $(BUTTON_INJECT_CONTAINER_SELECTOR);
     $(`#${id}`).remove();
     if (container.length === 1 && container.find(`#${id}`).length === 0) {
       YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);

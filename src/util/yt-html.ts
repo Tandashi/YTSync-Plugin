@@ -1,6 +1,6 @@
 import { InjectAction } from '../enum/action';
 import Client from '../model/client';
-import { QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, REACTION_TIME_TILL_REMOVE, REACTION_FADE_IN_TIME } from './consts';
+import { QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, REACTION_TIME_TILL_REMOVE, REACTION_FADE_IN_TIME, getReactionId, getReactionTooltipId, REACTION_OVERLAY_ID, ROOM_INFO_CONTAINER_ID, AUTOPLAY_TOGGLE_ID, AUTOPLAY_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID, REACTION_TOGGLE_TOOLTIP_ID, REACTION_CONTAINER_ID, QUEUE_CONTAINER_ID } from './consts';
 
 export default class YTHTMLUtil {
   /**
@@ -60,8 +60,8 @@ export default class YTHTMLUtil {
   }
 
   private static createReaction(reaction: Reaction): JQuery<HTMLElement> {
-    const id = `emoji-${reaction.id}`;
-    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${id}-tooltip`, id);
+    const id = getReactionId(reaction);
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(getReactionTooltipId(reaction), id, reaction.tooltip);
 
     return $(`
       <div style="justify-content: center; display: inline-flex; cursor: pointer;" >
@@ -120,7 +120,7 @@ export default class YTHTMLUtil {
   private static createReactionOverlay(): JQuery<HTMLElement> {
     return $(`
       <div
-        id="reaction-overlay"
+        id="${REACTION_OVERLAY_ID}"
         style="
           position: relative;
           float: right;
@@ -133,7 +133,7 @@ export default class YTHTMLUtil {
 
   public static addReaction(reaction: Reaction): JQuery<HTMLElement> {
     const renderer = YTHTMLUtil.createReactionChip(reaction.text, reaction.symbol);
-    $('#reaction-overlay')
+    $(`#${REACTION_OVERLAY_ID}`)
       .append(renderer);
 
     renderer.
@@ -266,24 +266,12 @@ export default class YTHTMLUtil {
    * @param forId The element Id the tooltip is for
    * @param text The tooltip text
    */
-  private static createPaperTooltipShell(id: string, forId: string): JQuery<HTMLElement> {
+  private static createPaperTooltipShell(id: string, forId: string, text: string): JQuery<HTMLElement> {
     return $(`
-      <paper-tooltip id="${id}" for="${forId}" role="tooltip">
-        <div id="tooltip" class="style-scope paper-tooltip">
-          This will be replaced
-        </div>
+      <paper-tooltip id="${id}" for="${forId}">
+        ${text}
       </paper-tooltip>
     `);
-  }
-
-  /**
-   * Set the <paper-tooltip> text. This should be called after the renderer has been injected into the DOM!
-   * @param renderer The <paper-tooltip> renderer
-   * @param text The text
-   */
-  private static setPaperTooltipText(renderer: JQuery<HTMLElement>, text: string): void {
-    renderer.find('div#tooltip')
-      .text(text);
   }
 
   /**
@@ -436,10 +424,9 @@ export default class YTHTMLUtil {
     playlistVideoRenderer.find('span#byline')
       .text(byline);
 
-    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${videoId}-tooltip`, 'meta');
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${videoId}-tooltip`, 'meta', title);
     playlistVideoRenderer.find('a#wc-endpoint > div#container')
       .append(tooltip);
-    YTHTMLUtil.setPaperTooltipText(tooltip, title);
 
     return playlistVideoRenderer;
   }
@@ -457,7 +444,7 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectEmptyQueueShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QUEUE_CONTAINER_SELECTOR, 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
+    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QUEUE_CONTAINER_SELECTOR, QUEUE_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.REPLACE);
   }
 
   /**
@@ -472,23 +459,21 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, 'room-info', title, description, collapsible, collapsed, InjectAction.APPEND);
+    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.APPEND);
 
-    const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell('autoplay');
+    const autoplayToggle = YTHTMLUtil.createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
     // autoplayButton.off();
     // Set onClick to report to callback
-    autoplayButton.click(() => {
-      cb(autoplayButton.attr('active') === '');
+    autoplayToggle.click(() => {
+      cb(autoplayToggle.attr('active') === '');
     });
 
-    const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell('tooltip-autoplay', 'autoplay');
+    const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell(AUTOPLAY_TOGGLE_TOOLTIP_ID, AUTOPLAY_TOGGLE_ID, 'Autoplay');
 
     renderer
       .find('#top-row-buttons')
-      .append(autoplayButton)
+      .append(autoplayToggle)
       .append(autoplayTooltip);
-
-    YTHTMLUtil.setPaperTooltipText(autoplayTooltip, 'Autoplay');
 
     return renderer;
   }
@@ -506,8 +491,8 @@ export default class YTHTMLUtil {
    *
    * @return The created <ytd-playlist-panel-renderer>
    */
-  public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onReactionClicked: (id: string) => void, onReactionToggle: (state: boolean) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(REACTIONS_CONTAINER_SELECTOR, 'reactions', title, description, collapsible, collapsed, InjectAction.APPEND);
+  public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onReactionClicked: (reaction: Reaction) => void, onReactionToggle: (state: boolean) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
+    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(REACTIONS_CONTAINER_SELECTOR, REACTION_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.APPEND);
 
     const items = renderer.find('#items');
     items.css('text-align', 'center');
@@ -516,31 +501,28 @@ export default class YTHTMLUtil {
     for (const reaction of reactions) {
       const reactionRenderer = YTHTMLUtil.createReaction(reaction);
       reactionRenderer.click(() => {
-        onReactionClicked(reaction.id);
+        onReactionClicked(reaction);
       });
       items.append(reactionRenderer);
-      YTHTMLUtil.setPaperTooltipText(reactionRenderer, reaction.tooltip);
     }
 
     $('.html5-video-container')
       .append(YTHTMLUtil.createReactionOverlay());
 
 
-    const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell('reaction-toggle');
+    const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell(REACTION_TOGGLE_ID);
     // reactionToggle.off();
     // Set onClick to report to callback
     reactionToggle.click(() => {
       onReactionToggle(reactionToggle.attr('active') === '');
     });
 
-    const reactionToggleTooltip = YTHTMLUtil.createPaperTooltipShell('tooltip-reaction-toggle', 'reaction-toggle');
+    const reactionToggleTooltip = YTHTMLUtil.createPaperTooltipShell(REACTION_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID, 'Show Reactions');
 
     renderer
       .find('#top-row-buttons')
       .append(reactionToggle)
       .append(reactionToggleTooltip);
-
-    YTHTMLUtil.setPaperTooltipText(reactionToggleTooltip, 'Show Reactions');
 
     return renderer;
   }
