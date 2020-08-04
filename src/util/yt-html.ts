@@ -61,7 +61,7 @@ export default class YTHTMLUtil {
 
   private static createReaction(reaction: Reaction): JQuery<HTMLElement> {
     const id = getReactionId(reaction);
-    const tooltip = YTHTMLUtil.createPaperTooltipShell(getReactionTooltipId(reaction), id);
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(getReactionTooltipId(reaction), id, reaction.tooltip);
 
     return $(`
       <div style="justify-content: center; display: inline-flex; cursor: pointer;" >
@@ -266,24 +266,12 @@ export default class YTHTMLUtil {
    * @param forId The element Id the tooltip is for
    * @param text The tooltip text
    */
-  private static createPaperTooltipShell(id: string, forId: string): JQuery<HTMLElement> {
+  private static createPaperTooltipShell(id: string, forId: string, text: string): JQuery<HTMLElement> {
     return $(`
-      <paper-tooltip id="${id}" for="${forId}" role="tooltip">
-        <div id="tooltip" class="style-scope paper-tooltip">
-          This will be replaced
-        </div>
+      <paper-tooltip id="${id}" for="${forId}">
+        ${text}
       </paper-tooltip>
     `);
-  }
-
-  /**
-   * Set the <paper-tooltip> text. This should be called after the renderer has been injected into the DOM!
-   * @param renderer The <paper-tooltip> renderer
-   * @param text The text
-   */
-  private static setPaperTooltipText(renderer: JQuery<HTMLElement>, text: string): void {
-    renderer.find('div#tooltip')
-      .text(text);
   }
 
   /**
@@ -436,10 +424,9 @@ export default class YTHTMLUtil {
     playlistVideoRenderer.find('span#byline')
       .text(byline);
 
-    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${videoId}-tooltip`, 'meta');
+    const tooltip = YTHTMLUtil.createPaperTooltipShell(`${videoId}-tooltip`, 'meta', title);
     playlistVideoRenderer.find('a#wc-endpoint > div#container')
       .append(tooltip);
-    YTHTMLUtil.setPaperTooltipText(tooltip, title);
 
     return playlistVideoRenderer;
   }
@@ -481,14 +468,12 @@ export default class YTHTMLUtil {
       cb(autoplayToggle.attr('active') === '');
     });
 
-    const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell(AUTOPLAY_TOGGLE_TOOLTIP_ID, AUTOPLAY_TOGGLE_ID);
+    const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell(AUTOPLAY_TOGGLE_TOOLTIP_ID, AUTOPLAY_TOGGLE_ID, 'Autoplay');
 
     renderer
       .find('#top-row-buttons')
       .append(autoplayToggle)
       .append(autoplayTooltip);
-
-    YTHTMLUtil.setPaperTooltipText(autoplayTooltip, 'Autoplay');
 
     return renderer;
   }
@@ -519,7 +504,6 @@ export default class YTHTMLUtil {
         onReactionClicked(reaction);
       });
       items.append(reactionRenderer);
-      YTHTMLUtil.setPaperTooltipText(reactionRenderer, reaction.tooltip);
     }
 
     $('.html5-video-container')
@@ -533,14 +517,12 @@ export default class YTHTMLUtil {
       onReactionToggle(reactionToggle.attr('active') === '');
     });
 
-    const reactionToggleTooltip = YTHTMLUtil.createPaperTooltipShell(REACTION_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID);
+    const reactionToggleTooltip = YTHTMLUtil.createPaperTooltipShell(REACTION_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID, 'Show Reactions');
 
     renderer
       .find('#top-row-buttons')
       .append(reactionToggle)
       .append(reactionToggleTooltip);
-
-    YTHTMLUtil.setPaperTooltipText(reactionToggleTooltip, 'Show Reactions');
 
     return renderer;
   }
