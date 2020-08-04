@@ -33,7 +33,10 @@ window.onload = () => {
 
 window.onunload = () => {
   urlSchedule();
+  clearIntervals();
+};
 
+function clearIntervals(): void {
   Object.values(intervals).forEach((i) => {
     try {
       clearInterval(i);
@@ -41,13 +44,15 @@ window.onunload = () => {
     // tslint:disable-next-line: no-empty
     catch (_) { }
   });
-};
+}
 
 /**
  * Handler for URL changes.
  * Will inject needed elements accordignly.
  */
 function urlChangeHandler(): void {
+  clearIntervals();
+
   const urlParams = new URLSearchParams(window.location.search);
 
   const videoId = urlParams.get('v');
