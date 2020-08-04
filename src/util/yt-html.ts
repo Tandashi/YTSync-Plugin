@@ -1,6 +1,6 @@
 import { InjectAction } from '../enum/action';
 import Client from '../model/client';
-import { QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, REACTION_TIME_TILL_REMOVE, REACTION_FADE_IN_TIME, getReactionId, getReactionTooltipId, REACTION_OVERLAY_ID, ROOM_INFO_CONTAINER_ID, AUTOPLAY_TOGGLE_ID, AUTOPLAY_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID, REACTION_TOGGLE_TOOLTIP_ID } from './consts';
+import { QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, REACTION_TIME_TILL_REMOVE, REACTION_FADE_IN_TIME, getReactionId, getReactionTooltipId, REACTION_OVERLAY_ID, ROOM_INFO_CONTAINER_ID, AUTOPLAY_TOGGLE_ID, AUTOPLAY_TOGGLE_TOOLTIP_ID, REACTION_TOGGLE_ID, REACTION_TOGGLE_TOOLTIP_ID, REACTION_CONTAINER_ID, QUEUE_CONTAINER_ID } from './consts';
 
 export default class YTHTMLUtil {
   /**
@@ -457,7 +457,7 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectEmptyQueueShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QUEUE_CONTAINER_SELECTOR, 'playlist', title, description, collapsible, collapsed, InjectAction.REPLACE);
+    return YTHTMLUtil.injectYtPlaylistPanelRenderer(QUEUE_CONTAINER_SELECTOR, QUEUE_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.REPLACE);
   }
 
   /**
@@ -474,18 +474,18 @@ export default class YTHTMLUtil {
   public static injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
     const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.APPEND);
 
-    const autoplayButton = YTHTMLUtil.createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
+    const autoplayToggle = YTHTMLUtil.createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
     // autoplayButton.off();
     // Set onClick to report to callback
-    autoplayButton.click(() => {
-      cb(autoplayButton.attr('active') === '');
+    autoplayToggle.click(() => {
+      cb(autoplayToggle.attr('active') === '');
     });
 
     const autoplayTooltip = YTHTMLUtil.createPaperTooltipShell(AUTOPLAY_TOGGLE_TOOLTIP_ID, AUTOPLAY_TOGGLE_ID);
 
     renderer
       .find('#top-row-buttons')
-      .append(autoplayButton)
+      .append(autoplayToggle)
       .append(autoplayTooltip);
 
     YTHTMLUtil.setPaperTooltipText(autoplayTooltip, 'Autoplay');
@@ -507,7 +507,7 @@ export default class YTHTMLUtil {
    * @return The created <ytd-playlist-panel-renderer>
    */
   public static injectReactionsPanel(title: string, description: string, reactions: Reaction[], onReactionClicked: (reaction: Reaction) => void, onReactionToggle: (state: boolean) => void, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(REACTIONS_CONTAINER_SELECTOR, 'reactions', title, description, collapsible, collapsed, InjectAction.APPEND);
+    const renderer = YTHTMLUtil.injectYtPlaylistPanelRenderer(REACTIONS_CONTAINER_SELECTOR, REACTION_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.APPEND);
 
     const items = renderer.find('#items');
     items.css('text-align', 'center');

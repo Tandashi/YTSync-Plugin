@@ -500,7 +500,8 @@ export default class Player {
     if (this.reactionPanelElement === null)
       return;
 
-    YTHTMLUtil.setPapperToggleButtonState(this.reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`), state);
+    const reactionToggle = this.reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`);
+    YTHTMLUtil.setPapperToggleButtonState(reactionToggle, state);
 
     if (updateSettings) {
       const settings = Store.getSettings();

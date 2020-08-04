@@ -7,7 +7,9 @@ export const LEAVE_SYNC_BUTTON_ID = 'leave-sync-button';
 export const QUEUE_ADD_BUTTON_ID = 'queue-add-button';
 
 export const REACTION_OVERLAY_ID = 'reaction-overlay';
+export const REACTION_CONTAINER_ID = 'reactions';
 export const ROOM_INFO_CONTAINER_ID = 'room-info';
+export const QUEUE_CONTAINER_ID = 'playlist';
 
 export const AUTOPLAY_TOGGLE_ID = 'autoplay-toggle';
 export const AUTOPLAY_TOGGLE_TOOLTIP_ID = 'autoplay-toggle-tooltip';
