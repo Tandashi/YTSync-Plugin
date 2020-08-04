@@ -1,17 +1,40 @@
-export const SESSION_ID = 'syncId';
-export const QUEUE_ID = 'syncQueue';
-export const SETTINGS_ID = 'syncSettings';
+export const STORAGE_SESSION_ID = 'syncId';
+export const STORAGE_QUEUE_ID = 'syncQueue';
+export const STORAGE_SETTINGS_ID = 'syncSettings';
 
 export const CREATE_SYNC_BUTTON_ID = 'create-sync-button';
 export const LEAVE_SYNC_BUTTON_ID = 'leave-sync-button';
 export const QUEUE_ADD_BUTTON_ID = 'queue-add-button';
 
+export const REACTION_OVERLAY_ID = 'reaction-overlay';
+export const ROOM_INFO_CONTAINER_ID = 'room-info';
+
+export const AUTOPLAY_TOGGLE_ID = 'autoplay-toggle';
+export const AUTOPLAY_TOGGLE_TOOLTIP_ID = 'autoplay-toggle-tooltip';
+
+export const REACTION_TOGGLE_ID = 'reaction-toggle';
+export const REACTION_TOGGLE_TOOLTIP_ID = 'reaction-toggle-tooltip';
+
+export const YT_APP_SELECTOR = 'ytd-app';
+export const YT_PLAYER_SELECTOR = 'ytd-player';
+export const YT_VIDEO_TITLE_SELECTOR = 'ytd-video-primary-info-renderer h1 yt-formatted-string';
+export const YT_VIDEO_BYLINE_SELECTOR = 'ytd-channel-name a';
+
+export const BUTTON_INJECT_CONTAINER_SELECTOR = 'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons';
 export const QUEUE_CONTAINER_SELECTOR = 'div#secondary #playlist';
 export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 export const REACTIONS_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
 export const REACTION_TIME_TILL_REMOVE = 8000;
 export const REACTION_FADE_IN_TIME = 600;
+
+export function getReactionId(reaction: Reaction): string {
+  return `emoji-${reaction.id}`;
+}
+
+export function getReactionTooltipId(reaction: Reaction): string {
+  return `emoji-${reaction.id}-tooltip`;
+}
 
 export const Reactions: Reaction[] = [
   { id: 'play',           symbol: '▶️', tooltip: 'Emoji Play',            text: '' },

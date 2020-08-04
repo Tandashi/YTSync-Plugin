@@ -1,11 +1,11 @@
-import { QUEUE_ID, SETTINGS_ID, DEFAULT_SETTINGS } from './consts';
+import { STORAGE_QUEUE_ID, STORAGE_SETTINGS_ID, DEFAULT_SETTINGS } from './consts';
 
 export default class Store {
   /**
    * Get the currently stored videos
    */
   public static getQueue(): Video[] {
-    return Store.getItem(QUEUE_ID) || [];
+    return Store.getItem(STORAGE_QUEUE_ID) || [];
   }
 
   /**
@@ -14,7 +14,7 @@ export default class Store {
    * @param videos The videos that should be set
    */
   private static setQueue(videos: Video[]): void {
-    Store.setItem(QUEUE_ID, videos);
+    Store.setItem(STORAGE_QUEUE_ID, videos);
   }
 
   /**
@@ -43,7 +43,7 @@ export default class Store {
    * Get the stored settings
    */
   public static getSettings(): Settings {
-    return Store.getItem(SETTINGS_ID) || DEFAULT_SETTINGS;
+    return Store.getItem(STORAGE_SETTINGS_ID) || DEFAULT_SETTINGS;
   }
 
   /**
@@ -52,7 +52,7 @@ export default class Store {
    * @param settings The settings to store
    */
   public static setSettings(settings: Settings): void {
-    Store.setItem(SETTINGS_ID, settings);
+    Store.setItem(STORAGE_SETTINGS_ID, settings);
   }
 
   /**
