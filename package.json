@@ -7,6 +7,7 @@
     "build": "rm build -Rf && webpack --config webpack/webpack.config.js"
   },
   "devDependencies": {
+    "@types/animejs": "^3.1.1",
     "@types/common-tags": "^1.8.0",
     "@types/jquery": "^3.3.36",
     "@types/socket.io-client": "^1.4.32",
@@ -15,6 +16,7 @@
     "@types/webpack": "^4.41.12",
     "@types/webpack-merge": "^4.1.5",
     "@types/youtube": "^0.0.38",
+    "animejs": "^3.2.0",
     "common-tags": "^1.8.0",
     "copy-webpack-plugin": "^5.1.1",
     "jquery": "^3.5.1",

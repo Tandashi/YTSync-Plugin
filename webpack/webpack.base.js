@@ -54,6 +54,9 @@ module.exports = {
       }),
       new webpack.ProvidePlugin({
         io: 'socket.io-client'
+      }),
+      new webpack.ProvidePlugin({
+        anime: 'animejs'
       })
     ]
   }

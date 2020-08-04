@@ -7,6 +7,7 @@ import YTUtil from './util/yt';
 import Client from './model/client';
 import { Role } from './enum/role';
 import Store from './util/store';
+import anime from 'animejs';
 
 declare global {
   interface Window {
@@ -28,6 +29,8 @@ export default class Player {
   private queueItemsElement: JQuery<Element> = null;
   private roomInfoElement: JQuery<HTMLElement> = null;
   private reactionPanelElement: JQuery<HTMLElement> = null;
+
+  private currentAnimation: anime.AnimeInstance = null;
 
   private bufferedQueueWsMessages: string[] = [];
   private bufferedRoomInfoWsMessages: string[] = [];
@@ -112,6 +115,18 @@ export default class Player {
         Reactions,
         (id: string) => {
           this.sendWsMessage(Message.REACTION, id);
+
+          if (this.currentAnimation !== null) {
+            this.currentAnimation.restart();
+            this.currentAnimation.seek(this.currentAnimation.duration);
+          }
+
+          this.currentAnimation = anime({
+            targets: `#emoji-${id}`,
+            duration: 400,
+            rotate: '+=1turn',
+            easing: 'linear'
+          });
         },
         (state: boolean) => {
           this.setReactionToggle(state);
