@@ -12,7 +12,7 @@ const BANNER = stripIndent`
     // @version      1.5.1
     // @description  Sync Youtube Videos directly on Youtube :)
     // @author       Tandashi
-    // @match        https://www.youtube.com/*
+    // @match        https://www.youtube.com/watch*
     //
     // @icon         http://www.genyoutube.net/helper/favicon.png
     // @icon64       http://www.genyoutube.net/helper/favicon.png
