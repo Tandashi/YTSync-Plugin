@@ -12,10 +12,11 @@ const BANNER = stripIndent`
     // @version      1.6.0
     // @description  Sync Youtube Videos directly on Youtube :)
     // @author       Tandashi
+    //
+    // @match        https://www.youtube.com
+    // @match        https://www.youtube.com/feed*
     // @match        https://www.youtube.com/watch*
     //
-    // @icon         http://www.genyoutube.net/helper/favicon.png
-    // @icon64       http://www.genyoutube.net/helper/favicon.png
     // @homepage     https://tandashi.de/
     // @downloadURL  https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
     // @updateURL    https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
