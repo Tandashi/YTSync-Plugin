@@ -111,7 +111,7 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
 function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
   const handler = setInterval(() => {
     const container = $(BUTTON_INJECT_CONTAINER_SELECTOR);
-    $(`#${id}`).remove();
+    $(`ytd-button-renderer#${id}`).remove();
     if (container.length === 1 && container.find(`#${id}`).length === 0) {
       YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);
       clearInterval(handler);

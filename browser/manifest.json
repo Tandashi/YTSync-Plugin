@@ -3,7 +3,13 @@
   "name": "YTSync",
   "description": "Watch videos directly on YouTube with your friends.",
   "author": "Tandashi",
-  "version": "1.6.0",
+  "version": "1.6.1",
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+   "128": "icon128.png"
+  },
   "homepage_url": "https://github.com/Tandashi/YTSync-Plugin",
   "web_accessible_resources": [
     "js/jquery-3.4.1.min.js",
@@ -18,7 +24,7 @@
         "https://www.youtube.com/watch*"
       ],
       "js": [
-        "extention.js"
+        "extension.js"
       ],
       "run_at": "document_end"
     }
