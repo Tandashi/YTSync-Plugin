@@ -38,6 +38,7 @@ After you installed Tampermonkey just head to the [release section](https://gith
 There is also a native version available for those who do not want to install Tampermonkey.
 
 - [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/ytsync/)
+- [Chrome](https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi)
 
 ### Build from source
 
