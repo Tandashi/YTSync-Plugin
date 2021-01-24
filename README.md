@@ -1,7 +1,10 @@
-# YTSync Plugin 📺
-![YT Sync](https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin)
-
-<p>
+<p align="center">
+  <image src="https://github.com/Tandashi/YTSync-Plugin/blob/master/doc/title.png?raw=true">
+  <br /> 
+  <img src="https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master">
+  <img src="https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin">
+</p>
+<p align="center">
   <a href="https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi">
     <img src="https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png">
   </a>
