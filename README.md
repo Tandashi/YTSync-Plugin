@@ -1,6 +1,16 @@
 # YTSync Plugin 📺
-
 ![YT Sync](https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin)
+
+<p>
+  <a href="https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi">
+    <img src="https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/tbyBjqi7Zu733AAKA5n4.png">
+  </a>
+  <a href="https://addons.mozilla.org/en-GB/firefox/addon/ytsync/">
+     <img src="https://ffp4g1ylyit3jdyti1hqcvtb-wpengine.netdna-ssl.com/addons/files/2015/11/get-the-addon-small.png">
+  </a>
+</p>
+
+ 
 
 Watch videos directly on YouTube with your friends 🍿.
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
