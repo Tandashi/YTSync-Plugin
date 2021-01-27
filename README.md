@@ -131,8 +131,9 @@ The room information is displayed on the right side below the video queue. It di
 From top to bottom:
 
 1. The room [host](#host). He has a green circle.
-2. A [promoted](#promoted) person. He has a blue circle like a normal person but he has the yellow square.
-3. A [normal](#member) person. He has a blue circle but not the yellow square.
+2. A [normal](#member) person. He has a blue circle, and a yellow square outline as badge
+3. A [moderator](#moderator) person. He has a yellow circle, and a yellow square with red outlines
+4. A [sub-host](#sub-host) person. He has a red circle, and a red square.
 
 ## Reactions
 
@@ -146,21 +147,28 @@ You will automatically be assigned to the Host role when you create a sync room.
 
 **What you are able to do**:
 
-- Resume / Pause the video
-- Advance time in the video
-- Un-/Promote a user
-- Everything the 'Promoted' Role is able to do
+- Change a users role
+- Everything the 'sub-host' Role is able to do
 
-### Promoted
+### Sub-host
 
-You can only get this role if the Host assigned it to you.
+You can only get this role if the Host assigned it to you by clicking on badge with the yellow square and red outlines.
 
 **What you are able to do**:
+
+- Resume / Pause the video
+- Change the time in the video
+- Everything the 'moderator' role is able to do
+
+### Moderator
+
+You can only get this role if the Host assigned it to you by clicking on badge with the yellow square outlines.
 
 - Add videos to the queue
 - Remove videos from the queue
 - Play a video from the queue
 - Change the autoplay setting
+- Everything the 'member' role is able to do
 
 ### Member
 

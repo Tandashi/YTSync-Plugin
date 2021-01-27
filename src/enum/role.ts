@@ -1,5 +1,6 @@
 export enum Role {
   HOST = 'host',
-  PROMOTED = 'promoted',
+  SUB_HOST = 'sub-host',
+  MODERATOR = 'moderator',
   MEMBER = 'member'
 }

@@ -10,7 +10,7 @@ import Client from './model/client';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
-import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId, AUTOPLAY_TOGGLE_ID, REACTION_TOGGLE_ID, BADGE_PROMOTE_ID, BADGE_UNPROMOTE_ID } from './util/consts';
+import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId, AUTOPLAY_TOGGLE_ID, REACTION_TOGGLE_ID, BADGE_MEMBER_ID, BADGE_MODERATOR_ID, BADGE_SUB_HOST_ID } from './util/consts';
 
 declare global {
   interface Window {
@@ -530,7 +530,7 @@ export default class Player {
   /**
    * Add clients visually.
    *
-   * @param clients The clients to add
+   * @param client The clients to add
    */
   private addClient(client: Client): void {
     const socketIds = this.clients.map(c => c.socketId);
@@ -540,19 +540,27 @@ export default class Player {
 
     const badges = [];
     switch (client.role) {
-      case Role.PROMOTED:
+      case Role.MEMBER:
         badges.push({
-          id: BADGE_UNPROMOTE_ID,
+          id: BADGE_MEMBER_ID,
           onClick: () => {
-            this.ws.sendWsUnpromoteMessage(client);
+            this.ws.sendWsRoleUpdateMessage(client, Role.MODERATOR);
           }
         });
         break;
-      case Role.MEMBER:
+      case Role.MODERATOR:
         badges.push({
-          id: BADGE_PROMOTE_ID,
+          id: BADGE_MODERATOR_ID,
           onClick: () => {
-            this.ws.sendWsPromoteMessage(client);
+            this.ws.sendWsRoleUpdateMessage(client, Role.SUB_HOST);
+          }
+        });
+        break;
+      case Role.SUB_HOST:
+        badges.push({
+          id: BADGE_SUB_HOST_ID,
+          onClick: () => {
+            this.ws.sendWsRoleUpdateMessage(client, Role.MEMBER);
           }
         });
         break;
