@@ -1,5 +1,6 @@
-import { Message } from '../enum/message';
+import {Message} from '../enum/message';
 import Client from '../model/client';
+import {Role} from "../enum/role";
 
 export default class SyncSocket {
   public socket: SocketIOClient.Socket;
@@ -81,22 +82,27 @@ export default class SyncSocket {
   }
 
   /**
-   * Promote the given client.
+   * Send role update.
    * Will only work if the client has the needed Permissions.
    *
-   * @param client The client that should be promoted
+   * @param client The client that should be updated
+   * @param role The role the client should be set to
    */
-  public sendWsPromoteMessage(client: Client): void {
-    this.sendWsMessage(Message.PROMOTE, client.socketId);
-  }
-
-  /**
-   * Unpromote the given client.
-   * Will only work if the client has the needed Permissions.
-   *
-   * @param client The client that should be unpromoted
-   */
-  public sendWsUnpromoteMessage(client: Client): void {
-    this.sendWsMessage(Message.UNPROMOTE, client.socketId);
+  public sendWsRoleUpdateMessage(client: Client, role: Role): void {
+    let messageType: Message;
+    switch (role) {
+      case Role.MEMBER:
+        messageType = Message.SET_ROLE_MEMBER;
+        break;
+      case Role.MODERATOR:
+        messageType = Message.SET_ROLE_MODERATOR;
+        break;
+      case Role.SUB_HOST:
+        messageType = Message.SET_ROLE_SUB_HOST;
+        break;
+      default:
+        throw new TypeError('No such role');
+    }
+    this.sendWsMessage(messageType, client.socketId);
   }
 }

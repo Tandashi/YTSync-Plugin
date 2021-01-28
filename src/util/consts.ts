@@ -23,8 +23,9 @@ export const YT_VIDEO_TITLE_SELECTOR = 'ytd-video-primary-info-renderer h1 yt-fo
 export const YT_VIDEO_BYLINE_SELECTOR = 'ytd-channel-name a';
 
 // The Badge ids are the ids on the server for the badge images
-export const BADGE_PROMOTE_ID = 'promote';
-export const BADGE_UNPROMOTE_ID = 'unpromote';
+export const BADGE_MEMBER_ID = 'member';
+export const BADGE_MODERATOR_ID = 'moderator';
+export const BADGE_SUB_HOST_ID = 'sub-host';
 
 export const BUTTON_INJECT_CONTAINER_SELECTOR = 'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons';
 export const QUEUE_CONTAINER_SELECTOR = 'div#secondary #playlist';

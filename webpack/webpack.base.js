@@ -5,11 +5,13 @@ const webpack = require('webpack');
 // required for pretty format for the Userscript banner
 const stripIndent = require('common-tags').stripIndent
 
+const packageJSON = require('../package.json')
+
 const BANNER = stripIndent`
     // ==UserScript==
     // @name         YT Sync
     // @namespace    https://tandashi.de
-    // @version      1.6.1
+    // @version      ${packageJSON.version}
     // @description  Sync Youtube Videos directly on Youtube :)
     // @author       Tandashi
     //
