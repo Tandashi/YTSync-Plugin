@@ -190,7 +190,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 To create a feature request head over [here](https://github.com/Tandashi/YTSync-Plugin/issues) and create a new issue as follows:
 
-- Label it with `feature-request` 🙏
+- Label it with `enhancement` 🙏
 - Explain the feature
 
 ## License
