@@ -7,6 +7,7 @@ export enum Message {
   QUEUE = 'queue',
   ADD_TO_QUEUE = 'add-to-queue',
   REMOVE_FROM_QUEUE = 'remove-from-queue',
+  EDIT_QUEUE = 'edit-queue',
   CLIENTS = 'clients',
   CLIENT_CONNECT = 'client-connect',
   CLIENT_DISCONNECT = 'client-disconnect',

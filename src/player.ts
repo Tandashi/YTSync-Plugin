@@ -1,4 +1,5 @@
 import anime from 'animejs';
+import Sortable from 'sortablejs';
 
 import { Message } from './enum/message';
 import { Role } from './enum/role';
@@ -41,6 +42,8 @@ export default class Player {
   private autoplay: boolean = true;
 
   private clients: Client[] = [];
+
+  private sortable: Sortable = null;
 
   private bufferConditions: BufferCondition[] = [
     {
@@ -87,6 +90,18 @@ export default class Player {
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QUEUE_CONTAINER_SELECTOR, () => {
       const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
       this.queueItemsElement = queueRenderer.find('#items');
+
+      // drag and droppable queue
+      this.sortable = new Sortable(this.queueItemsElement.get(0), {
+        animation: 500,
+        onEnd: evt => {
+          if (evt.oldIndex === evt.newIndex) {
+            return;
+          }
+
+          this.ws.sendWsRequestToEditQueue(evt.oldIndex, evt.newIndex);
+        }
+      });
 
       clearWaitForQueueContainer();
 
@@ -538,6 +553,8 @@ export default class Player {
     if (socketIds.includes(client.socketId))
       return;
 
+    const isSelf = client.socketId === this.ws.socket.id;
+
     const badges = [];
     switch (client.role) {
       case Role.MEMBER:
@@ -547,6 +564,9 @@ export default class Player {
             this.ws.sendWsRoleUpdateMessage(client, Role.MODERATOR);
           }
         });
+        if (isSelf) {
+          this.sortable.option('disabled', true);
+        }
         break;
       case Role.MODERATOR:
         badges.push({
@@ -555,6 +575,9 @@ export default class Player {
             this.ws.sendWsRoleUpdateMessage(client, Role.SUB_HOST);
           }
         });
+        if (isSelf) {
+          this.sortable.option('disabled', false);
+        }
         break;
       case Role.SUB_HOST:
         badges.push({
@@ -563,6 +586,9 @@ export default class Player {
             this.ws.sendWsRoleUpdateMessage(client, Role.MEMBER);
           }
         });
+        if (isSelf) {
+          this.sortable.option('disabled', false);
+        }
         break;
     }
 

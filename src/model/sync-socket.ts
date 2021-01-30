@@ -1,6 +1,6 @@
 import {Message} from '../enum/message';
 import Client from '../model/client';
-import {Role} from "../enum/role";
+import {Role} from '../enum/role';
 
 export default class SyncSocket {
   public socket: SocketIOClient.Socket;
@@ -50,6 +50,17 @@ export default class SyncSocket {
    */
   public sendWsRequestToRemoveFromQueue(videoId: string): void {
     this.sendWsMessage(Message.REMOVE_FROM_QUEUE, videoId);
+  }
+
+  /**
+   * Request to move a item in the Queue.
+   * Will only work if the client has the needed Permissions.
+   *
+   * @param oldIndex The index of the item in the queue
+   * @param newIndex The index of the position the item gets moved to
+   */
+  public sendWsRequestToEditQueue(oldIndex: number, newIndex: number): void {
+    this.sendWsMessage(Message.EDIT_QUEUE, {oldIndex, newIndex});
   }
 
   /**
