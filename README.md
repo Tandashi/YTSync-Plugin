@@ -182,7 +182,7 @@ You will automatically be assigned to the Member role when you join a sync room.
 
 The Plugin communicates via [socket.io ](https://socket.io)with the [YTSync Server](https://github.com/Tandashi/YTSync-Server) to synchronise the rooms.
 
-## Contributing
+## Contributing and Support
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change 🙏.
 
@@ -190,15 +190,15 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 To get support head over to the [discussions](https://github.com/Tandashi/YTSync-Plugin/discussions) tab and create a new discussion as follows:
 
-- Select the category `Q&A`
-- Explain your problem
+1. Select the category `Q&A`
+2. Explain your problem
 
 ### Feature request
 
 To create a feature request head over to the [discussions](https://github.com/Tandashi/YTSync-Plugin/discussions) tab and create a new discussion as follows:
 
-- Select the category `Ideas`
-- Explain the feature
+1. Select the category `Ideas`
+2. Explain the feature
 
 ### Bug Reports
 
