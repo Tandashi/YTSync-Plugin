@@ -184,13 +184,13 @@ The Plugin communicates via [socket.io ](https://socket.io)with the [YTSync Serv
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome. For major changes, please open an discussion first to discuss what you would like to change please do not open a issue for it 🙏.
 
 ### Feature request
 
-To create a feature request head over [here](https://github.com/Tandashi/YTSync-Plugin/issues) and create a new issue as follows:
+To create a feature request head over [here](https://github.com/Tandashi/YTSync-Plugin/discussions) and create a new discussion as follows:
 
-- Label it with `enhancement` 🙏
+- Select the category `Ideas`
 - Explain the feature
 
 ## License
