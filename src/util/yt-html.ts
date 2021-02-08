@@ -617,28 +617,30 @@ export default class YTHTMLUtil {
    * @param client The client that should be represented
    * @param badges The badges that should be displayed
    */
-  public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, client: Client, badges: { id: string, onClick: () => void }[]): JQuery<HTMLElement> {
-    const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(client.socketId);
+  public static injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, renderClient: RenderClient): JQuery<HTMLElement> {
+    const renderer = YTHTMLUtil.createYtLiveChatParticipantRendererShell(renderClient.client.socketId);
     element.append(renderer);
+
+    console.log(renderClient);
 
     renderer
       .find('span#author-name')
-      .text(client.name);
+      .text((renderClient.prefix ?? '') + renderClient.client.name + (renderClient.sufix ?? ''));
 
     const serverBasePath = `${config.protocol}://${config.host}:${config.port}`;
 
     const badgeContainer = renderer.find('span#chat-badges');
-    for (const badge of badges) {
+    for (const badge of renderClient.badges) {
       const badgeRenderer = YTHTMLUtil.createYtLiveChatAuthorBadgeRendererShell();
       badgeContainer.append(badgeRenderer);
 
       badgeRenderer
-        .click(badge.onClick)
+        .on('click', badge.onClick)
         .find('#image')
         .append(`<img src="${serverBasePath}/img/badge/${badge.id}.png" class="style-scope yt-live-chat-author-badge-renderer" />`);
     }
 
-    YTHTMLUtil.createImageSrcObserver(renderer, `${serverBasePath}/img/role/${client.role}.png`);
+    YTHTMLUtil.createImageSrcObserver(renderer, `${serverBasePath}/img/role/${renderClient.client.role}.png`);
 
     return renderer;
   }

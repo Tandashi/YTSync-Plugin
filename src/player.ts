@@ -567,8 +567,12 @@ export default class Player {
     YTHTMLUtil.injectYtLiveChatParticipantRenderer(
       this.roomInfoElement.find('#items'),
       this.options.connection,
-      client,
-      badges
+      {
+        prefix: '',
+        sufix: this.ws.socket.id === client.socketId ? ' (You)' : '',
+        client,
+        badges,
+      }
     );
 
     this.clients.push(client);
