@@ -1,6 +1,5 @@
 import {Message} from '../enum/message';
-import Client from '../model/client';
-import {Role} from "../enum/role";
+import {Role} from '../enum/role';
 
 export default class SyncSocket {
   public socket: SocketIOClient.Socket;

@@ -6,7 +6,6 @@ import ScheduleUtil from './util/schedule';
 import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import YTUtil from './util/yt';
-import Client from './model/client';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
@@ -244,7 +243,6 @@ export default class Player {
    * Handler function for the Websocket 'connect' event
    */
   private onWsConnected(): void {
-    console.log('Connected');
     const video = VideoUtil.getCurrentVideo();
     this.ws.sendWsRequestToAddToQueue(video);
     this.ws.sendWsRequestToPlayVideo(video.videoId);
