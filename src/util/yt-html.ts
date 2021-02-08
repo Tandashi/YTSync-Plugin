@@ -325,6 +325,7 @@ export default class YTHTMLUtil {
    * Inject a <ytd-button-renderer> into an object.
    *
    * @param objId The Id of the object the YtRenderedButton should be injected to
+   * @param insertAfter The index of the object we want to inject the button after
    * @param containerId The Id the container should get
    * @param text The text of the button
    * @param icon The icon of the button (needs to be a svg Element)
@@ -332,7 +333,7 @@ export default class YTHTMLUtil {
    *
    * @returns The created <ytd-button-renderer>
    */
-  public static injectYtRenderedButton(objId: JQuery<Element>, containerId: string, text: string | null, icon: JQuery<HTMLElement>, cb: () => void): JQuery<HTMLElement> {
+  public static injectYtRenderedButton(objId: JQuery<Element>, insertAfter: number, containerId: string, text: string | null, icon: JQuery<HTMLElement>, cb: () => void): JQuery<HTMLElement> {
     // The complete button needs to be injected exactly like this
     // because when we inject the completely build button
     // YT removes all its content so we need to partially inject
@@ -340,7 +341,12 @@ export default class YTHTMLUtil {
     const hasText = text !== '' && text !== null;
 
     const container = YTHTMLUtil.createYtIconButtonRendererShell(containerId, hasText);
-    objId.append(container);
+    if (objId.children().length < insertAfter + 1) {
+      objId.append(container);
+    }
+    else {
+      objId.children().eq(insertAfter).after(container);
+    }
 
     const endpoint = YTHTMLUtil.createYtSimpleEndpointShell();
     container.append(endpoint);
@@ -359,7 +365,7 @@ export default class YTHTMLUtil {
     const iconShell = YTHTMLUtil.createYtIconShell();
     iconButton.find('button#button')
       .append(iconShell)
-      .click(cb);
+      .on('click', cb);
 
     iconShell
       .append(icon);
@@ -377,7 +383,7 @@ export default class YTHTMLUtil {
         const autoplayButton = container.find('paper-toggle-button');
 
         if (autoplayButton && autoplayButton.attr('active') === '') {
-          autoplayButton.click();
+          autoplayButton.trigger('click');
         }
 
         container.remove();
@@ -423,7 +429,7 @@ export default class YTHTMLUtil {
     menuRenderer.find('yt-icon-button#button')
       .attr('hidden', '');
 
-    YTHTMLUtil.injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), '', null, YTHTMLUtil.createTrashIcon(), dcb);
+    YTHTMLUtil.injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), 0, '', null, YTHTMLUtil.createTrashIcon(), dcb);
 
     YTHTMLUtil.createImageSrcObserver(playlistVideoRenderer, `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
 
@@ -528,7 +534,7 @@ export default class YTHTMLUtil {
     const reactionToggle = YTHTMLUtil.createPaperToggleButtonShell(REACTION_TOGGLE_ID);
     // reactionToggle.off();
     // Set onClick to report to callback
-    reactionToggle.click(() => {
+    reactionToggle.on('click', () => {
       onReactionToggle(reactionToggle.attr('active') === '');
     });
 

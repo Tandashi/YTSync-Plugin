@@ -74,13 +74,13 @@ function urlChangeHandler(): void {
  * @param urlParams The current window url parameters
  */
 function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
-  intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
+  intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 0, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
     urlParams.set(STORAGE_SESSION_ID, WebsocketUtil.generateSessionId());
     window.location.search = urlParams.toString();
     ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
   });
 
-  intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
+  intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
     Store.addElement(VideoUtil.getCurrentVideo());
   });
 }
@@ -92,7 +92,7 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
  * @param sessionId The session id
  */
 function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
-  intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
+  intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 0, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
     urlParams.delete(STORAGE_SESSION_ID);
     window.location.search = urlParams.toString();
   });
@@ -104,16 +104,17 @@ function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: strin
  * Inject a button into the #top-level-buttons of the ytd-video-primary-info-renderer
  *
  * @param id The id of the button
+ * @param insertAfter The index of the object we want to inject the button after
  * @param text The text of the button
  * @param icon The icon of the button
  * @param cb The function that should be called when the button was clicked
  */
-function injectButton(id: string, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
+function injectButton(id: string, insertAfter: number, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
   const handler = setInterval(() => {
     const container = $(BUTTON_INJECT_CONTAINER_SELECTOR);
     $(`ytd-button-renderer#${id}`).remove();
     if (container.length === 1 && container.find(`#${id}`).length === 0) {
-      YTHTMLUtil.injectYtRenderedButton(container, id, text, icon, cb);
+      YTHTMLUtil.injectYtRenderedButton(container, insertAfter, id, text, icon, cb);
       clearInterval(handler);
     }
   }, 500);
