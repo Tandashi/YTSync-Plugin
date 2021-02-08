@@ -8,6 +8,6 @@
     "outDir": "dist",
   },
   "lib": ["es2015"],
-  "exclude": ["dist"],
+  "exclude": ["dist", "doc", ".github/*"],
   "include": ["**/*"]
 }
