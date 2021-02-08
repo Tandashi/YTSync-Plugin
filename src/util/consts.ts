@@ -27,7 +27,7 @@ export const BADGE_MEMBER_ID = 'member';
 export const BADGE_MODERATOR_ID = 'moderator';
 export const BADGE_SUB_HOST_ID = 'sub-host';
 
-export const BUTTON_INJECT_CONTAINER_SELECTOR = 'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer div#top-level-buttons';
+export const BUTTON_INJECT_CONTAINER_SELECTOR = 'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer';
 export const QUEUE_CONTAINER_SELECTOR = 'div#secondary #playlist';
 export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 export const REACTIONS_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
