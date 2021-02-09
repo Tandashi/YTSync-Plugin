@@ -20,7 +20,7 @@ export const REACTION_TOGGLE_TOOLTIP_ID = 'reaction-toggle-tooltip';
 export const YT_APP_SELECTOR = 'ytd-app';
 export const YT_PLAYER_SELECTOR = 'ytd-player';
 export const YT_VIDEO_TITLE_SELECTOR = 'ytd-video-primary-info-renderer h1 yt-formatted-string';
-export const YT_VIDEO_BYLINE_SELECTOR = 'ytd-channel-name a';
+export const YT_VIDEO_BYLINE_SELECTOR = 'ytd-video-owner-renderer ytd-channel-name a';
 
 // The Badge ids are the ids on the server for the badge images
 export const BADGE_MEMBER_ID = 'member';
