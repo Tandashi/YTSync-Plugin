@@ -1,4 +1,5 @@
-import { YT_APP_SELECTOR, YT_PLAYER_SELECTOR } from './consts';
+const YT_APP_SELECTOR = 'ytd-app';
+const YT_PLAYER_SELECTOR = 'ytd-player';
 
 export default class YTUtil {
   /**

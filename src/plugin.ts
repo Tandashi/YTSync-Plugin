@@ -1,11 +1,12 @@
-import YTHTMLUtil from './util/yt-html';
-import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, STORAGE_SESSION_ID, LEAVE_SYNC_BUTTON_ID, BUTTON_INJECT_CONTAINER_SELECTOR } from './util/consts';
-import Player from './player';
+import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, LEAVE_SYNC_BUTTON_ID, BUTTON_INJECT_CONTAINER_SELECTOR } from './util/consts';
+import Player, { STORAGE_SESSION_ID } from './player';
 import WebsocketUtil from './util/websocket';
 import Store from './util/store';
 import VideoUtil from './util/video';
 import ScheduleUtil from './util/schedule';
 import ClipboardUtil from './util/clipboard';
+import { createPlusIcon, createLeaveIcon } from './util/yt-html/svg';
+import { injectYtRenderedButton } from './util/yt-html/button';
 
 const intervals: PluginInjectIntervals = {
   syncButton: null,
@@ -74,13 +75,13 @@ function urlChangeHandler(): void {
  * @param urlParams The current window url parameters
  */
 function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
-  intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 0, 'Create Sync', YTHTMLUtil.createPlusIcon(), () => {
+  intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 0, 'Create Sync', createPlusIcon(), () => {
     urlParams.set(STORAGE_SESSION_ID, WebsocketUtil.generateSessionId());
     window.location.search = urlParams.toString();
     ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
   });
 
-  intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', YTHTMLUtil.createPlusIcon(), () => {
+  intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', createPlusIcon(), () => {
     Store.addElement(VideoUtil.getCurrentVideo());
   });
 }
@@ -92,7 +93,7 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
  * @param sessionId The session id
  */
 function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
-  intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 0, 'Leave Sync', YTHTMLUtil.createLeaveIcon(), () => {
+  intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 0, 'Leave Sync', createLeaveIcon(), () => {
     urlParams.delete(STORAGE_SESSION_ID);
     window.location.search = urlParams.toString();
   });
@@ -114,7 +115,7 @@ function injectButton(id: string, insertAfter: number, text: string, icon: JQuer
     const container = $(BUTTON_INJECT_CONTAINER_SELECTOR);
     $(`ytd-button-renderer#${id}`).remove();
     if (container.length === 1 && container.find(`#${id}`).length === 0) {
-      YTHTMLUtil.injectYtRenderedButton(container, insertAfter, id, text, icon, cb);
+      injectYtRenderedButton(container, insertAfter, id, text, icon, cb);
       clearInterval(handler);
     }
   }, 500);

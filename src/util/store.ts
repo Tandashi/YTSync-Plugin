@@ -1,4 +1,9 @@
-import { STORAGE_QUEUE_ID, STORAGE_SETTINGS_ID, DEFAULT_SETTINGS } from './consts';
+const STORAGE_QUEUE_ID = 'syncQueue';
+const STORAGE_SETTINGS_ID = 'syncSettings';
+
+const DEFAULT_SETTINGS: Settings = {
+  showReactions: true
+};
 
 export default class Store {
   /**

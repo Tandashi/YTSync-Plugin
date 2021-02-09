@@ -3,13 +3,40 @@ import anime from 'animejs';
 import { Message } from './enum/message';
 import { Role } from './enum/role';
 import ScheduleUtil from './util/schedule';
-import YTHTMLUtil from './util/yt-html';
 import VideoUtil from './util/video';
 import YTUtil from './util/yt';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
-import { STORAGE_SESSION_ID, QUEUE_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_SELECTOR, REACTIONS_CONTAINER_SELECTOR, Reactions, ReactionsMap, getReactionId, AUTOPLAY_TOGGLE_ID, REACTION_TOGGLE_ID, BADGE_MEMBER_ID, BADGE_MODERATOR_ID, BADGE_SUB_HOST_ID } from './util/consts';
+import {
+  Reactions,
+  ReactionsMap,
+  BADGE_MEMBER_ID,
+  BADGE_MODERATOR_ID,
+  BADGE_SUB_HOST_ID,
+} from './util/consts';
+import { setPapperToggleButtonState } from './util/yt-html/button';
+import { injectYtLiveChatParticipantRenderer } from './util/yt-html/participant';
+import {
+  changeYtPlaylistPanelRendererDescription,
+  injectEmptyPlaylistShell,
+  injectYtPlaylistPanelVideoRendererElement,
+  PLAYLIST_CONTAINER_SELECTOR,
+} from './util/yt-html/playlist';
+import {
+  addReaction,
+  getReactionId,
+  injectReactionsPanel,
+  REACTIONS_CONTAINER_SELECTOR,
+  setReactionToggle,
+} from './util/yt-html/reaction';
+import { removeRelated } from './util/yt-html/related';
+import {
+  AUTOPLAY_TOGGLE_ID,
+  injectEmptyRoomInfoShell,
+  ROOM_INFO_CONTAINER_SELECTOR,
+} from './util/yt-html/room';
+import { removeUpnext } from './util/yt-html/upnext';
 
 declare global {
   interface Window {
@@ -22,6 +49,8 @@ interface BufferCondition {
   types: Message[];
   buffer: string[];
 }
+
+export const STORAGE_SESSION_ID = 'syncId';
 
 export default class Player {
   private sessionId: string;
@@ -44,14 +73,24 @@ export default class Player {
   private bufferConditions: BufferCondition[] = [
     {
       check: () => this.queueItemsElement === null,
-      types: [Message.PLAY_VIDEO, Message.QUEUE, Message.ADD_TO_QUEUE, Message.REMOVE_FROM_QUEUE],
-      buffer: this.bufferedQueueWsMessages
+      types: [
+        Message.PLAY_VIDEO,
+        Message.QUEUE,
+        Message.ADD_TO_QUEUE,
+        Message.REMOVE_FROM_QUEUE,
+      ],
+      buffer: this.bufferedQueueWsMessages,
     },
     {
       check: () => this.roomInfoElement === null,
-      types: [Message.AUTOPLAY, Message.CLIENTS, Message.CLIENT_CONNECT, Message.CLIENT_DISCONNECT],
-      buffer: this.bufferedRoomInfoWsMessages
-    }
+      types: [
+        Message.AUTOPLAY,
+        Message.CLIENTS,
+        Message.CLIENT_CONNECT,
+        Message.CLIENT_DISCONNECT,
+      ],
+      buffer: this.bufferedRoomInfoWsMessages,
+    },
   ];
 
   constructor(options: PlayerOptions) {
@@ -64,8 +103,7 @@ export default class Player {
    * @param sessionId
    */
   public create(sessionId: string) {
-    if (this.ytPlayer !== null)
-      return;
+    if (this.ytPlayer !== null) return;
 
     this.ytPlayer = YTUtil.getPlayer();
     // Check if the YtPlayer exists.
@@ -77,71 +115,86 @@ export default class Player {
 
         this.onPlayerReady();
       });
-    }
-    else {
+    } else {
       // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
       this.onPlayerReady();
     }
 
-    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(QUEUE_CONTAINER_SELECTOR, () => {
-      const queueRenderer = YTHTMLUtil.injectEmptyQueueShell('Queue', '', true, false);
-      this.queueItemsElement = queueRenderer.find('#items');
+    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(
+      PLAYLIST_CONTAINER_SELECTOR,
+      () => {
+        const queueRenderer = injectEmptyPlaylistShell(
+          'Queue',
+          '',
+          true,
+          false
+        );
+        this.queueItemsElement = queueRenderer.find('#items');
 
-      clearWaitForQueueContainer();
+        clearWaitForQueueContainer();
 
-      this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
-      this.bufferedQueueWsMessages = [];
-    });
+        this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
+        this.bufferedQueueWsMessages = [];
+      }
+    );
 
-    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
-      this.roomInfoElement = YTHTMLUtil.injectEmptyRoomInfoShell(
-        'Room Info',
-        'Not connected',
-        false,
-        false,
-        (state: boolean) => {
-          this.setAutoplay(state);
-        }
-      );
-
-      clearWaitForRoomInfoContainer();
-
-      this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
-      this.bufferedRoomInfoWsMessages = [];
-    });
-
-    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(REACTIONS_CONTAINER_SELECTOR, () => {
-      this.reactionPanelElement = YTHTMLUtil.injectReactionsPanel(
-        'Reactions',
-        'Find it funny? React!',
-        Reactions,
-        (reaction: Reaction) => {
-          this.ws.sendWsReactionMessage(reaction);
-
-          if (this.currentAnimation !== null) {
-            this.currentAnimation.restart();
-            this.currentAnimation.seek(this.currentAnimation.duration);
+    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(
+      ROOM_INFO_CONTAINER_SELECTOR,
+      () => {
+        this.roomInfoElement = injectEmptyRoomInfoShell(
+          'Room Info',
+          'Not connected',
+          false,
+          false,
+          (state: boolean) => {
+            this.setAutoplay(state);
           }
+        );
 
-          this.currentAnimation = anime({
-            targets: `#${getReactionId(reaction)}`,
-            duration: 400,
-            rotate: '+=1turn',
-            easing: 'linear'
-          });
-        },
-        (state: boolean) => {
-          this.setReactionToggle(state);
-        },
-        false,
-        false
-      );
+        clearWaitForRoomInfoContainer();
 
-      clearWaitForReactionsContainer();
-    });
+        this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
+        this.bufferedRoomInfoWsMessages = [];
+      }
+    );
+
+    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(
+      REACTIONS_CONTAINER_SELECTOR,
+      () => {
+        this.reactionPanelElement = injectReactionsPanel(
+          'Reactions',
+          'Find it funny? React!',
+          Reactions,
+          (reaction: Reaction) => {
+            this.ws.sendWsReactionMessage(reaction);
+
+            if (this.currentAnimation !== null) {
+              this.currentAnimation.restart();
+              this.currentAnimation.seek(this.currentAnimation.duration);
+            }
+
+            this.currentAnimation = anime({
+              targets: `#${getReactionId(reaction)}`,
+              duration: 400,
+              rotate: '+=1turn',
+              easing: 'linear',
+            });
+          },
+          (state: boolean) => {
+            setReactionToggle(this.reactionPanelElement, state);
+          },
+          false,
+          false
+        );
+
+        clearWaitForReactionsContainer();
+      }
+    );
 
     ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
-    ScheduleUtil.startQueueStoreSchedule((v) => this.ws.sendWsRequestToAddToQueue(v));
+    ScheduleUtil.startQueueStoreSchedule((v) =>
+      this.ws.sendWsRequestToAddToQueue(v)
+    );
 
     this.connectWs(sessionId);
   }
@@ -152,7 +205,7 @@ export default class Player {
    * @param buffer
    */
   private executeBufferedWsMessages(buffer: string[]): void {
-    buffer.forEach(c => this.onWsMessage(c));
+    buffer.forEach((c) => this.onWsMessage(c));
   }
 
   /**
@@ -160,7 +213,9 @@ export default class Player {
    */
   private onPlayerReady(): void {
     // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
-    this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
+    this.ytPlayer.addEventListener('onStateChange', (e) =>
+      this.onStateChange((e as unknown) as YT.PlayerState)
+    );
 
     ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
   }
@@ -179,8 +234,7 @@ export default class Player {
         this.ws.sendWsTimeMessage(Message.PAUSE, this.ytPlayer);
         break;
       case unsafeWindow.YT.PlayerState.ENDED:
-        if (this.autoplay)
-          this.playNextVideoInQueue();
+        if (this.autoplay) this.playNextVideoInQueue();
         break;
     }
   }
@@ -231,7 +285,7 @@ export default class Player {
 
     const socket = io(`${protocol}://${host}:${port}/${sessionId}`, {
       autoConnect: true,
-      path: '/socket.io'
+      path: '/socket.io',
     });
 
     this.ws = new SyncSocket(socket);
@@ -248,7 +302,11 @@ export default class Player {
     this.ws.sendWsRequestToPlayVideo(video.videoId);
 
     this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
-    this.setReactionToggle(Store.getSettings().showReactions, false);
+    setReactionToggle(
+      this.reactionPanelElement,
+      Store.getSettings().showReactions,
+      false
+    );
   }
 
   /**
@@ -263,13 +321,15 @@ export default class Player {
       const data = json.data;
 
       // Filter all messages who's container hasn't been injected yet.
-      if (this.bufferConditions.some((c) => {
-        if (c.check() && c.types.includes(command)) {
-          c.buffer.push(message);
-          return true;
-        }
-        return false;
-      })) {
+      if (
+        this.bufferConditions.some((c) => {
+          if (c.check() && c.types.includes(command)) {
+            c.buffer.push(message);
+            return true;
+          }
+          return false;
+        })
+      ) {
         return;
       }
 
@@ -325,17 +385,16 @@ export default class Player {
           break;
         case Message.REACTION:
           const reaction = ReactionsMap[data];
-          if (reaction === null || reaction === undefined)
-            return;
+          if (reaction === null || reaction === undefined) return;
 
-          if (!Store.getSettings().showReactions)
-            return;
+          if (!Store.getSettings().showReactions) return;
 
-          YTHTMLUtil.addReaction(reaction);
+          addReaction(reaction);
           break;
       }
+    } catch (e) {
+      console.error(e);
     }
-    catch (e) { console.error(e); }
   }
 
   /**
@@ -367,7 +426,7 @@ export default class Player {
    * @param selected
    */
   private addToQueue(video: Video, selected: boolean = false): void {
-    YTHTMLUtil.injectYtPlaylistPanelVideoRendererElement(
+    injectYtPlaylistPanelVideoRendererElement(
       this.queueItemsElement,
       selected,
       video.videoId,
@@ -387,9 +446,7 @@ export default class Player {
    * @param video
    */
   private removeFromQueue(video: Video): void {
-    this.queueItemsElement
-      .find(`[videoId="${video.videoId}"]`)
-      .remove();
+    this.queueItemsElement.find(`[videoId="${video.videoId}"]`).remove();
   }
 
   /**
@@ -399,13 +456,9 @@ export default class Player {
    */
   private selectQueueElement(videoId: string): void {
     // Deselect all selected
-    this.queueItemsElement
-      .children()
-      .removeAttr('selected');
+    this.queueItemsElement.children().removeAttr('selected');
     // Select Video
-    this.queueItemsElement
-      .find(`[videoId="${videoId}"]`)
-      .attr('selected', '');
+    this.queueItemsElement.find(`[videoId="${videoId}"]`).attr('selected', '');
   }
 
   /**
@@ -446,18 +499,18 @@ export default class Player {
         detail: {
           endpoint: {
             watchEndpoint: {
-              videoId
-            }
+              videoId,
+            },
           },
           params: {
-            [STORAGE_SESSION_ID]: this.sessionId
-          }
-        }
+            [STORAGE_SESSION_ID]: this.sessionId,
+          },
+        },
       });
     }
 
-    YTHTMLUtil.removeUpnext();
-    YTHTMLUtil.removeRelated();
+    removeUpnext();
+    removeRelated();
   }
 
   /**
@@ -468,8 +521,7 @@ export default class Player {
     const children = this.queueItemsElement.children();
     const index = children.index(current.get(0));
 
-    if (index === children.length - 1)
-      return;
+    if (index === children.length - 1) return;
 
     const next = children.get(index + 1);
     const nextVideoId = $(next).attr('videoId');
@@ -484,28 +536,13 @@ export default class Player {
    *              Might be used to send a initial Message.AUTOPLAY.
    */
   private setAutoplay(autoplay: boolean, force: boolean = false): void {
-    if (this.autoplay === autoplay && !force)
-      return;
+    if (this.autoplay === autoplay && !force) return;
 
     const autoplayToggle = this.roomInfoElement.find(`#${AUTOPLAY_TOGGLE_ID}`);
     this.autoplay = autoplay;
 
-    YTHTMLUtil.setPapperToggleButtonState(autoplayToggle, autoplay);
+    setPapperToggleButtonState(autoplayToggle, autoplay);
     this.ws.sendWsAutoplayMessage(this.autoplay);
-  }
-
-  private setReactionToggle(state: boolean, updateSettings: boolean = true): void {
-    if (this.reactionPanelElement === null)
-      return;
-
-    const reactionToggle = this.reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`);
-    YTHTMLUtil.setPapperToggleButtonState(reactionToggle, state);
-
-    if (updateSettings) {
-      const settings = Store.getSettings();
-      settings.showReactions = state;
-      Store.setSettings(settings);
-    }
   }
 
   /**
@@ -515,10 +552,7 @@ export default class Player {
    */
   private populateClients(clients: Client[]): void {
     this.clients = [];
-    this.roomInfoElement
-      .find('#items')
-      .children()
-      .remove();
+    this.roomInfoElement.find('#items').children().remove();
 
     clients.forEach((c) => {
       this.addClient(c);
@@ -531,10 +565,9 @@ export default class Player {
    * @param client The clients to add
    */
   private addClient(client: Client): void {
-    const socketIds = this.clients.map(c => c.socketId);
+    const socketIds = this.clients.map((c) => c.socketId);
 
-    if (socketIds.includes(client.socketId))
-      return;
+    if (socketIds.includes(client.socketId)) return;
 
     const badges = [];
     switch (client.role) {
@@ -543,7 +576,7 @@ export default class Player {
           id: BADGE_MEMBER_ID,
           onClick: () => {
             this.ws.sendWsRoleUpdateMessage(client, Role.MODERATOR);
-          }
+          },
         });
         break;
       case Role.MODERATOR:
@@ -551,7 +584,7 @@ export default class Player {
           id: BADGE_MODERATOR_ID,
           onClick: () => {
             this.ws.sendWsRoleUpdateMessage(client, Role.SUB_HOST);
-          }
+          },
         });
         break;
       case Role.SUB_HOST:
@@ -559,12 +592,12 @@ export default class Player {
           id: BADGE_SUB_HOST_ID,
           onClick: () => {
             this.ws.sendWsRoleUpdateMessage(client, Role.MEMBER);
-          }
+          },
         });
         break;
     }
 
-    YTHTMLUtil.injectYtLiveChatParticipantRenderer(
+    injectYtLiveChatParticipantRenderer(
       this.roomInfoElement.find('#items'),
       this.options.connection,
       {
@@ -577,7 +610,10 @@ export default class Player {
 
     this.clients.push(client);
 
-    YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
+    changeYtPlaylistPanelRendererDescription(
+      this.roomInfoElement,
+      `Connected (${this.clients.length})`
+    );
   }
 
   /**
@@ -586,12 +622,13 @@ export default class Player {
    * @param socketId The socketId of the client that should be removed
    */
   private removeClient(socketId: string): void {
-    this.roomInfoElement
-      .find(`#items [socketId="${socketId}"]`)
-      .remove();
+    this.roomInfoElement.find(`#items [socketId="${socketId}"]`).remove();
 
-    this.clients = this.clients.filter(c => c.socketId !== socketId);
-    YTHTMLUtil.changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
+    this.clients = this.clients.filter((c) => c.socketId !== socketId);
+    changeYtPlaylistPanelRendererDescription(
+      this.roomInfoElement,
+      `Connected (${this.clients.length})`
+    );
   }
 
   /**
