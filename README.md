@@ -1,19 +1,30 @@
 <p align="center">
   <image src="https://github.com/Tandashi/YTSync-Plugin/blob/master/doc/title.png?raw=true">
-  <br /> 
-  <img src="https://github.com/Tandashi/YTSync-Plugin/workflows/YT%20Sync/badge.svg?branch=master">
-  <img src="https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin">
 </p>
+<p align="center">
+  <img src="https://img.shields.io/github/workflow/status/Tandashi/YTSync-Plugin/YT%20Sync/master?label=YTSync&style=flat-square">
+  <img src="https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin?style=flat-square">
+</p>
+
+<br/>
+
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi">
     <img src="https://github.com/Tandashi/YTSync-Plugin/blob/master/doc/chrome.png?raw=true">
   </a>
+  <br/>
+  <img src="https://img.shields.io/chrome-web-store/users/djjmipmoebdhkblgmllkehfghaekbimi?style=flat-square">
+  <img src="https://img.shields.io/chrome-web-store/rating/djjmipmoebdhkblgmllkehfghaekbimi?style=flat-square">
+</p>
+<p align="center">
   <a href="https://addons.mozilla.org/en-GB/firefox/addon/ytsync/">
      <img src="https://github.com/Tandashi/YTSync-Plugin/blob/master/doc/mozilla.png?raw=true">
   </a>
+  <br/>
+  <img src="https://img.shields.io/amo/users/ytsync?style=flat-square">
+  <img src="https://img.shields.io/amo/rating/ytsync?style=flat-square">
 </p>
 
- 
 
 Watch videos directly on YouTube with your friends 🍿.
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
@@ -89,9 +100,9 @@ npm run build -- --env=dev 		  # Development build (Includes Source map, ...)
 npm run build -- --env=browser 	# Build the Browser Plugin
 
 # Using yarn
-yarn build --env=prod 		# Production build (Minified version)
-yarn build --env=dev 		  # Development build (Includes Source map, ...)
-yarn build --env=browser 	# Build the Browser Plugin
+yarn build --env=prod 		      # Production build (Minified version)
+yarn build --env=dev 		        # Development build (Includes Source map, ...)
+yarn build --env=browser 	      # Build the Browser Plugin
 ```
 
 After you build the plugin you can find it in `build/`.
