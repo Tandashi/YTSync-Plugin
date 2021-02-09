@@ -24,7 +24,7 @@
   <img src="https://img.shields.io/amo/users/ytsync?style=flat-square">
   <img src="https://img.shields.io/amo/rating/ytsync?style=flat-square">
 </p>
-
+<br/>
 
 Watch videos directly on YouTube with your friends 🍿.
 You no longer need [sync-video](https://sync-video.com), [watch2gether](https://www.watch2gether.com) for watching videos on YouTube. Simply create a room on YouTube and send the link to your friends.
