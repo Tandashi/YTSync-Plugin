@@ -13,5 +13,6 @@ export enum Message {
   SET_ROLE_MEMBER = 'set-role-member',
   SET_ROLE_MODERATOR = 'set-role-moderator',
   SET_ROLE_SUB_HOST = 'set-role-sub-host',
+  SET_PLAYBACK_RATE = 'set-playback-rate',
   REACTION = 'reaction'
 }

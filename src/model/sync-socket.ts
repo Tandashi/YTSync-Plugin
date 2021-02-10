@@ -81,6 +81,15 @@ export default class SyncSocket {
   }
 
   /**
+   * Set the video playback speed for the room
+   * 
+   * @param playbackRate The video playback speed
+   */
+  public sendWsPlaybackRateMessage(playbackRate: number): void {
+    this.sendWsMessage(Message.SET_PLAYBACK_RATE, playbackRate);
+  }
+
+  /**
    * Send role update.
    * Will only work if the client has the needed Permissions.
    *

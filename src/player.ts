@@ -78,6 +78,7 @@ export default class Player {
         Message.QUEUE,
         Message.ADD_TO_QUEUE,
         Message.REMOVE_FROM_QUEUE,
+        Message.SET_PLAYBACK_RATE
       ],
       buffer: this.bufferedQueueWsMessages,
     },
@@ -217,6 +218,8 @@ export default class Player {
       this.onStateChange((e as unknown) as YT.PlayerState)
     );
 
+    ScheduleUtil.startPlaybackRateSchedule(this.ytPlayer, () => this.onPlayerPlaybackRateChanged());
+
     ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
   }
 
@@ -237,6 +240,8 @@ export default class Player {
         if (this.autoplay) this.playNextVideoInQueue();
         break;
     }
+
+    this.ws.sendWsPlaybackRateMessage(this.ytPlayer.getPlaybackRate());
   }
 
   /**
@@ -272,6 +277,15 @@ export default class Player {
    */
   private onPlayerSeek(): void {
     this.ws.sendWsTimeMessage(Message.SEEK, this.ytPlayer);
+  }
+
+  /**
+   * Handler for Player playback rate changes
+   * Will send a PLAYBACK_RATE Message
+   */
+  private onPlayerPlaybackRateChanged(): void {
+    this.ws.sendWsTimeMessage(Message.SEEK, this.ytPlayer);
+    this.ws.sendWsPlaybackRateMessage(this.ytPlayer.getPlaybackRate());
   }
 
   /**
@@ -353,6 +367,10 @@ export default class Player {
             break;
           case Message.SEEK:
             this.ytPlayer.seekTo(parseFloat(data), true);
+            break;
+
+          case Message.SET_PLAYBACK_RATE:
+            this.ytPlayer.setPlaybackRate(parseFloat(data));
             break;
         }
       }

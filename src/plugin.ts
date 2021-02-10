@@ -18,9 +18,9 @@ const intervals: PluginInjectIntervals = {
 
 const player = new Player({
   connection: {
-    protocol: 'https',
-    host: 'sync.tandashi.de',
-    port: '443'
+    protocol: 'http',
+    host: 'localhost',
+    port: '8080'
   }
 });
 

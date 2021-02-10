@@ -70,6 +70,33 @@ export default class ScheduleUtil {
 
 
   /**
+   * Start a "schedule" that checks if the video playback rate has changed.
+   *
+   * @param player The player that should be checked for playback rate changes
+   * @param cb The function that should be called if the playback rate was changed
+   * @param interval The interval in which the player should be chking for playback rate changes. Unit: milliseconds. Default: 1000
+   *
+   * @returns A function which stopps the "scheduler"
+   */
+  public static startPlaybackRateSchedule(player: YT.Player, cb: () => void, interval: number = 1000): ScheduleClear {
+    let lastRate = -1;
+
+    return ScheduleUtil.createIntervalSchedule(() => {
+      if (lastRate !== -1) {
+        const rate = player.getPlaybackRate();
+
+        // Expecting X second interval, with Y ms margin
+        if (lastRate !== rate) {
+          // There was a seek occuring
+          cb();
+        }
+      }
+      lastRate = player.getPlaybackRate();
+    }, interval);
+  }
+
+
+  /**
    * Start a "schedule" that checks if the URL has changed.
    *
    * @param cb The function that should be called when a URL change was detected
