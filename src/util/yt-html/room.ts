@@ -6,7 +6,6 @@ import { createPaperTooltipShell } from './tooltip';
 const ROOM_INFO_CONTAINER_ID = 'room-info';
 
 export const AUTOPLAY_TOGGLE_ID = 'autoplay-toggle';
-const AUTOPLAY_TOGGLE_TOOLTIP_ID = 'autoplay-toggle-tooltip';
 
 export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
@@ -27,11 +26,11 @@ export function injectEmptyRoomInfoShell(title: string, description: string, col
   const autoplayToggle = createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
   // autoplayButton.off();
   // Set onClick to report to callback
-  autoplayToggle.click(() => {
+  autoplayToggle.on('click', () => {
     cb(autoplayToggle.attr('active') === '');
   });
 
-  const autoplayTooltip = createPaperTooltipShell(AUTOPLAY_TOGGLE_TOOLTIP_ID, AUTOPLAY_TOGGLE_ID, 'Autoplay');
+  const autoplayTooltip = createPaperTooltipShell('Autoplay');
 
   renderer
     .find('#top-row-buttons')

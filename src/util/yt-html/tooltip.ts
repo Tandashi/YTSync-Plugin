@@ -1,14 +1,12 @@
 /**
- * Create a <paper-tooltip> Shell. You still need to set the Text inside!
+ * Create a <paper-tooltip> Shell.
  *
- * @param id The tooltip Id
- * @param forId The element Id the tooltip is for
  * @param text The tooltip text
  */
-export function createPaperTooltipShell(id: string, forId: string, text: string): JQuery<HTMLElement> {
+export function createPaperTooltipShell(text: string): JQuery<HTMLElement> {
   return $(`
-    <paper-tooltip id="${id}" for="${forId}">
+    <tp-yt-paper-tooltip class="style-scope ytd-toggle-button-renderer" role="tooltip" tabindex="-1" style="inset: 44px auto auto 0px;">
       ${text}
-    </paper-tooltip>
+    </tp-yt-paper-tooltip>
   `);
 }
