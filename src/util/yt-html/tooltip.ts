@@ -7,8 +7,8 @@
  */
 export function createPaperTooltipShell(id: string, forId: string, text: string): JQuery<HTMLElement> {
   return $(`
-    <paper-tooltip id="${id}" for="${forId}">
+    <tp-yt-paper-tooltip class="style-scope ytd-toggle-button-renderer" role="tooltip" tabindex="-1" style="inset: 44px auto auto 0px;">
       ${text}
-    </paper-tooltip>
+    </tp-yt-paper-tooltip>
   `);
 }
