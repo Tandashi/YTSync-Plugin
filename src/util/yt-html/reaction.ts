@@ -6,7 +6,6 @@ import { injectYtPlaylistPanelRenderer } from './playlist';
 import { createPaperTooltipShell } from './tooltip';
 
 const REACTION_TOGGLE_ID = 'reaction-toggle';
-const REACTION_TOGGLE_TOOLTIP_ID = 'reaction-toggle-tooltip';
 const REACTION_OVERLAY_ID = 'reaction-overlay';
 const REACTION_CONTAINER_ID = 'reactions';
 
@@ -19,17 +18,9 @@ export function getReactionId(reaction: Reaction): string {
   return `emoji-${reaction.id}`;
 }
 
-export function getReactionTooltipId(reaction: Reaction): string {
-  return `emoji-${reaction.id}-tooltip`;
-}
-
 function createReaction(reaction: Reaction): JQuery<HTMLElement> {
   const id = getReactionId(reaction);
-  const tooltip = createPaperTooltipShell(
-    getReactionTooltipId(reaction),
-    id,
-    reaction.tooltip
-  );
+  const tooltip = createPaperTooltipShell(reaction.tooltip);
 
   return $(`
     <div style="justify-content: center; display: inline-flex; cursor: pointer;" >
@@ -181,11 +172,7 @@ export function injectReactionsPanel(
     onReactionToggle(reactionToggle.attr('active') === '');
   });
 
-  const reactionToggleTooltip = createPaperTooltipShell(
-    REACTION_TOGGLE_TOOLTIP_ID,
-    REACTION_TOGGLE_ID,
-    'Show Reactions'
-  );
+  const reactionToggleTooltip = createPaperTooltipShell('Show Reactions');
 
   renderer
     .find('#top-row-buttons')

@@ -106,7 +106,7 @@ export function injectYtPlaylistPanelVideoRendererElement(obj: JQuery<Element>, 
   playlistVideoRenderer.find('span#byline')
     .text(byline);
 
-  const tooltip = createPaperTooltipShell(`${videoId}-tooltip`, 'meta', title);
+  const tooltip = createPaperTooltipShell(title);
   playlistVideoRenderer.find('a#wc-endpoint > div#container')
     .append(tooltip);
 
