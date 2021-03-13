@@ -37,6 +37,7 @@ import {
   ROOM_INFO_CONTAINER_SELECTOR,
 } from './util/yt-html/room';
 import { removeUpnext } from './util/yt-html/upnext';
+import URLUtil from './util/url';
 
 declare global {
   interface Window {
@@ -50,7 +51,9 @@ interface BufferCondition {
   buffer: string[];
 }
 
-export const STORAGE_SESSION_ID = 'syncId';
+const PLAYER_STATE_ENDED = 0;
+const PLAYER_STATE_PLAYING = 1;
+const PLAYER_STATE_PAUSED = 2;
 
 export default class Player {
   private sessionId: string;
@@ -230,13 +233,13 @@ export default class Player {
    */
   private onStateChange(state: YT.PlayerState): void {
     switch (state) {
-      case unsafeWindow.YT.PlayerState.PLAYING:
+      case PLAYER_STATE_PLAYING:
         this.ws.sendWsTimeMessage(Message.PLAY, this.ytPlayer);
         break;
-      case unsafeWindow.YT.PlayerState.PAUSED:
+      case PLAYER_STATE_PAUSED:
         this.ws.sendWsTimeMessage(Message.PAUSE, this.ytPlayer);
         break;
-      case unsafeWindow.YT.PlayerState.ENDED:
+      case PLAYER_STATE_ENDED:
         if (this.autoplay) this.playNextVideoInQueue();
         break;
     }
@@ -253,19 +256,17 @@ export default class Player {
    * @see startUrlChangeSchedule
    */
   private onUrlChange(o: Location, n: Location): void {
-    const oldParams = new URLSearchParams(o.search);
-    const newParams = new URLSearchParams(n.search);
 
-    const oldSessionId = oldParams.get(STORAGE_SESSION_ID);
-    const newSessionId = newParams.get(STORAGE_SESSION_ID);
+    const oldSessionId = URLUtil.getSessionIdWithLocation(o);
+    const newSessionId = URLUtil.getSessionIdWithLocation(n);
     if (oldSessionId !== null && newSessionId === null) {
       // newParams.set(SessionId, oldSessionId);
       // changeQueryString(newParams.toString(), undefined);
-      window.location.search = newParams.toString();
+      // window.location.search = newParams.toString();
       return;
     }
 
-    const videoId = newParams.get('v');
+    const videoId = URLUtil.getVideoId();
     if (videoId !== null) {
       this.ws.sendWsRequestToPlayVideo(videoId);
     }
@@ -294,7 +295,8 @@ export default class Player {
    * @param sessionId
    */
   private connectWs(sessionId: string): void {
-    this.sessionId = sessionId;
+    // We have to replace = with nothing because YouTube likes to fuck with our session Id...
+    this.sessionId = sessionId.replace('=', '');
     const { protocol, host, port } = this.options.connection;
 
     const socket = io(`${protocol}://${host}:${port}/${sessionId}`, {
@@ -354,14 +356,14 @@ export default class Player {
           case Message.PLAY:
             this.syncPlayerTime(parseFloat(data));
 
-            if (playerState === unsafeWindow.YT.PlayerState.PAUSED)
+            if (playerState === PLAYER_STATE_PAUSED)
               this.ytPlayer.playVideo();
 
             break;
           case Message.PAUSE:
             this.syncPlayerTime(parseFloat(data));
 
-            if (playerState === unsafeWindow.YT.PlayerState.PLAYING)
+            if (playerState === PLAYER_STATE_PLAYING)
               this.ytPlayer.pauseVideo();
 
             break;
@@ -510,21 +512,9 @@ export default class Player {
     this.selectQueueElement(videoId);
 
     const params = new URLSearchParams(window.location.search);
-    const currentVideoId = params.get('v');
+    const currentVideoId = URLUtil.getVideoId();
     if (currentVideoId !== videoId) {
-      const app = YTUtil.getApp();
-      app.onYtNavigate_({
-        detail: {
-          endpoint: {
-            watchEndpoint: {
-              videoId,
-            },
-          },
-          params: {
-            [STORAGE_SESSION_ID]: this.sessionId,
-          },
-        },
-      });
+      YTUtil.navigateToVideo(videoId, this.sessionId);
     }
 
     removeUpnext();

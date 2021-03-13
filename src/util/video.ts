@@ -5,15 +5,14 @@ export default class VideoUtil {
    * Get current Youtube Page as Video Element
    */
   public static getCurrentVideo(): Video {
-    const app = YTUtil.getApp();
+    const player = YTUtil.getPlayer();
+    const { video_id, title, author } = player.getVideoData();
 
-    const { videoId, title, author } = app.data.playerResponse.videoDetails;
-
-    if (videoId === null)
+    if (video_id === null)
       return;
 
     return {
-      videoId,
+      videoId: video_id,
       title,
       byline: author
     };

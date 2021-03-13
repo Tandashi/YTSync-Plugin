@@ -1,5 +1,5 @@
 import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, LEAVE_SYNC_BUTTON_ID, BUTTON_INJECT_CONTAINER_SELECTOR } from './util/consts';
-import Player, { STORAGE_SESSION_ID } from './player';
+import Player from './player';
 import WebsocketUtil from './util/websocket';
 import Store from './util/store';
 import VideoUtil from './util/video';
@@ -7,6 +7,7 @@ import ScheduleUtil from './util/schedule';
 import ClipboardUtil from './util/clipboard';
 import { createPlusIcon, createLeaveIcon } from './util/yt-html/svg';
 import { injectYtRenderedButton } from './util/yt-html/button';
+import URLUtil from './util/url';
 
 const intervals: PluginInjectIntervals = {
   syncButton: null,
@@ -54,18 +55,16 @@ function clearIntervals(): void {
 function urlChangeHandler(): void {
   clearIntervals();
 
-  const urlParams = new URLSearchParams(window.location.search);
-
-  const videoId = urlParams.get('v');
+  const videoId = URLUtil.getVideoId();
   if (videoId === null)
     return;
 
-  const sessionId = urlParams.get(STORAGE_SESSION_ID);
+  const sessionId = URLUtil.getSessionId();
   if (sessionId === null) {
-    startInjectingNonSessionItems(urlParams);
+    startInjectingNonSessionItems();
   }
   else {
-    startInjectingSessionItems(urlParams, sessionId);
+    startInjectingSessionItems(sessionId);
   }
 }
 
@@ -74,11 +73,11 @@ function urlChangeHandler(): void {
  *
  * @param urlParams The current window url parameters
  */
-function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
+function startInjectingNonSessionItems(): void {
   intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 0, 'Create Sync', createPlusIcon(), () => {
-    urlParams.set(STORAGE_SESSION_ID, WebsocketUtil.generateSessionId());
-    window.location.search = urlParams.toString();
-    ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams}`);
+    const sessionId = WebsocketUtil.generateSessionId();
+    window.location.href = window.location.href + '#' + sessionId;
+    ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.search}#${sessionId}`);
   });
 
   intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', createPlusIcon(), () => {
@@ -92,10 +91,9 @@ function startInjectingNonSessionItems(urlParams: URLSearchParams): void {
  * @param urlParams The current window url parameters
  * @param sessionId The session id
  */
-function startInjectingSessionItems(urlParams: URLSearchParams, sessionId: string): void {
+function startInjectingSessionItems(sessionId: string): void {
   intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 0, 'Leave Sync', createLeaveIcon(), () => {
-    urlParams.delete(STORAGE_SESSION_ID);
-    window.location.search = urlParams.toString();
+    // No leave possible currently
   });
 
   player.create(sessionId);

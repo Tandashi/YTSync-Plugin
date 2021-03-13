@@ -13,8 +13,28 @@ export default class YTUtil {
   /**
    * Get the YT Player
    */
-  public static getPlayer(): YT.Player | null {
+  public static getPlayer(): YTPlayer | null {
     const p: any = $(YT_PLAYER_SELECTOR).get(0);
-    return p !== undefined && p !== null ? p.getPlayer() as YT.Player : null;
+    return p !== undefined && p !== null ? p.getPlayer() as YTPlayer : null;
+  }
+
+  public static navigateToVideo(videoId: string, sessionId: string) : void {
+    console.log(sessionId);
+    const app = this.getApp();
+    app.onYtNavigate_({
+      detail: {
+        endpoint: {
+          watchEndpoint: {
+            videoId,
+          },
+        },
+        params: {
+          '#': sessionId,
+        }
+      },
+    });
+
+    const player = this.getPlayer();
+    player.cueVideoById(videoId);
   }
 }

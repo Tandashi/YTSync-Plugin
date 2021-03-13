@@ -34,9 +34,7 @@ function createYtLiveChatAuthorBadgeRendererShell() {
 export function injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, renderClient: RenderClient): JQuery<HTMLElement> {
   const renderer = createYtLiveChatParticipantRendererShell(renderClient.client.socketId);
   element.append(renderer);
-
-  console.log(renderClient);
-
+  
   renderer
     .find('span#author-name')
     .text((renderClient.prefix ?? '') + renderClient.client.name + (renderClient.sufix ?? ''));
