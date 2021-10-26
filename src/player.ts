@@ -8,13 +8,7 @@ import YTUtil from './util/yt';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
-import {
-  Reactions,
-  ReactionsMap,
-  BADGE_MEMBER_ID,
-  BADGE_MODERATOR_ID,
-  BADGE_SUB_HOST_ID,
-} from './util/consts';
+import { Reactions, ReactionsMap, BADGE_MEMBER_ID, BADGE_MODERATOR_ID, BADGE_SUB_HOST_ID } from './util/consts';
 import { setPapperToggleButtonState } from './util/yt-html/button';
 import { injectYtLiveChatParticipantRenderer } from './util/yt-html/participant';
 import {
@@ -31,11 +25,7 @@ import {
   setReactionToggle,
 } from './util/yt-html/reaction';
 import { removeRelated } from './util/yt-html/related';
-import {
-  AUTOPLAY_TOGGLE_ID,
-  injectEmptyRoomInfoShell,
-  ROOM_INFO_CONTAINER_SELECTOR,
-} from './util/yt-html/room';
+import { AUTOPLAY_TOGGLE_ID, injectEmptyRoomInfoShell, ROOM_INFO_CONTAINER_SELECTOR } from './util/yt-html/room';
 import { removeUpnext } from './util/yt-html/upnext';
 import URLUtil from './util/url';
 
@@ -57,7 +47,7 @@ const PLAYER_STATE_PAUSED = 2;
 
 export default class Player {
   private sessionId: string;
-  private ytPlayer: YT.Player = null;
+  private ytPlayer: YTPlayer = null;
   private ws: SyncSocket;
   private options: PlayerOptions;
   private queueItemsElement: JQuery<Element> = null;
@@ -81,18 +71,13 @@ export default class Player {
         Message.QUEUE,
         Message.ADD_TO_QUEUE,
         Message.REMOVE_FROM_QUEUE,
-        Message.SET_PLAYBACK_RATE
+        Message.SET_PLAYBACK_RATE,
       ],
       buffer: this.bufferedQueueWsMessages,
     },
     {
       check: () => this.roomInfoElement === null,
-      types: [
-        Message.AUTOPLAY,
-        Message.CLIENTS,
-        Message.CLIENT_CONNECT,
-        Message.CLIENT_DISCONNECT,
-      ],
+      types: [Message.AUTOPLAY, Message.CLIENTS, Message.CLIENT_CONNECT, Message.CLIENT_DISCONNECT],
       buffer: this.bufferedRoomInfoWsMessages,
     },
   ];
@@ -124,81 +109,59 @@ export default class Player {
       this.onPlayerReady();
     }
 
-    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(
-      PLAYLIST_CONTAINER_SELECTOR,
-      () => {
-        const queueRenderer = injectEmptyPlaylistShell(
-          'Queue',
-          '',
-          true,
-          false
-        );
-        this.queueItemsElement = queueRenderer.find('#items');
+    const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
+      const queueRenderer = injectEmptyPlaylistShell('Queue', '', true, false);
+      this.queueItemsElement = queueRenderer.find('#items');
 
-        clearWaitForQueueContainer();
+      clearWaitForQueueContainer();
 
-        this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
-        this.bufferedQueueWsMessages = [];
-      }
-    );
+      this.executeBufferedWsMessages(this.bufferedQueueWsMessages);
+      this.bufferedQueueWsMessages = [];
+    });
 
-    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(
-      ROOM_INFO_CONTAINER_SELECTOR,
-      () => {
-        this.roomInfoElement = injectEmptyRoomInfoShell(
-          'Room Info',
-          'Not connected',
-          false,
-          false,
-          (state: boolean) => {
-            this.setAutoplay(state);
+    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
+      this.roomInfoElement = injectEmptyRoomInfoShell('Room Info', 'Not connected', false, false, (state: boolean) => {
+        this.setAutoplay(state);
+      });
+
+      clearWaitForRoomInfoContainer();
+
+      this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
+      this.bufferedRoomInfoWsMessages = [];
+    });
+
+    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(REACTIONS_CONTAINER_SELECTOR, () => {
+      this.reactionPanelElement = injectReactionsPanel(
+        'Reactions',
+        'Find it funny? React!',
+        Reactions,
+        (reaction: Reaction) => {
+          this.ws.sendWsReactionMessage(reaction);
+
+          if (this.currentAnimation !== null) {
+            this.currentAnimation.restart();
+            this.currentAnimation.seek(this.currentAnimation.duration);
           }
-        );
 
-        clearWaitForRoomInfoContainer();
+          this.currentAnimation = anime({
+            targets: `#${getReactionId(reaction)}`,
+            duration: 400,
+            rotate: '+=1turn',
+            easing: 'linear',
+          });
+        },
+        (state: boolean) => {
+          setReactionToggle(this.reactionPanelElement, state);
+        },
+        false,
+        false
+      );
 
-        this.executeBufferedWsMessages(this.bufferedRoomInfoWsMessages);
-        this.bufferedRoomInfoWsMessages = [];
-      }
-    );
-
-    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(
-      REACTIONS_CONTAINER_SELECTOR,
-      () => {
-        this.reactionPanelElement = injectReactionsPanel(
-          'Reactions',
-          'Find it funny? React!',
-          Reactions,
-          (reaction: Reaction) => {
-            this.ws.sendWsReactionMessage(reaction);
-
-            if (this.currentAnimation !== null) {
-              this.currentAnimation.restart();
-              this.currentAnimation.seek(this.currentAnimation.duration);
-            }
-
-            this.currentAnimation = anime({
-              targets: `#${getReactionId(reaction)}`,
-              duration: 400,
-              rotate: '+=1turn',
-              easing: 'linear',
-            });
-          },
-          (state: boolean) => {
-            setReactionToggle(this.reactionPanelElement, state);
-          },
-          false,
-          false
-        );
-
-        clearWaitForReactionsContainer();
-      }
-    );
+      clearWaitForReactionsContainer();
+    });
 
     ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
-    ScheduleUtil.startQueueStoreSchedule((v) =>
-      this.ws.sendWsRequestToAddToQueue(v)
-    );
+    ScheduleUtil.startQueueStoreSchedule((v) => this.ws.sendWsRequestToAddToQueue(v));
 
     this.connectWs(sessionId);
   }
@@ -216,10 +179,11 @@ export default class Player {
    * Add the onStateChange Listener
    */
   private onPlayerReady(): void {
+    // Disable YouTube Autoplay
+    this.ytPlayer.setAutonav(false);
+
     // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
-    this.ytPlayer.addEventListener('onStateChange', (e) =>
-      this.onStateChange((e as unknown) as YT.PlayerState)
-    );
+    this.ytPlayer.addEventListener('onStateChange', (e) => this.onStateChange(e as unknown as YT.PlayerState));
 
     ScheduleUtil.startPlaybackRateSchedule(this.ytPlayer, () => this.onPlayerPlaybackRateChanged());
 
@@ -256,7 +220,6 @@ export default class Player {
    * @see startUrlChangeSchedule
    */
   private onUrlChange(o: Location, n: Location): void {
-
     const oldSessionId = URLUtil.getSessionIdWithLocation(o);
     const newSessionId = URLUtil.getSessionIdWithLocation(n);
     if (oldSessionId !== null && newSessionId === null) {
@@ -318,11 +281,7 @@ export default class Player {
     this.ws.sendWsRequestToPlayVideo(video.videoId);
 
     this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
-    setReactionToggle(
-      this.reactionPanelElement,
-      Store.getSettings().showReactions,
-      false
-    );
+    setReactionToggle(this.reactionPanelElement, Store.getSettings().showReactions, false);
   }
 
   /**
@@ -356,15 +315,17 @@ export default class Player {
           case Message.PLAY:
             this.syncPlayerTime(parseFloat(data));
 
-            if (playerState === PLAYER_STATE_PAUSED)
+            if (playerState === PLAYER_STATE_PAUSED) {
               this.ytPlayer.playVideo();
+            }
 
             break;
           case Message.PAUSE:
             this.syncPlayerTime(parseFloat(data));
 
-            if (playerState === PLAYER_STATE_PLAYING)
+            if (playerState === PLAYER_STATE_PLAYING) {
               this.ytPlayer.pauseVideo();
+            }
 
             break;
           case Message.SEEK:
@@ -428,10 +389,7 @@ export default class Player {
     this.queueItemsElement.empty();
 
     data.videos.forEach((video) => {
-      this.addToQueue(
-        video,
-        data.video !== null && video.videoId === data.video.videoId
-      );
+      this.addToQueue(video, data.video !== null && video.videoId === data.video.videoId);
     });
   }
 
@@ -605,23 +563,16 @@ export default class Player {
         break;
     }
 
-    injectYtLiveChatParticipantRenderer(
-      this.roomInfoElement.find('#items'),
-      this.options.connection,
-      {
-        prefix: '',
-        sufix: this.ws.socket.id === client.socketId ? ' (You)' : '',
-        client,
-        badges,
-      }
-    );
+    injectYtLiveChatParticipantRenderer(this.roomInfoElement.find('#items'), this.options.connection, {
+      prefix: '',
+      sufix: this.ws.socket.id === client.socketId ? ' (You)' : '',
+      client,
+      badges,
+    });
 
     this.clients.push(client);
 
-    changeYtPlaylistPanelRendererDescription(
-      this.roomInfoElement,
-      `Connected (${this.clients.length})`
-    );
+    changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
   }
 
   /**
@@ -633,10 +584,7 @@ export default class Player {
     this.roomInfoElement.find(`#items [socketId="${socketId}"]`).remove();
 
     this.clients = this.clients.filter((c) => c.socketId !== socketId);
-    changeYtPlaylistPanelRendererDescription(
-      this.roomInfoElement,
-      `Connected (${this.clients.length})`
-    );
+    changeYtPlaylistPanelRendererDescription(this.roomInfoElement, `Connected (${this.clients.length})`);
   }
 
   /**

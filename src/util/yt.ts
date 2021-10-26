@@ -15,10 +15,10 @@ export default class YTUtil {
    */
   public static getPlayer(): YTPlayer | null {
     const p: any = $(YT_PLAYER_SELECTOR).get(0);
-    return p !== undefined && p !== null ? p.getPlayer() as YTPlayer : null;
+    return p !== undefined && p !== null ? (p.getPlayer() as YTPlayer) : null;
   }
 
-  public static navigateToVideo(videoId: string, sessionId: string) : void {
+  public static navigateToVideo(videoId: string, sessionId: string): void {
     console.log(sessionId);
     const app = this.getApp();
     app.onYtNavigate_({
@@ -30,7 +30,7 @@ export default class YTUtil {
         },
         params: {
           '#': sessionId,
-        }
+        },
       },
     });
 
