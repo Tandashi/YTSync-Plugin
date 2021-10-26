@@ -4,7 +4,7 @@
   "main": "dist/app.js",
   "license": "MIT",
   "scripts": {
-    "build": "rm build -Rf && webpack --config webpack/webpack.config.js"
+    "build": "rm -Rf build && webpack --config webpack/webpack.config.js"
   },
   "devDependencies": {
     "@types/animejs": "^3.1.1",
