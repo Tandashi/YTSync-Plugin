@@ -19,17 +19,18 @@ export default class YTUtil {
   }
 
   public static navigateToVideo(videoId: string, sessionId: string): void {
-    console.log(sessionId);
     const app = this.getApp();
-    app.onYtNavigate_({
+    app.onYtNavigate({
       detail: {
         endpoint: {
+          commandMetadata: {
+            webCommandMetadata: {
+              url: `/watch?v=${videoId}#${sessionId}`,
+            },
+          },
           watchEndpoint: {
             videoId,
           },
-        },
-        params: {
-          '#': sessionId,
         },
       },
     });

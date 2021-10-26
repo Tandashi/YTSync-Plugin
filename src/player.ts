@@ -469,7 +469,6 @@ export default class Player {
   private navigateToVideo(videoId: string): void {
     this.selectQueueElement(videoId);
 
-    const params = new URLSearchParams(window.location.search);
     const currentVideoId = URLUtil.getVideoId();
     if (currentVideoId !== videoId) {
       YTUtil.navigateToVideo(videoId, this.sessionId);

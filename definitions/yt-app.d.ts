@@ -1,16 +1,18 @@
 interface YTApp {
-  onYtNavigate_: (e: YTAppEndpoint) => void;
+  onYtNavigate: (e: YTAppEndpoint) => void;
 }
 
 interface YTAppEndpoint {
   detail: {
     endpoint: {
+      commandMetadata: {
+        webCommandMetadata: {
+          url: string;
+        };
+      };
       watchEndpoint: {
         videoId: any;
-      }
-    },
-    params: {
-      '#': string;
-    }
-  }
+      };
+    };
+  };
 }
