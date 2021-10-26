@@ -1,4 +1,9 @@
-import { QUEUE_ADD_BUTTON_ID, CREATE_SYNC_BUTTON_ID, LEAVE_SYNC_BUTTON_ID, BUTTON_INJECT_CONTAINER_SELECTOR } from './util/consts';
+import {
+  QUEUE_ADD_BUTTON_ID,
+  CREATE_SYNC_BUTTON_ID,
+  LEAVE_SYNC_BUTTON_ID,
+  BUTTON_INJECT_CONTAINER_SELECTOR,
+} from './util/consts';
 import Player from './player';
 import WebsocketUtil from './util/websocket';
 import Store from './util/store';
@@ -14,19 +19,19 @@ const intervals: PluginInjectIntervals = {
   leaveButton: null,
   removeUpnext: null,
   queueInject: null,
-  queueAddButton: null
+  queueAddButton: null,
 };
 
 const player = new Player({
   connection: {
     protocol: 'https',
     host: 'sync.tandashi.de',
-    port: '443'
-  }
+    port: '443',
+  },
 });
 
 // tslint:disable-next-line: no-empty
-let urlSchedule: () => void = () => { };
+let urlSchedule: () => void = () => {};
 
 window.onload = () => {
   urlSchedule = ScheduleUtil.startUrlChangeSchedule(urlChangeHandler);
@@ -42,9 +47,9 @@ function clearIntervals(): void {
   Object.values(intervals).forEach((i) => {
     try {
       clearInterval(i);
+    } catch (_) {
+      // tslint:disable-next-line: no-empty
     }
-    // tslint:disable-next-line: no-empty
-    catch (_) { }
   });
 }
 
@@ -56,14 +61,12 @@ function urlChangeHandler(): void {
   clearIntervals();
 
   const videoId = URLUtil.getVideoId();
-  if (videoId === null)
-    return;
+  if (videoId === null) return;
 
   const sessionId = URLUtil.getSessionId();
   if (sessionId === null) {
     startInjectingNonSessionItems();
-  }
-  else {
+  } else {
     startInjectingSessionItems(sessionId);
   }
 }
@@ -76,8 +79,11 @@ function urlChangeHandler(): void {
 function startInjectingNonSessionItems(): void {
   intervals.syncButton = injectButton(CREATE_SYNC_BUTTON_ID, 0, 'Create Sync', createPlusIcon(), () => {
     const sessionId = WebsocketUtil.generateSessionId();
-    window.location.href = window.location.href + '#' + sessionId;
-    ClipboardUtil.writeText(`${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.search}#${sessionId}`);
+    location.hash = sessionId;
+
+    ClipboardUtil.writeText(
+      `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.search}#${sessionId}`
+    );
   });
 
   intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', createPlusIcon(), () => {
@@ -94,6 +100,7 @@ function startInjectingNonSessionItems(): void {
 function startInjectingSessionItems(sessionId: string): void {
   intervals.leaveButton = injectButton(LEAVE_SYNC_BUTTON_ID, 0, 'Leave Sync', createLeaveIcon(), () => {
     // No leave possible currently
+    location.hash = '';
   });
 
   player.create(sessionId);
@@ -108,7 +115,13 @@ function startInjectingSessionItems(sessionId: string): void {
  * @param icon The icon of the button
  * @param cb The function that should be called when the button was clicked
  */
-function injectButton(id: string, insertAfter: number, text: string, icon: JQuery<HTMLElement>, cb: () => void): NodeJS.Timeout {
+function injectButton(
+  id: string,
+  insertAfter: number,
+  text: string,
+  icon: JQuery<HTMLElement>,
+  cb: () => void
+): NodeJS.Timeout {
   const handler = setInterval(() => {
     const container = $(BUTTON_INJECT_CONTAINER_SELECTOR);
     $(`ytd-button-renderer#${id}`).remove();
