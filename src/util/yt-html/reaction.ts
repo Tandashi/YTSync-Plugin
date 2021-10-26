@@ -33,10 +33,7 @@ function createReaction(reaction: Reaction): JQuery<HTMLElement> {
   `).append(tooltip);
 }
 
-function createReactionChip(
-  text: string,
-  symbol: string
-): JQuery<HTMLElement> {
+function createReactionChip(text: string, symbol: string): JQuery<HTMLElement> {
   if (text !== '') {
     return $(`
       <div
@@ -105,9 +102,12 @@ export function addReaction(reaction: Reaction): JQuery<HTMLElement> {
   return renderer;
 }
 
-export function setReactionToggle(reactionPanelElement: JQuery<HTMLElement>, state: boolean, updateSettings: boolean = true): void {
-  if (reactionPanelElement === null)
-    return;
+export function setReactionToggle(
+  reactionPanelElement: JQuery<HTMLElement>,
+  state: boolean,
+  updateSettings: boolean = true
+): void {
+  if (reactionPanelElement === null) return;
 
   const reactionToggle = reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`);
   setPapperToggleButtonState(reactionToggle, state);
@@ -174,10 +174,7 @@ export function injectReactionsPanel(
 
   const reactionToggleTooltip = createPaperTooltipShell('Show Reactions');
 
-  renderer
-    .find('#top-row-buttons')
-    .append(reactionToggle)
-    .append(reactionToggleTooltip);
+  renderer.find('#top-row-buttons').append(reactionToggle).append(reactionToggleTooltip);
 
   return renderer;
 }

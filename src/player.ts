@@ -120,7 +120,7 @@ export default class Player {
     });
 
     const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
-      this.roomInfoElement = injectEmptyRoomInfoShell('Room Info', 'Not connected', false, false, (state: boolean) => {
+      this.roomInfoElement = injectEmptyRoomInfoShell('Room Info', 'Not connected', true, false, (state: boolean) => {
         this.setAutoplay(state);
       });
 
@@ -153,7 +153,7 @@ export default class Player {
         (state: boolean) => {
           setReactionToggle(this.reactionPanelElement, state);
         },
-        false,
+        true,
         false
       );
 

@@ -41,9 +41,6 @@ function createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
     <ytd-playlist-panel-renderer
       id="${id}"
       class="style-scope ytd-watch-flexy"
-      js-panel-height_=""
-      has-playlist-buttons=""
-      has-toolbar_=""
       playlist-type_="TLPQ",
       style="margin-bottom: var(--ytd-margin-6x)"
     />
@@ -62,8 +59,21 @@ function createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
  *
  * @return The created <ytd-playlist-panel-renderer>
  */
-export function injectEmptyPlaylistShell(title: string, description: string, collapsible: boolean, collapsed: boolean): JQuery<HTMLElement> {
-  return injectYtPlaylistPanelRenderer(PLAYLIST_CONTAINER_SELECTOR, PLAYLIST_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.REPLACE);
+export function injectEmptyPlaylistShell(
+  title: string,
+  description: string,
+  collapsible: boolean,
+  collapsed: boolean
+): JQuery<HTMLElement> {
+  return injectYtPlaylistPanelRenderer(
+    PLAYLIST_CONTAINER_SELECTOR,
+    PLAYLIST_CONTAINER_ID,
+    title,
+    description,
+    collapsible,
+    collapsed,
+    InjectAction.REPLACE
+  );
 }
 
 /**
@@ -79,36 +89,37 @@ export function injectEmptyPlaylistShell(title: string, description: string, col
  *
  * @return The created ytd-playlist-panel-video-renderer>
  */
-export function injectYtPlaylistPanelVideoRendererElement(obj: JQuery<Element>, selected: boolean, videoId: string, title: string, byline: string, ccb: () => void, dcb: () => void): JQuery<HTMLElement> {
+export function injectYtPlaylistPanelVideoRendererElement(
+  obj: JQuery<Element>,
+  selected: boolean,
+  videoId: string,
+  title: string,
+  byline: string,
+  ccb: () => void,
+  dcb: () => void
+): JQuery<HTMLElement> {
   const playlistVideoRenderer = createYtPlaylistPanelVideoRendererShell(videoId, selected);
   obj.append(playlistVideoRenderer);
 
   const menuRenderer = createYtMenuRendererShell();
-  playlistVideoRenderer.find('div#menu')
-    .append(menuRenderer);
+  playlistVideoRenderer.find('div#menu').append(menuRenderer);
 
-  menuRenderer.find('yt-icon-button#button')
-    .attr('hidden', '');
+  menuRenderer.find('yt-icon-button#button').attr('hidden', '');
 
   injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), 0, '', null, createTrashIcon(), dcb);
 
   createImageSrcObserver(playlistVideoRenderer, `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
 
-  playlistVideoRenderer.find('a#wc-endpoint')
-    .on('click', ccb);
+  playlistVideoRenderer.find('a#wc-endpoint').on('click', ccb);
 
-  playlistVideoRenderer.find('a#thumbnail')
-    .on('click', ccb);
+  playlistVideoRenderer.find('a#thumbnail').on('click', ccb);
 
-  playlistVideoRenderer.find('span#video-title')
-    .text(title);
+  playlistVideoRenderer.find('span#video-title').text(title);
 
-  playlistVideoRenderer.find('span#byline')
-    .text(byline);
+  playlistVideoRenderer.find('span#byline').text(byline);
 
   const tooltip = createPaperTooltipShell(title);
-  playlistVideoRenderer.find('a#wc-endpoint > div#container')
-    .append(tooltip);
+  playlistVideoRenderer.find('a#wc-endpoint > div#container').append(tooltip);
 
   return playlistVideoRenderer;
 }
@@ -124,7 +135,15 @@ export function injectYtPlaylistPanelVideoRendererElement(obj: JQuery<Element>, 
  * @param collapsed If the <ytd-playlist-panel-renderer> should be initally collapsed
  * @param action The method to use to inject the <ytd-playlist-panel-renderer>
  */
-export function injectYtPlaylistPanelRenderer(element: string, id: string, title: string, description: string, collapsible: boolean, collapsed: boolean, action: InjectAction): JQuery<HTMLElement> {
+export function injectYtPlaylistPanelRenderer(
+  element: string,
+  id: string,
+  title: string,
+  description: string,
+  collapsible: boolean,
+  collapsed: boolean,
+  action: InjectAction
+): JQuery<HTMLElement> {
   const renderer = createYtPlaylistPanelRendererShell(id);
 
   switch (action) {
@@ -137,23 +156,15 @@ export function injectYtPlaylistPanelRenderer(element: string, id: string, title
   }
 
   if (!collapsible) {
-    renderer
-      .removeAttr('collapsible')
-      .removeAttr('collapsed');
-  }
-  else {
+    renderer.removeAttr('collapsible').removeAttr('collapsed');
+  } else {
     if (!collapsed) {
-      $(renderer)
-        .removeAttr('collapsed');
+      $(renderer).removeAttr('collapsed');
     }
   }
 
   changeYtPlaylistPanelRendererTitle(renderer, title);
   changeYtPlaylistPanelRendererDescription(renderer, description);
-
-  renderer
-    .find('div.header')
-    .css('padding-bottom', '12px');
 
   return renderer;
 }
@@ -165,9 +176,7 @@ export function injectYtPlaylistPanelRenderer(element: string, id: string, title
  * @param title The new title text
  */
 export function changeYtPlaylistPanelRendererTitle(renderer: JQuery<HTMLElement>, title: string) {
-  renderer
-    .find('h3 yt-formatted-string')
-    .text(title);
+  renderer.find('h3 yt-formatted-string').text(title);
 }
 
 /**
