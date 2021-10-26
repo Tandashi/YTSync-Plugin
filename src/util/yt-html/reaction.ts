@@ -154,6 +154,12 @@ export function injectReactionsPanel(
   const items = renderer.find('#items');
   items.css('text-align', 'center');
   items.css('overflow-y', 'hidden');
+  // Make items non selectable
+  items.css('-moz-user-select', 'none');
+  items.css('-webkit-user-select', 'none');
+  items.css('-ms-user-select', 'none');
+  items.css('user-select', 'none');
+  items.css('-o-user-select', 'none');
 
   for (const reaction of reactions) {
     const reactionRenderer = createReaction(reaction);
