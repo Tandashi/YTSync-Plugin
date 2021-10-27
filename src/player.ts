@@ -226,6 +226,7 @@ export default class Player {
       // newParams.set(SessionId, oldSessionId);
       // changeQueryString(newParams.toString(), undefined);
       // window.location.search = newParams.toString();
+      location.reload();
       return;
     }
 
