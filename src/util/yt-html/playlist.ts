@@ -24,7 +24,6 @@ function createYtPlaylistPanelVideoRendererShell(videoId: string, selected: bool
       class="style-scope ytd-playlist-panel-renderer"
       lockup=""
       watch-color-update_=""
-      can-reorder=""
       touch-persistent-drag-handle=""
       ${selected ? 'selected' : ''}
     />
@@ -106,7 +105,7 @@ export function injectYtPlaylistPanelVideoRendererElement(
 
   menuRenderer.find('yt-icon-button#button').attr('hidden', '');
 
-  injectYtRenderedButton(menuRenderer.find('div#top-level-buttons'), 0, '', null, createTrashIcon(), dcb);
+  injectYtRenderedButton(menuRenderer.find('div#top-level-buttons-computed'), 0, '', null, createTrashIcon(), dcb);
 
   createImageSrcObserver(playlistVideoRenderer, `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
 
