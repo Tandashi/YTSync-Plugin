@@ -142,9 +142,9 @@ The room information is displayed on the right side below the video queue. It di
 From top to bottom:
 
 1. The room [host](#host). He has a green circle.
-2. A [normal](#member) person. He has a blue circle, and a yellow square outline as badge
-3. A [moderator](#moderator) person. He has a yellow circle, and a yellow square with red outlines
-4. A [sub-host](#sub-host) person. He has a red circle, and a red square.
+2. A [normal](#member) person. He has a yellow square outline as badge
+3. A [moderator](#moderator) person. He has a yellow square with red outlines as badge.
+4. A [sub-host](#sub-host) person. He has a red square as badge.
 
 ## Reactions
 
