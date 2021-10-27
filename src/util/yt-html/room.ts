@@ -20,8 +20,22 @@ export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
  *
  * @return The created <ytd-playlist-panel-renderer>
  */
-export function injectEmptyRoomInfoShell(title: string, description: string, collapsible: boolean, collapsed: boolean, cb: (state: boolean) => void): JQuery<HTMLElement> {
-  const renderer = injectYtPlaylistPanelRenderer(ROOM_INFO_CONTAINER_SELECTOR, ROOM_INFO_CONTAINER_ID, title, description, collapsible, collapsed, InjectAction.APPEND);
+export function injectEmptyRoomInfoShell(
+  title: string,
+  description: string,
+  collapsible: boolean,
+  collapsed: boolean,
+  cb: (state: boolean) => void
+): JQuery<HTMLElement> {
+  const renderer = injectYtPlaylistPanelRenderer(
+    ROOM_INFO_CONTAINER_SELECTOR,
+    ROOM_INFO_CONTAINER_ID,
+    title,
+    description,
+    collapsible,
+    collapsed,
+    InjectAction.APPEND
+  );
 
   const autoplayToggle = createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
   // autoplayButton.off();
@@ -30,12 +44,14 @@ export function injectEmptyRoomInfoShell(title: string, description: string, col
     cb(autoplayToggle.attr('active') === '');
   });
 
+  autoplayToggle.on('tap', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  });
+
   const autoplayTooltip = createPaperTooltipShell('Autoplay');
 
-  renderer
-    .find('#top-row-buttons')
-    .append(autoplayToggle)
-    .append(autoplayTooltip);
+  renderer.find('#top-row-buttons').append(autoplayToggle).append(autoplayTooltip);
 
   return renderer;
 }

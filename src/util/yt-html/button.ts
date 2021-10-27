@@ -9,7 +9,7 @@ import { createYtFormattedStringShell } from './string';
  */
 export function createPaperToggleButtonShell(id: string): JQuery<HTMLElement> {
   return $(`
-      <paper-toggle-button
+      <tp-yt-paper-toggle-button
         id="${id}"
       />
     `);
@@ -21,10 +21,7 @@ export function createPaperToggleButtonShell(id: string): JQuery<HTMLElement> {
  * @param button The toggle button
  * @param state The state to set
  */
-export function setPapperToggleButtonState(
-  button: JQuery<Element>,
-  state: boolean
-): void {
+export function setPapperToggleButtonState(button: JQuery<Element>, state: boolean): void {
   state ? button.attr('active', '') : button.removeAttr('active');
 }
 
@@ -43,10 +40,7 @@ export function getPapperToggleButtonState(button: JQuery<Element>): boolean {
  * @param id The id of the renderer
  * @param hasText If the renderer can contain text or not
  */
-export function createYtIconButtonRendererShell(
-  id: string,
-  hasText: boolean
-): JQuery<HTMLElement> {
+export function createYtIconButtonRendererShell(id: string, hasText: boolean): JQuery<HTMLElement> {
   return $(`
       <ytd-button-renderer
         id="${id}"
@@ -92,10 +86,7 @@ export function injectYtRenderedButton(
   // everything in order to get it to work
   const hasText = text !== '' && text !== null;
 
-  const container = createYtIconButtonRendererShell(
-    containerId,
-    hasText
-  );
+  const container = createYtIconButtonRendererShell(containerId, hasText);
   if (objId.children().length < insertAfter + 1) {
     objId.append(container);
   } else {
@@ -106,9 +97,7 @@ export function injectYtRenderedButton(
   container.append(endpoint);
 
   const iconButton = createYtIconButtonShell();
-  const formattedString = hasText
-    ? createYtFormattedStringShell(cb)
-    : null;
+  const formattedString = hasText ? createYtFormattedStringShell(cb) : null;
   endpoint.append(iconButton).append(formattedString);
 
   if (hasText) {

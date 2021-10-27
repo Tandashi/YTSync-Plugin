@@ -178,6 +178,11 @@ export function injectReactionsPanel(
     onReactionToggle(reactionToggle.attr('active') === '');
   });
 
+  reactionToggle.on('tap', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  });
+
   const reactionToggleTooltip = createPaperTooltipShell('Show Reactions');
 
   renderer.find('#top-row-buttons').append(reactionToggle).append(reactionToggleTooltip);
