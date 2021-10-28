@@ -103,11 +103,11 @@ export default class Player {
         this.ytPlayer = player;
         clearSchedule();
 
-        this.onPlayerReady();
+        this.onPlayerReady(sessionId);
       });
     } else {
       // Wierd casting because the YT.Player on YT returns the state not a PlayerEvent.
-      this.onPlayerReady();
+      this.onPlayerReady(sessionId);
     }
 
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
@@ -164,8 +164,6 @@ export default class Player {
 
     ScheduleUtil.startUrlChangeSchedule((o, n) => this.onUrlChange(o, n));
     ScheduleUtil.startQueueStoreSchedule((v) => this.ws.sendWsRequestToAddToQueue(v));
-
-    this.connectWs(sessionId);
   }
 
   /**
@@ -179,8 +177,10 @@ export default class Player {
 
   /**
    * Add the onStateChange Listener
+   *
+   * @param sessionId The Id of the session
    */
-  private onPlayerReady(): void {
+  private onPlayerReady(sessionId: string): void {
     // Disable YouTube Autoplay
     this.ytPlayer.setAutonav(false);
 
@@ -190,6 +190,8 @@ export default class Player {
     ScheduleUtil.startPlaybackRateSchedule(this.ytPlayer, () => this.onPlayerPlaybackRateChanged());
 
     ScheduleUtil.startSeekSchedule(this.ytPlayer, () => this.onPlayerSeek());
+
+    this.connectWs(sessionId);
   }
 
   /**
