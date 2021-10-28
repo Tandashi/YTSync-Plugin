@@ -155,6 +155,7 @@ You find something funny but aren't in a voice call with your friends? Let them 
 ### Overview
 |                                    	| Host 	| Sub-Host 	| Moderator 	| Member 	|
 |-----------------------------------	|:----:	|:--------:	|:---------:	|:------:	|
+| Watch videos synchonized 🍿          |   ✅  	|     ✅    |     ✅     	|    ✅   |
 | Edit (Add / Remove / Delete) Queue 	|   ✅  	|     ✅    |     ✅     	|        	|
 | Play video in Queue                	|   ✅  	|     ✅    |     ✅     	|        	|
 | Set autoplay                       	|   ✅  	|     ✅    |     ✅     	|        	|
