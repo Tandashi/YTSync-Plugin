@@ -47,6 +47,13 @@ If you think there is anything missing then just create a [feature request](#fea
 
 ## Installation
 
+### Native Plugin for Chrome and Firefox
+
+There is also a native version available for those who do not want to install Tampermonkey.
+
+- [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/ytsync/)
+- [Chrome](https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi)
+
 ### Tampermonkey
 
 To install the plugin you first need to download and install Tampermonkey for your Browser:
@@ -56,13 +63,6 @@ To install the plugin you first need to download and install Tampermonkey for yo
 - [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/)
 
 After you installed Tampermonkey just head to the [release section](https://github.com/Tandashi/YTSync-Plugin/releases) and click on the `lib.user.js` Asset on the latest release. A popup should appear. Just click on install and you're done 🎉.
-
-### Native Plugin
-
-There is also a native version available for those who do not want to install Tampermonkey.
-
-- [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/ytsync/)
-- [Chrome](https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi)
 
 ### Build from source
 
