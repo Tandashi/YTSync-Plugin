@@ -24,10 +24,9 @@ export function injectEmptyRoomInfoShell(
   title: string,
   description: string,
   collapsible: boolean,
-  collapsed: boolean,
-  cb: (state: boolean) => void
+  collapsed: boolean
 ): JQuery<HTMLElement> {
-  const renderer = injectYtPlaylistPanelRenderer(
+  return injectYtPlaylistPanelRenderer(
     ROOM_INFO_CONTAINER_SELECTOR,
     ROOM_INFO_CONTAINER_ID,
     title,
@@ -36,22 +35,4 @@ export function injectEmptyRoomInfoShell(
     collapsed,
     InjectAction.APPEND
   );
-
-  const autoplayToggle = createPaperToggleButtonShell(AUTOPLAY_TOGGLE_ID);
-  // autoplayButton.off();
-  // Set onClick to report to callback
-  autoplayToggle.on('click', () => {
-    cb(autoplayToggle.attr('active') === '');
-  });
-
-  autoplayToggle.on('tap', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-  });
-
-  const autoplayTooltip = createPaperTooltipShell('Autoplay');
-
-  renderer.find('#top-row-buttons').append(autoplayToggle).append(autoplayTooltip);
-
-  return renderer;
 }
