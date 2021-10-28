@@ -1,6 +1,6 @@
 {
   "name": "ytsync-plugin",
-  "version": "1.9.1-pre1",
+  "version": "1.10.0",
   "main": "dist/app.js",
   "license": "MIT",
   "scripts": {
