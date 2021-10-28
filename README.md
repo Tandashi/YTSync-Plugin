@@ -152,6 +152,16 @@ You find something funny but aren't in a voice call with your friends? Let them 
 
 ## Permissions / Roles
 
+### Overview
+|                                    	| Host 	| Sub-Host 	| Moderator 	| Member 	|
+|-----------------------------------:	|:----:	|:--------:	|:---------:	|:------:	|
+| Edit (Add / Remove / Delete) Queue 	|   ✅  	|     ✅    |     ✅     	|        	|
+| Play video in Queue                	|   ✅  	|     ✅    |     ✅     	|        	|
+| Set autoplay                       	|   ✅  	|     ✅    |     ✅     	|        	|
+| Resume / Pause                     	|   ✅  	|     ✅    |           	|        	|
+| Seek to                            	|   ✅  	|     ✅    |           	|        	|
+| Change roles                       	|   ✅  	|           |           	|        	|
+
 ### Host
 
 You will automatically be assigned to the Host role when you create a sync room. You can also acquire this role if the current host left the session.
