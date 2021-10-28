@@ -13,7 +13,6 @@ import { setPapperToggleButtonState } from './util/yt-html/button';
 import { injectYtLiveChatParticipantRenderer } from './util/yt-html/participant';
 import {
   changeYtPlaylistPanelRendererDescription,
-  injectEmptyPlaylistShell,
   injectYtPlaylistPanelVideoRendererElement,
   PLAYLIST_CONTAINER_SELECTOR,
 } from './util/yt-html/playlist';
@@ -28,6 +27,7 @@ import { removeRelated } from './util/yt-html/related';
 import { AUTOPLAY_TOGGLE_ID, injectEmptyRoomInfoShell, ROOM_INFO_CONTAINER_SELECTOR } from './util/yt-html/room';
 import { removeUpnext } from './util/yt-html/upnext';
 import URLUtil from './util/url';
+import { injectEmptyQueueShell } from './util/yt-html/queue';
 
 declare global {
   interface Window {
@@ -50,6 +50,7 @@ export default class Player {
   private ytPlayer: YTPlayer = null;
   private ws: SyncSocket;
   private options: PlayerOptions;
+  private queueElement: JQuery<Element> = null;
   private queueItemsElement: JQuery<Element> = null;
   private roomInfoElement: JQuery<HTMLElement> = null;
   private reactionPanelElement: JQuery<HTMLElement> = null;
@@ -110,7 +111,10 @@ export default class Player {
     }
 
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
-      const queueRenderer = injectEmptyPlaylistShell('Queue', '', true, false);
+      const queueRenderer = injectEmptyQueueShell('Queue', '', true, false, (state: boolean) => {
+        this.setAutoplay(state);
+      });
+      this.queueElement = queueRenderer;
       this.queueItemsElement = queueRenderer.find('#items');
 
       clearWaitForQueueContainer();
@@ -120,9 +124,7 @@ export default class Player {
     });
 
     const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
-      this.roomInfoElement = injectEmptyRoomInfoShell('Room Info', 'Not connected', true, false, (state: boolean) => {
-        this.setAutoplay(state);
-      });
+      this.roomInfoElement = injectEmptyRoomInfoShell('Room Info', 'Not connected', true, false);
 
       clearWaitForRoomInfoContainer();
 
@@ -281,7 +283,7 @@ export default class Player {
     this.ws.sendWsRequestToAddToQueue(video);
     this.ws.sendWsRequestToPlayVideo(video.videoId);
 
-    this.setAutoplay(this.autoplay, this.roomInfoElement !== null);
+    this.setAutoplay(this.autoplay, this.queueElement !== null);
     setReactionToggle(this.reactionPanelElement, Store.getSettings().showReactions, false);
   }
 
@@ -504,7 +506,7 @@ export default class Player {
   private setAutoplay(autoplay: boolean, force: boolean = false): void {
     if (this.autoplay === autoplay && !force) return;
 
-    const autoplayToggle = this.roomInfoElement.find(`#${AUTOPLAY_TOGGLE_ID}`);
+    const autoplayToggle = this.queueElement.find(`#${AUTOPLAY_TOGGLE_ID}`);
     this.autoplay = autoplay;
 
     setPapperToggleButtonState(autoplayToggle, autoplay);
