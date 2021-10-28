@@ -3,7 +3,7 @@
   "name": "YTSync",
   "description": "Watch videos directly on YouTube with your friends.",
   "author": "Tandashi",
-  "version": "1.9.1-pre1",
+  "version": "1.10.0",
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
