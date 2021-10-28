@@ -13,6 +13,7 @@ import ClipboardUtil from './util/clipboard';
 import { createPlusIcon, createLeaveIcon } from './util/yt-html/svg';
 import { injectYtRenderedButton } from './util/yt-html/button';
 import URLUtil from './util/url';
+import { createToast } from './util/yt-html/toast';
 
 const intervals: PluginInjectIntervals = {
   syncButton: null,
@@ -84,10 +85,12 @@ function startInjectingNonSessionItems(): void {
     ClipboardUtil.writeText(
       `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.search}#${sessionId}`
     );
+    createToast('Sync Links copied to clipboard');
   });
 
   intervals.queueAddButton = injectButton(QUEUE_ADD_BUTTON_ID, 1, 'Add to Queue', createPlusIcon(), () => {
     Store.addElement(VideoUtil.getCurrentVideo());
+    createToast('Video Added to Sync Queue');
   });
 }
 
