@@ -192,8 +192,6 @@ export default class Player {
         if (this.settingsContainer.shouldAutoplay()) this.playNextVideoInQueue();
         break;
     }
-
-    this.ws.sendWsPlaybackRateMessage(this.ytPlayer.getPlaybackRate());
   }
 
   /**
