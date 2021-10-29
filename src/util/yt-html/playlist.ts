@@ -174,7 +174,7 @@ export function injectYtPlaylistPanelRenderer(
  * @param renderer The <ytd-playlist-panel-renderer> Element
  * @param title The new title text
  */
-export function changeYtPlaylistPanelRendererTitle(renderer: JQuery<HTMLElement>, title: string) {
+export function changeYtPlaylistPanelRendererTitle(renderer: JQuery<Element>, title: string) {
   renderer.find('h3 yt-formatted-string').text(title);
 }
 
@@ -184,6 +184,6 @@ export function changeYtPlaylistPanelRendererTitle(renderer: JQuery<HTMLElement>
  * @param renderer The <ytd-playlist-panel-renderer> Element
  * @param description The new description text
  */
-export function changeYtPlaylistPanelRendererDescription(renderer: JQuery<HTMLElement>, description: string): void {
+export function changeYtPlaylistPanelRendererDescription(renderer: JQuery<Element>, description: string): void {
   renderer.find('div.index-message-wrapper span.index-message').text(description);
 }

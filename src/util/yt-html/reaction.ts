@@ -1,11 +1,8 @@
 import { InjectAction } from '../../enum/action';
-import Store from '../store';
 
-import { createPaperToggleButtonShell, setPapperToggleButtonState } from './button';
 import { injectYtPlaylistPanelRenderer } from './playlist';
 import { createPaperTooltipShell } from './tooltip';
 
-const REACTION_TOGGLE_ID = 'reaction-toggle';
 const REACTION_OVERLAY_ID = 'reaction-overlay';
 const REACTION_CONTAINER_ID = 'reactions';
 
@@ -102,23 +99,6 @@ export function addReaction(reaction: Reaction): JQuery<HTMLElement> {
   return renderer;
 }
 
-export function setReactionToggle(
-  reactionPanelElement: JQuery<HTMLElement>,
-  state: boolean,
-  updateSettings: boolean = true
-): void {
-  if (reactionPanelElement === null) return;
-
-  const reactionToggle = reactionPanelElement.find(`#${REACTION_TOGGLE_ID}`);
-  setPapperToggleButtonState(reactionToggle, state);
-
-  if (updateSettings) {
-    const settings = Store.getSettings();
-    settings.showReactions = state;
-    Store.setSettings(settings);
-  }
-}
-
 /**
  * Inject a reactions panel using a <ytd-playlist-panel-renderer>.
  *
@@ -126,7 +106,6 @@ export function setReactionToggle(
  * @param description The description of the reaction panel
  * @param reactions The reactions that should be displayed
  * @param onReactionClicked Callback which gets fired when a reaction was clicked
- * @param onReactionToggle Callback which gets fired when the toggle status of the reaction toggle changes
  * @param collapsible If the reaction should be collapsible
  * @param collapsed If the reaction should be initally collapsed
  *
@@ -137,7 +116,6 @@ export function injectReactionsPanel(
   description: string,
   reactions: Reaction[],
   onReactionClicked: (reaction: Reaction) => void,
-  onReactionToggle: (state: boolean) => void,
   collapsible: boolean,
   collapsed: boolean
 ): JQuery<HTMLElement> {
@@ -170,22 +148,5 @@ export function injectReactionsPanel(
   }
 
   $('.html5-video-container').append(createReactionOverlay());
-
-  const reactionToggle = createPaperToggleButtonShell(REACTION_TOGGLE_ID);
-  // reactionToggle.off();
-  // Set onClick to report to callback
-  reactionToggle.on('click', () => {
-    onReactionToggle(reactionToggle.attr('active') === '');
-  });
-
-  reactionToggle.on('tap', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-  });
-
-  const reactionToggleTooltip = createPaperTooltipShell('Show Reactions');
-
-  renderer.find('#top-row-buttons').append(reactionToggle).append(reactionToggleTooltip);
-
   return renderer;
 }
