@@ -5,9 +5,12 @@
  *
  * @param cb The function that should be called on click
  */
-export function createYtFormattedStringShell(cb: () => void): JQuery<HTMLElement> {
-  return $(`<yt-formatted-string id="text" class="style-scope ytd-button-renderer style-default size-default" />`).on(
-    'click',
-    cb
-  );
+export function createYtFormattedStringShell(cb?: () => void): JQuery<HTMLElement> {
+  const formattedText = $(`<yt-formatted-string id="text" class="style-scope style-default size-default" />`);
+
+  if (cb) {
+    return formattedText.on('click', cb);
+  }
+
+  return formattedText;
 }

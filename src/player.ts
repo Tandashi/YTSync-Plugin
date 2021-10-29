@@ -16,6 +16,9 @@ import QueueContainer from './container/queue-container';
 import ReactionsContainer from './container/reactions-container';
 import RoomInfoContainer from './container/room-info-container';
 import SettingsContainer from './container/settings-container';
+import ActionLogContainer from './container/action-log-container';
+import { SETTINGS_CONTAINER_SELECTOR } from './util/yt-html/settings';
+import { ACTION_LOG_CONTAINER_SELECTOR } from './util/yt-html/action-log';
 
 declare global {
   interface Window {
@@ -38,6 +41,7 @@ export default class Player {
   private ytPlayer: YTPlayer = null;
   private ws: SyncSocket;
   private options: PlayerOptions;
+  private actionLogContainer: ActionLogContainer = null;
   private queueContainer: QueueContainer = null;
   private roomInfoContainer: RoomInfoContainer = null;
   private reactionContainer: ReactionsContainer = null;
@@ -101,6 +105,13 @@ export default class Player {
       this.onPlayerReady();
     }
 
+    const clearWaitForActionLogContainer = ScheduleUtil.waitForElement(ACTION_LOG_CONTAINER_SELECTOR, () => {
+      this.actionLogContainer = new ActionLogContainer();
+      this.actionLogContainer.create();
+
+      clearWaitForActionLogContainer();
+    });
+
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
       this.queueContainer = new QueueContainer(this.ws);
       this.queueContainer.create();
@@ -126,7 +137,7 @@ export default class Player {
       clearWaitForReactionsContainer();
     });
 
-    const clearWaitForSettingsContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
+    const clearWaitForSettingsContainer = ScheduleUtil.waitForElement(SETTINGS_CONTAINER_SELECTOR, () => {
       this.settingsContainer = new SettingsContainer(this.ws);
       this.settingsContainer.create();
 
@@ -342,6 +353,9 @@ export default class Player {
           if (!Store.getSettings().showReactions) return;
 
           addReaction(reaction);
+          break;
+        case Message.ACTION_LOG:
+          this.actionLogContainer.addEntry(data.clientName, data.actionText);
           break;
       }
     } catch (e) {
