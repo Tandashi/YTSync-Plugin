@@ -31,10 +31,14 @@ function createYtLiveChatAuthorBadgeRendererShell() {
  * @param client The client that should be represented
  * @param badges The badges that should be displayed
  */
-export function injectYtLiveChatParticipantRenderer(element: JQuery<Element>, config: ServerConnectionOptions, renderClient: RenderClient): JQuery<HTMLElement> {
+export function injectYtLiveChatParticipantRenderer(
+  element: JQuery<Element>,
+  config: ServerConnectionOptions,
+  renderClient: RenderClient
+): JQuery<HTMLElement> {
   const renderer = createYtLiveChatParticipantRendererShell(renderClient.client.socketId);
   element.append(renderer);
-  
+
   renderer
     .find('span#author-name')
     .text((renderClient.prefix ?? '') + renderClient.client.name + (renderClient.sufix ?? ''));
@@ -49,7 +53,9 @@ export function injectYtLiveChatParticipantRenderer(element: JQuery<Element>, co
     badgeRenderer
       .on('click', badge.onClick)
       .find('#image')
-      .append(`<img src="${serverBasePath}/img/badge/${badge.id}.png" class="style-scope yt-live-chat-author-badge-renderer" />`);
+      .append(
+        `<img src="${serverBasePath}/img/badge/${badge.id}.png" class="style-scope yt-live-chat-author-badge-renderer" />`
+      );
   }
 
   createImageSrcObserver(renderer, `${serverBasePath}/img/role/${renderClient.client.role}.png`);

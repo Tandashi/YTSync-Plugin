@@ -1,12 +1,7 @@
 import { InjectAction } from '../../enum/action';
-import { createPaperToggleButtonShell } from './button';
 import { injectYtPlaylistPanelRenderer } from './playlist';
-import { createPaperTooltipShell } from './tooltip';
 
 const ROOM_INFO_CONTAINER_ID = 'room-info';
-
-export const AUTOPLAY_TOGGLE_ID = 'autoplay-toggle';
-
 export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
 /**
@@ -20,7 +15,7 @@ export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
  *
  * @return The created <ytd-playlist-panel-renderer>
  */
-export function injectEmptyRoomInfoShell(
+export function injectRoomInfoPanel(
   title: string,
   description: string,
   collapsible: boolean,
