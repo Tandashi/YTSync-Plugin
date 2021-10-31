@@ -48,8 +48,9 @@ If you think there is anything missing then just create a [feature request](#fea
 ## Installation
 
 ### Native Plugin for Chrome and Firefox
+**Note: Will have slower releases compared to the Tampermonkey version since releasing in the app store need more time to verify new updates. The store version are still the prefered versions though.** 
 
-There is also a native version available for those who do not want to install Tampermonkey.
+There is a native version available for those who do not want to install Tampermonkey.
 
 - [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/ytsync/)
 - [Chrome](https://chrome.google.com/webstore/detail/ytsync/djjmipmoebdhkblgmllkehfghaekbimi)
