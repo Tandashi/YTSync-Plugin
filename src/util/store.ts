@@ -1,8 +1,15 @@
 const STORAGE_QUEUE_ID = 'syncQueue';
-const STORAGE_SETTINGS_ID = 'syncSettings';
+const STORAGE_SETTINGS_ID = 'syncSettings-v2';
 
 const DEFAULT_SETTINGS: Settings = {
-  showReactions: true
+  showReactions: true,
+  collapseStates: {
+    queue: false,
+    actionLog: false,
+    roomInfo: false,
+    reactions: false,
+    settings: false,
+  },
 };
 
 export default class Store {

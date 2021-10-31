@@ -1,8 +1,8 @@
 import { InjectAction } from '../../enum/action';
-import { injectYtPlaylistPanelRenderer } from './playlist';
+import { NON_PLAYLIST_CONTAINER_SELECTOR } from '../consts';
+import { injectYtPlaylistPanelRenderer, PlaylistPanelRendererElement } from './playlist';
 
 const ROOM_INFO_CONTAINER_ID = 'room-info';
-export const ROOM_INFO_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
 /**
  * Inject a empty room info shell using a <ytd-playlist-panel-renderer>.
@@ -19,15 +19,17 @@ export function injectRoomInfoPanel(
   title: string,
   description: string,
   collapsible: boolean,
-  collapsed: boolean
-): JQuery<HTMLElement> {
+  collapsed: boolean,
+  onCollapseChange: (state: boolean) => void
+): JQuery<PlaylistPanelRendererElement> {
   return injectYtPlaylistPanelRenderer(
-    ROOM_INFO_CONTAINER_SELECTOR,
+    NON_PLAYLIST_CONTAINER_SELECTOR,
     ROOM_INFO_CONTAINER_ID,
     title,
     description,
     collapsible,
     collapsed,
+    onCollapseChange,
     InjectAction.APPEND
   );
 }

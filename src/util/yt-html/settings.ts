@@ -1,9 +1,9 @@
 import { InjectAction } from '../../enum/action';
+import { NON_PLAYLIST_CONTAINER_SELECTOR } from '../consts';
 import { setPapperToggleButtonState } from './button';
-import { injectYtPlaylistPanelRenderer } from './playlist';
+import { injectYtPlaylistPanelRenderer, PlaylistPanelRendererElement } from './playlist';
 
 const SETTINGS_CONTAINER_ID = 'settings';
-export const SETTINGS_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
 interface Setting {
   title: string;
@@ -24,15 +24,17 @@ export function injectSettingsPanel(
   description: string,
   collapsible: boolean,
   collapsed: boolean,
+  onCollapseChange: (state: boolean) => void,
   settings: Setting[]
-): JQuery<HTMLElement> {
+): JQuery<PlaylistPanelRendererElement> {
   const renderer = injectYtPlaylistPanelRenderer(
-    SETTINGS_CONTAINER_SELECTOR,
+    NON_PLAYLIST_CONTAINER_SELECTOR,
     SETTINGS_CONTAINER_ID,
     title,
     description,
     collapsible,
     collapsed,
+    onCollapseChange,
     InjectAction.APPEND
   );
 

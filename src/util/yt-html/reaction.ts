@@ -1,12 +1,11 @@
 import { InjectAction } from '../../enum/action';
+import { NON_PLAYLIST_CONTAINER_SELECTOR } from '../consts';
 
-import { injectYtPlaylistPanelRenderer } from './playlist';
+import { injectYtPlaylistPanelRenderer, PlaylistPanelRendererElement } from './playlist';
 import { createPaperTooltipShell } from './tooltip';
 
 const REACTION_OVERLAY_ID = 'reaction-overlay';
 const REACTION_CONTAINER_ID = 'reactions';
-
-export const REACTIONS_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
 
 const REACTION_TIME_TILL_REMOVE = 8000;
 const REACTION_FADE_IN_TIME = 600;
@@ -117,15 +116,17 @@ export function injectReactionsPanel(
   reactions: Reaction[],
   onReactionClicked: (reaction: Reaction) => void,
   collapsible: boolean,
-  collapsed: boolean
-): JQuery<HTMLElement> {
+  collapsed: boolean,
+  onCollapseChange: (state: boolean) => void
+): JQuery<PlaylistPanelRendererElement> {
   const renderer = injectYtPlaylistPanelRenderer(
-    REACTIONS_CONTAINER_SELECTOR,
+    NON_PLAYLIST_CONTAINER_SELECTOR,
     REACTION_CONTAINER_ID,
     title,
     description,
     collapsible,
     collapsed,
+    onCollapseChange,
     InjectAction.APPEND
   );
 

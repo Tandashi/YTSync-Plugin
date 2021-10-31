@@ -1,7 +1,9 @@
 import IContainer from './container';
+import Store from '../util/store';
+import SyncSocket from '../model/sync-socket';
+
 import { injectRoomInfoPanel } from '../util/yt-html/room';
 import { Role } from '../enum/role';
-import SyncSocket from '../model/sync-socket';
 import { BADGE_MEMBER_ID, BADGE_MODERATOR_ID, BADGE_SUB_HOST_ID } from '../util/consts';
 import { injectYtLiveChatParticipantRenderer } from '../util/yt-html/participant';
 import { changeYtPlaylistPanelRendererDescription } from '../util/yt-html/playlist';
@@ -19,7 +21,19 @@ export default class RoomInfoContainer implements IContainer {
   }
 
   create(): void {
-    this.roomInfoElement = injectRoomInfoPanel('Room Info', 'Not connected', true, false);
+    this.roomInfoElement = injectRoomInfoPanel(
+      'Room Info',
+      'Not connected',
+      true,
+      Store.getSettings().collapseStates.roomInfo,
+      this.handleCollapseChange.bind(this)
+    );
+  }
+
+  private handleCollapseChange(state: boolean) {
+    const settings = Store.getSettings();
+    settings.collapseStates.roomInfo = state;
+    Store.setSettings(settings);
   }
 
   /**

@@ -5,11 +5,10 @@ import YTUtil from './util/yt';
 import Store from './util/store';
 import SyncSocket from './model/sync-socket';
 
-import { ReactionsMap } from './util/consts';
+import { NON_PLAYLIST_CONTAINER_SELECTOR, ReactionsMap } from './util/consts';
 import { PLAYLIST_CONTAINER_SELECTOR } from './util/yt-html/playlist';
-import { addReaction, REACTIONS_CONTAINER_SELECTOR } from './util/yt-html/reaction';
+import { addReaction } from './util/yt-html/reaction';
 import { removeRelated } from './util/yt-html/related';
-import { ROOM_INFO_CONTAINER_SELECTOR } from './util/yt-html/room';
 import { removeUpnext } from './util/yt-html/upnext';
 import URLUtil from './util/url';
 import QueueContainer from './container/queue-container';
@@ -17,8 +16,6 @@ import ReactionsContainer from './container/reactions-container';
 import RoomInfoContainer from './container/room-info-container';
 import SettingsContainer from './container/settings-container';
 import ActionLogContainer from './container/action-log-container';
-import { SETTINGS_CONTAINER_SELECTOR } from './util/yt-html/settings';
-import { ACTION_LOG_CONTAINER_SELECTOR } from './util/yt-html/action-log';
 
 declare global {
   interface Window {
@@ -105,44 +102,30 @@ export default class Player {
       this.onPlayerReady();
     }
 
-    const clearWaitForActionLogContainer = ScheduleUtil.waitForElement(ACTION_LOG_CONTAINER_SELECTOR, () => {
-      this.actionLogContainer = new ActionLogContainer();
-      this.actionLogContainer.create();
-
-      clearWaitForActionLogContainer();
-    });
-
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
+      clearWaitForQueueContainer();
+
       this.queueContainer = new QueueContainer(this.ws);
       this.queueContainer.create();
-
-      clearWaitForQueueContainer();
 
       this.executeBufferedWsMessages(this.wsMessageBuffers.queue);
     });
 
-    const clearWaitForRoomInfoContainer = ScheduleUtil.waitForElement(ROOM_INFO_CONTAINER_SELECTOR, () => {
+    const clearWaitForNonPlaylistContainer = ScheduleUtil.waitForElement(NON_PLAYLIST_CONTAINER_SELECTOR, () => {
+      clearWaitForNonPlaylistContainer();
+
       this.roomInfoContainer = new RoomInfoContainer(this.ws, this.options);
       this.roomInfoContainer.create();
-
-      clearWaitForRoomInfoContainer();
-
       this.executeBufferedWsMessages(this.wsMessageBuffers.roomInfo);
-    });
 
-    const clearWaitForReactionsContainer = ScheduleUtil.waitForElement(REACTIONS_CONTAINER_SELECTOR, () => {
+      this.actionLogContainer = new ActionLogContainer();
+      this.actionLogContainer.create();
+
       this.reactionContainer = new ReactionsContainer(this.ws);
       this.reactionContainer.create();
 
-      clearWaitForReactionsContainer();
-    });
-
-    const clearWaitForSettingsContainer = ScheduleUtil.waitForElement(SETTINGS_CONTAINER_SELECTOR, () => {
       this.settingsContainer = new SettingsContainer(this.ws);
       this.settingsContainer.create();
-
-      clearWaitForSettingsContainer();
-
       this.executeBufferedWsMessages(this.wsMessageBuffers.settings);
     });
 

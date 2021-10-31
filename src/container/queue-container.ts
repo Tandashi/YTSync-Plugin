@@ -1,5 +1,7 @@
 import IContainer from './container';
 import SyncSocket from '../model/sync-socket';
+import Store from '../util/store';
+
 import { injectYtPlaylistPanelVideoRendererElement } from '../util/yt-html/playlist';
 import { injectQueuePanel } from '../util/yt-html/queue';
 
@@ -13,8 +15,20 @@ export default class QueueContainer implements IContainer {
   }
 
   create(): void {
-    const queueRenderer = injectQueuePanel('Queue', 'All the videos to watch', true, false);
+    const queueRenderer = injectQueuePanel(
+      'Queue',
+      'All the videos to watch',
+      true,
+      Store.getSettings().collapseStates.queue,
+      this.handleCollapseChange.bind(this)
+    );
     this.queueItemsElement = queueRenderer.find('#items');
+  }
+
+  private handleCollapseChange(state: boolean) {
+    const settings = Store.getSettings();
+    settings.collapseStates.queue = state;
+    Store.setSettings(settings);
   }
 
   /**

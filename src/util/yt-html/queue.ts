@@ -1,4 +1,4 @@
-import { injectEmptyPlaylistShell } from './playlist';
+import { injectEmptyPlaylistShell, PlaylistPanelRendererElement } from './playlist';
 
 /**
  * Inject a empty room info shell using a <ytd-playlist-panel-renderer>.
@@ -14,7 +14,8 @@ export function injectQueuePanel(
   title: string,
   description: string,
   collapsible: boolean,
-  collapsed: boolean
-): JQuery<HTMLElement> {
-  return injectEmptyPlaylistShell(title, description, collapsible, collapsed);
+  collapsed: boolean,
+  onCollapseChange: (state: boolean) => void
+): JQuery<PlaylistPanelRendererElement> {
+  return injectEmptyPlaylistShell(title, description, collapsible, collapsed, onCollapseChange);
 }
