@@ -1,5 +1,5 @@
 const STORAGE_QUEUE_ID = 'syncQueue';
-const STORAGE_SETTINGS_ID = 'syncSettings-v2';
+const STORAGE_SETTINGS_ID = 'syncSettings';
 
 const DEFAULT_SETTINGS: Settings = {
   showReactions: true,
@@ -55,7 +55,10 @@ export default class Store {
    * Get the stored settings
    */
   public static getSettings(): Settings {
-    return Store.getItem(STORAGE_SETTINGS_ID) || DEFAULT_SETTINGS;
+    return {
+      ...DEFAULT_SETTINGS,
+      ...Store.getItem(STORAGE_SETTINGS_ID),
+    };
   }
 
   /**
