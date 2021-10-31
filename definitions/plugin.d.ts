@@ -7,4 +7,11 @@ interface Reaction {
 
 interface Settings {
   showReactions: boolean;
+  collapseStates: {
+    queue: boolean;
+    actionLog: boolean;
+    roomInfo: boolean;
+    reactions: boolean;
+    settings: boolean;
+  };
 }

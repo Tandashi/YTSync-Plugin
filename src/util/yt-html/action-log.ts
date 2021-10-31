@@ -1,5 +1,5 @@
 import { InjectAction } from '../../enum/action';
-import { injectYtPlaylistPanelRenderer } from './playlist';
+import { injectYtPlaylistPanelRenderer, PlaylistPanelRendererElement } from './playlist';
 
 const ACTION_LOG_CONTAINER_ID = 'action-log';
 export const ACTION_LOG_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
@@ -8,8 +8,9 @@ export function injectActionLogPanel(
   title: string,
   description: string,
   collapsible: boolean,
-  collapsed: boolean
-): JQuery<HTMLElement> {
+  collapsed: boolean,
+  onCollapseChange: (state: boolean) => void
+): JQuery<PlaylistPanelRendererElement> {
   const renderer = injectYtPlaylistPanelRenderer(
     ACTION_LOG_CONTAINER_SELECTOR,
     ACTION_LOG_CONTAINER_ID,
@@ -17,6 +18,7 @@ export function injectActionLogPanel(
     description,
     collapsible,
     collapsed,
+    onCollapseChange,
     InjectAction.APPEND
   );
 

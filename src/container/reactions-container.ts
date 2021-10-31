@@ -1,6 +1,7 @@
 import anime from 'animejs';
 import IContainer from './container';
 import SyncSocket from '../model/sync-socket';
+import Store from '../util/store';
 
 import { Reactions } from '../util/consts';
 import { injectReactionsPanel, getReactionId } from '../util/yt-html/reaction';
@@ -35,7 +36,14 @@ export default class ReactionsContainer implements IContainer {
         });
       },
       true,
-      false
+      Store.getSettings().collapseStates.reactions,
+      this.handleCollapseChange.bind(this)
     );
+  }
+
+  private handleCollapseChange(state: boolean) {
+    const settings = Store.getSettings();
+    settings.collapseStates.reactions = state;
+    Store.setSettings(settings);
   }
 }

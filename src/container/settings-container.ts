@@ -19,33 +19,46 @@ export default class SettingsContainer implements IContainer {
   }
 
   create(): void {
-    injectSettingsPanel('Settings', 'Customize to fit your experience!', true, false, [
-      {
-        title: 'Queue Autoplay',
-        subtitle: 'If Videos should autoplay',
-        initialValue: this.autoplay,
-        toggleRef: (ref) => {
-          this.toggleRefs.autoplay = ref;
+    injectSettingsPanel(
+      'Settings',
+      'Customize to fit your experience!',
+      true,
+      Store.getSettings().collapseStates.settings,
+      this.handleCollapseChange.bind(this),
+      [
+        {
+          title: 'Queue Autoplay',
+          subtitle: 'If Videos should autoplay',
+          initialValue: this.autoplay,
+          toggleRef: (ref) => {
+            this.toggleRefs.autoplay = ref;
+          },
+          handler: this.handleAutoplaySetting.bind(this),
         },
-        handler: this.handleAutoplaySetting.bind(this),
-      },
-      {
-        title: 'Show Reactions',
-        subtitle: 'Show reactions of others',
-        initialValue: Store.getSettings().showReactions,
-        toggleRef: (ref) => {
-          this.toggleRefs.showReactions = ref;
+        {
+          title: 'Show Reactions',
+          subtitle: 'Show reactions of others',
+          initialValue: Store.getSettings().showReactions,
+          toggleRef: (ref) => {
+            this.toggleRefs.showReactions = ref;
+          },
+          handler: this.handleShowReactionSetting.bind(this),
         },
-        handler: this.handleShowReactionSetting.bind(this),
-      },
-    ]);
+      ]
+    );
   }
 
-  handleAutoplaySetting(state: boolean): void {
+  private handleCollapseChange(state: boolean) {
+    const settings = Store.getSettings();
+    settings.collapseStates.settings = state;
+    Store.setSettings(settings);
+  }
+
+  private handleAutoplaySetting(state: boolean): void {
     this.setAutoplay(state, false, false);
   }
 
-  handleShowReactionSetting(state: boolean): void {
+  private handleShowReactionSetting(state: boolean): void {
     const settings = Store.getSettings();
     settings.showReactions = state;
     Store.setSettings(settings);

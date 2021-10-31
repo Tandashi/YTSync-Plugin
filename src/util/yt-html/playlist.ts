@@ -8,6 +8,11 @@ import { createPaperTooltipShell } from './tooltip';
 const PLAYLIST_CONTAINER_ID = 'playlist';
 export const PLAYLIST_CONTAINER_SELECTOR = 'div#secondary #playlist';
 
+export interface PlaylistPanelRendererElement extends Element {
+  collapsible: boolean;
+  collapsed: boolean;
+}
+
 /**
  * Create a <ytd-playlist-panel-video-renderer> Shell.
  * Mostly contained in a <ytd-playlist-panel-renderer>.
@@ -35,7 +40,7 @@ function createYtPlaylistPanelVideoRendererShell(videoId: string, selected: bool
  *
  * @param id The element id
  */
-function createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
+function createYtPlaylistPanelRendererShell(id: string): JQuery<PlaylistPanelRendererElement> {
   return $(`
     <ytd-playlist-panel-renderer
       id="${id}"
@@ -43,7 +48,7 @@ function createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
       playlist-type_="TLPQ",
       style="margin-bottom: var(--ytd-margin-6x)"
     />
-  `);
+  `) as unknown as JQuery<PlaylistPanelRendererElement>;
 }
 
 /**
@@ -55,6 +60,7 @@ function createYtPlaylistPanelRendererShell(id: string): JQuery<HTMLElement> {
  * @param description The description of the Playlist
  * @param collapsible If the Playlist should be collapsible
  * @param collapsed If the Playlist should be initially collapsed
+ * @param onCollapseChange Change handler for collapse
  *
  * @return The created <ytd-playlist-panel-renderer>
  */
@@ -62,8 +68,9 @@ export function injectEmptyPlaylistShell(
   title: string,
   description: string,
   collapsible: boolean,
-  collapsed: boolean
-): JQuery<HTMLElement> {
+  collapsed: boolean,
+  onCollapseChange: (state: boolean) => void
+): JQuery<PlaylistPanelRendererElement> {
   return injectYtPlaylistPanelRenderer(
     PLAYLIST_CONTAINER_SELECTOR,
     PLAYLIST_CONTAINER_ID,
@@ -71,6 +78,7 @@ export function injectEmptyPlaylistShell(
     description,
     collapsible,
     collapsed,
+    onCollapseChange,
     InjectAction.REPLACE
   );
 }
@@ -132,6 +140,7 @@ export function injectYtPlaylistPanelVideoRendererElement(
  * @param description The description of <ytd-playlist-panel-renderer>
  * @param collapsible If the <ytd-playlist-panel-renderer> should be collapsible
  * @param collapsed If the <ytd-playlist-panel-renderer> should be initally collapsed
+ * @param onCollapseChange Change handler for collapse
  * @param action The method to use to inject the <ytd-playlist-panel-renderer>
  */
 export function injectYtPlaylistPanelRenderer(
@@ -141,8 +150,9 @@ export function injectYtPlaylistPanelRenderer(
   description: string,
   collapsible: boolean,
   collapsed: boolean,
+  onCollapseChange: (state: boolean) => void,
   action: InjectAction
-): JQuery<HTMLElement> {
+): JQuery<PlaylistPanelRendererElement> {
   const renderer = createYtPlaylistPanelRendererShell(id);
 
   switch (action) {
@@ -154,12 +164,13 @@ export function injectYtPlaylistPanelRenderer(
       break;
   }
 
-  if (!collapsible) {
-    renderer.removeAttr('collapsible').removeAttr('collapsed');
-  } else {
-    if (!collapsed) {
-      $(renderer).removeAttr('collapsed');
-    }
+  renderer.get(0).collapsible = collapsible;
+  renderer.get(0).collapsed = collapsed;
+
+  if (collapsible) {
+    renderer.on('tap', () => {
+      onCollapseChange(renderer.attr('collapsed') === '');
+    });
   }
 
   changeYtPlaylistPanelRendererTitle(renderer, title);
