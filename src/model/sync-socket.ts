@@ -1,5 +1,5 @@
-import {Message} from '../enum/message';
-import {Role} from '../enum/role';
+import { Message } from '../enum/message';
+import { Role } from '../enum/role';
 
 export default class SyncSocket {
   public socket: SocketIOClient.Socket;
@@ -26,7 +26,7 @@ export default class SyncSocket {
   private sendWsMessage(type: Message, data: any): void {
     const message = {
       action: type,
-      data
+      data,
     };
     this.socket.send(JSON.stringify(message));
   }
@@ -38,6 +38,10 @@ export default class SyncSocket {
    * @param video The video that should be added to the Queue
    */
   public sendWsRequestToAddToQueue(video: Video): void {
+    if (video === null) {
+      return;
+    }
+
     this.sendWsMessage(Message.ADD_TO_QUEUE, video);
   }
 
@@ -82,7 +86,7 @@ export default class SyncSocket {
 
   /**
    * Set the video playback speed for the room
-   * 
+   *
    * @param playbackRate The video playback speed
    */
   public sendWsPlaybackRateMessage(playbackRate: number): void {

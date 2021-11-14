@@ -1,4 +1,4 @@
 export enum InjectAction {
   APPEND,
-  REPLACE
+  REPLACE,
 }

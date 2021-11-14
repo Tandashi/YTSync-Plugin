@@ -27,7 +27,11 @@ export default class ScheduleUtil {
    *
    * @returns A function that cancels the schedule
    */
-  private static createInitalDelayIntervalSchedule(checkFunc: () => void, initalDelay: number, interval: number): ScheduleClear {
+  private static createInitalDelayIntervalSchedule(
+    checkFunc: () => void,
+    initalDelay: number,
+    interval: number
+  ): ScheduleClear {
     let handle: NodeJS.Timeout;
     setTimeout(() => {
       handle = setInterval(checkFunc, interval);
@@ -51,7 +55,12 @@ export default class ScheduleUtil {
    *
    * @returns A function which stopps the "scheduler"
    */
-  public static startSeekSchedule(player: YT.Player, cb: () => void, interval: number = 1000, margin: number = 1.5): ScheduleClear {
+  public static startSeekSchedule(
+    player: YT.Player,
+    cb: () => void,
+    interval: number = 1000,
+    margin: number = 1.5
+  ): ScheduleClear {
     let lastTime = -1;
 
     return ScheduleUtil.createIntervalSchedule(() => {
@@ -59,7 +68,7 @@ export default class ScheduleUtil {
         const time = player.getCurrentTime();
 
         // Expecting X second interval, with Y ms margin
-        if (Math.abs(time - lastTime - (interval / 1000)) > margin) {
+        if (Math.abs(time - lastTime - interval / 1000) > margin) {
           // There was a seek occuring
           cb();
         }
@@ -67,7 +76,6 @@ export default class ScheduleUtil {
       lastTime = player.getCurrentTime();
     }, interval);
   }
-
 
   /**
    * Start a "schedule" that checks if the video playback rate has changed.
@@ -94,7 +102,6 @@ export default class ScheduleUtil {
       lastRate = player.getPlaybackRate();
     }, interval);
   }
-
 
   /**
    * Start a "schedule" that checks if the URL has changed.
@@ -146,13 +153,20 @@ export default class ScheduleUtil {
    * @param initalDelay
    * @param interval
    */
-  public static startYtPlayerSchedule(cb: YtPlayerCallback, initalDelay: number = 0, interval: number = 1000): ScheduleClear {
-    return ScheduleUtil.createInitalDelayIntervalSchedule(() => {
-      const player = YTUtil.getPlayer();
+  public static startYtPlayerSchedule(
+    cb: YtPlayerCallback,
+    initalDelay: number = 0,
+    interval: number = 1000
+  ): ScheduleClear {
+    return ScheduleUtil.createInitalDelayIntervalSchedule(
+      () => {
+        const player = YTUtil.getPlayer();
 
-      if (player !== null)
-        cb(player);
-    }, initalDelay, interval);
+        if (player !== null) cb(player);
+      },
+      initalDelay,
+      interval
+    );
   }
 
   /**
@@ -162,10 +176,18 @@ export default class ScheduleUtil {
    * @param runInstant If the check should occure instant the first time without waiting invertal initially
    * @param interval
    */
-  public static waitForElement(element: string, cb: () => void, initalDelay: number = 0, interval: number = 1000): ScheduleClear {
-    return ScheduleUtil.createInitalDelayIntervalSchedule(() => {
-      if ($(element).length !== 0)
-        cb();
-    }, initalDelay, interval);
+  public static waitForElement(
+    element: string,
+    cb: () => void,
+    initalDelay: number = 0,
+    interval: number = 1000
+  ): ScheduleClear {
+    return ScheduleUtil.createInitalDelayIntervalSchedule(
+      () => {
+        if ($(element).length !== 0) cb();
+      },
+      initalDelay,
+      interval
+    );
   }
 }

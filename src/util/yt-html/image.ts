@@ -15,7 +15,8 @@ export function createImageSrcObserver(renderer: JQuery<Element>, imgUrl: string
       if (mutation.type === 'attributes' && newImg.attr('src') !== imgUrl) {
         img.attr('src', imgUrl);
 
-        renderer.find('yt-img-shadow')
+        renderer
+          .find('yt-img-shadow')
           .off()
           .css('background-color', 'transparent')
           .attr('loaded', '')
@@ -25,6 +26,6 @@ export function createImageSrcObserver(renderer: JQuery<Element>, imgUrl: string
   });
 
   observer.observe(img.get(0), {
-    attributes: true
+    attributes: true,
   });
 }

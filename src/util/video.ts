@@ -6,6 +6,9 @@ export default class VideoUtil {
    */
   public static getCurrentVideo(): Video {
     const player = YTUtil.getPlayer();
+    if (player === null)
+      return;
+
     const { video_id, title, author } = player.getVideoData();
 
     if (video_id === null)

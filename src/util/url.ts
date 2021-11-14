@@ -1,5 +1,4 @@
 export default class URLUtil {
-
   public static getVideoId(): string | null {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('v');
@@ -13,5 +12,4 @@ export default class URLUtil {
     const sessionId = location.hash.substr(1).replace('=', '');
     return sessionId === '' ? null : sessionId;
   }
-
 }
