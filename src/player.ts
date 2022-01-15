@@ -86,8 +86,6 @@ export default class Player {
   public create(sessionId: string) {
     if (this.ytPlayer !== null) return;
 
-    this.connectWs(sessionId);
-
     this.ytPlayer = YTUtil.getPlayer();
     // Check if the YtPlayer exists.
     // This might not be always the cause e.g. when the Autoplay feature of the browser is turned off.
@@ -96,10 +94,10 @@ export default class Player {
         this.ytPlayer = player;
         clearSchedule();
 
-        this.onPlayerReady();
+        this.onPlayerReady(sessionId);
       });
     } else {
-      this.onPlayerReady();
+      this.onPlayerReady(sessionId);
     }
 
     const clearWaitForQueueContainer = ScheduleUtil.waitForElement(PLAYLIST_CONTAINER_SELECTOR, () => {
@@ -146,7 +144,9 @@ export default class Player {
   /**
    * Add the onStateChange Listener
    */
-  private onPlayerReady(): void {
+  private onPlayerReady(sessionId: string): void {
+    this.connectWs(sessionId);
+
     // Disable YouTube Autoplay
     this.ytPlayer.setAutonav(false);
 
@@ -244,6 +244,11 @@ export default class Player {
    */
   private onWsConnected(): void {
     const video = VideoUtil.getCurrentVideo();
+
+    if (video === undefined) {
+      return;
+    }
+
     this.ws.sendWsRequestToAddToQueue(video);
     this.ws.sendWsRequestToPlayVideo(video.videoId);
   }

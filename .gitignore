@@ -115,6 +115,8 @@ dist/
 tmp/
 temp/
 
+.DS_STORE
+
 # End of https://www.gitignore.io/api/node,code
 
 build/
