@@ -1,9 +1,19 @@
 <p align="center">
   <image src="https://github.com/Tandashi/YTSync-Plugin/blob/master/doc/title.png?raw=true">
 </p>
+  
 <p align="center">
   <img src="https://img.shields.io/github/workflow/status/Tandashi/YTSync-Plugin/YT%20Sync/master?label=YTSync&style=flat-square">
   <img src="https://img.shields.io/github/v/release/Tandashi/YTSync-Plugin?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="https://ko-fi.com/tandashi" target="_blank">
+    <img src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" />
+   </a>
+  <a href="https://status.tandashi.de/status" target="_blank">
+    <img src="https://img.shields.io/badge/Server%20Status%20Page-6F4C5B?style=for-the-badge&logo=Statuspage&logoColor=white" />
+  </a>
 </p>
 
 <br/>
