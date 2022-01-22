@@ -1,5 +1,6 @@
 const YT_APP_SELECTOR = 'ytd-app';
 const YT_PLAYER_SELECTOR = 'ytd-player';
+const YT_PLAYLIST_MANAGER_SELECTOR = 'yt-playlist-manager';
 
 export default class YTUtil {
   /**
@@ -16,6 +17,13 @@ export default class YTUtil {
   public static getPlayer(): YTPlayer | null {
     const p: any = $(YT_PLAYER_SELECTOR).get(0);
     return p !== undefined && p !== null ? (p.getPlayer() as YTPlayer) : null;
+  }
+
+  /**
+   * Get the YT Playlist Manager
+   */
+  public static getPlaylistManager(): YTPlaylistManager | null {
+    return $(YT_PLAYLIST_MANAGER_SELECTOR).get(0) as unknown as YTPlaylistManager;
   }
 
   public static navigateToVideo(videoId: string, sessionId: string): void {

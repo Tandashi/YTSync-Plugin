@@ -3,9 +3,9 @@ const path = require('path');
 // used to access the BannerPlugin
 const webpack = require('webpack');
 // required for pretty format for the Userscript banner
-const stripIndent = require('common-tags').stripIndent
+const stripIndent = require('common-tags').stripIndent;
 
-const packageJSON = require('../package.json')
+const packageJSON = require('../package.json');
 
 const BANNER = stripIndent`
     // ==UserScript==
@@ -18,6 +18,7 @@ const BANNER = stripIndent`
     // @match        https://www.youtube.com
     // @match        https://www.youtube.com/feed*
     // @match        https://www.youtube.com/watch*
+    // @match        https://www.youtube.com/playlist*
     //
     // @homepage     https://tandashi.de/
     // @downloadURL  https://github.com/Tandashi/YTSync-Plugin/releases/latest/download/lib.user.js
@@ -26,41 +27,43 @@ const BANNER = stripIndent`
     // @run-at       document-end
     //
     // ==/UserScript==
-`
+`;
 
 module.exports = {
   banner: BANNER,
   webpack: {
-    entry: "./src/plugin.ts",
+    entry: './src/plugin.ts',
     module: {
-      rules: [{
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }]
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
+      ],
     },
     resolve: {
-      extensions: [".ts", ".js"]
+      extensions: ['.ts', '.js'],
     },
     output: {
-      path: path.resolve(__dirname, "../build"),
-      filename: "lib.user.js"
+      path: path.resolve(__dirname, '../build'),
+      filename: 'lib.user.js',
     },
     plugins: [
       new webpack.BannerPlugin({
         raw: true,
-        banner: BANNER
+        banner: BANNER,
       }),
       new webpack.ProvidePlugin({
         $: 'jquery',
-        jQuery: 'jquery'
+        jQuery: 'jquery',
       }),
       new webpack.ProvidePlugin({
-        io: 'socket.io-client'
+        io: 'socket.io-client',
       }),
       new webpack.ProvidePlugin({
-        anime: 'animejs'
-      })
-    ]
-  }
+        anime: 'animejs',
+      }),
+    ],
+  },
 };

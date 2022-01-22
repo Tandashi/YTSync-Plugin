@@ -14,7 +14,12 @@
   "web_accessible_resources": ["js/jquery-3.4.1.min.js", "js/socket.io.slim.js", "lib.user.js"],
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/", "https://www.youtube.com/feed*", "https://www.youtube.com/watch*"],
+      "matches": [
+        "https://www.youtube.com/",
+        "https://www.youtube.com/feed*",
+        "https://www.youtube.com/watch*",
+        "https://www.youtube.com/playlist*"
+      ],
       "js": ["extension.js"],
       "run_at": "document_end"
     }

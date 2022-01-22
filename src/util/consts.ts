@@ -1,6 +1,7 @@
 export const CREATE_SYNC_BUTTON_ID = 'create-sync-button';
 export const LEAVE_SYNC_BUTTON_ID = 'leave-sync-button';
 export const QUEUE_ADD_BUTTON_ID = 'queue-add-button';
+export const PLAYLIST_ADD_BUTTON_ID = 'playlist-add-button';
 
 // The Badge ids are the ids on the server for the badge images
 export const BADGE_MEMBER_ID = 'member';
@@ -8,8 +9,11 @@ export const BADGE_MODERATOR_ID = 'moderator';
 export const BADGE_SUB_HOST_ID = 'sub-host';
 
 export const NON_PLAYLIST_CONTAINER_SELECTOR = 'div#secondary div#secondary-inner';
-export const BUTTON_INJECT_CONTAINER_SELECTOR =
+export const VIDEO_INFO_BUTTON_INJECT_CONTAINER_SELECTOR =
   'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer';
+export const VIDEO_PLAYLIST_BUTTON_INJECT_CONTAINER_SELECTOR =
+  'div#primary ytd-playlist-panel-renderer div#playlist-actions > div#start-actions';
+export const PLAYLIST_PLAYLIST_BUTTON_INJECT_CONTAINER_SELECTOR = 'ytd-playlist-sidebar-primary-info-renderer div#menu';
 
 export const Reactions: Reaction[] = [
   { id: 'play', symbol: '▶️', tooltip: 'Emoji Play', text: '' },

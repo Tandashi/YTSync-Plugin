@@ -109,5 +109,10 @@ export function injectYtRenderedButton(
 
   iconShell.append(icon);
 
+  container.on('tap', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  });
+
   return container;
 }

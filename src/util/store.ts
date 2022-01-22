@@ -29,6 +29,22 @@ export default class Store {
     Store.setItem(STORAGE_QUEUE_ID, videos);
   }
 
+  public static addPlaylist(playlist: PlaylistData): void {
+    playlist.contents.forEach((entry) => {
+      const renderer = entry.playlistPanelVideoRenderer || entry.playlistVideoRenderer;
+
+      if (renderer === undefined) {
+        return;
+      }
+
+      this.addElement({
+        title: entry.playlistPanelVideoRenderer?.title.simpleText ?? entry.playlistVideoRenderer?.title.runs[0].text,
+        videoId: renderer.videoId,
+        byline: renderer.shortBylineText.runs[0].text,
+      });
+    });
+  }
+
   /**
    * Add a video to the Store
    *
