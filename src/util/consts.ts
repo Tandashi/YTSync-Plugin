@@ -12,7 +12,7 @@ export const NON_PLAYLIST_CONTAINER_SELECTOR = 'div#secondary div#secondary-inne
 export const VIDEO_INFO_BUTTON_INJECT_CONTAINER_SELECTOR =
   'div#primary > div#primary-inner > div#info > div#info-contents > ytd-video-primary-info-renderer > div#container > div#info ytd-menu-renderer';
 export const VIDEO_PLAYLIST_BUTTON_INJECT_CONTAINER_SELECTOR =
-  'div#primary ytd-playlist-panel-renderer div#playlist-actions > div#start-actions';
+  'div#primary ytd-playlist-panel-renderer div#playlist-actions > div#end-actions';
 export const PLAYLIST_PLAYLIST_BUTTON_INJECT_CONTAINER_SELECTOR = 'ytd-playlist-sidebar-primary-info-renderer div#menu';
 
 export const Reactions: Reaction[] = [
