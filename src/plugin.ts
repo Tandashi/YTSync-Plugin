@@ -198,7 +198,6 @@ function injectButton(
     const container = $(containerSelector);
     $(`ytd-button-renderer#${id}`).remove();
     if (container.length === 1 && container.find(`#${id}`).length === 0) {
-      console.log(`ytd-button-renderer#${id}`);
       injectYtRenderedButton(container, insertAfter, id, text, icon, cb);
       clearInterval(handler);
     }
